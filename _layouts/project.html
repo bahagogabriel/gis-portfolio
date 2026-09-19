@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ page.summary | escape }}">
+  <meta name="theme-color" content="#07131d">
+  <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/project.css' | relative_url }}">
+  <script src="{{ '/project.js' | relative_url }}" defer></script>
+  <title>{{ page.title }} | Samuel Bahago Gabriel</title>
+</head>
+<body class="project-page">
+  {% include site-header.html %}
+  <main id="main">
+    <section class="project-hero">
+      <div class="project-hero-copy reveal">
+        <p class="eyebrow"><span></span> {{ page.eyebrow }}</p>
+        <h1>{{ page.title }}</h1>
+        <p class="project-hero-lead">{{ page.summary }}</p>
+        <div class="project-hero-actions">
+          {% if page.external_url %}<a class="button button-primary" href="{{ page.external_url }}" target="_blank" rel="noopener noreferrer">{{ page.external_label | default: 'Explore project' }} <span aria-hidden="true">↗</span></a>{% endif %}
+          <a class="button button-ghost" href="#contribution">My contribution</a>
+        </div>
+      </div>
+      <figure class="project-hero-map reveal" data-delay="1">
+        <button type="button" data-lightbox="{{ page.hero_image | relative_url }}" data-caption="{{ page.hero_caption | escape }}"><img src="{{ page.hero_image | relative_url }}" alt="{{ page.hero_alt | escape }}"></button>
+        <figcaption>{{ page.hero_caption }}</figcaption>
+      </figure>
+    </section>
+
+    <section class="project-meta-band" aria-label="Project facts"><dl>
+      <div><dt>Duration</dt><dd>{{ page.duration }}</dd></div>
+      <div><dt>Client</dt><dd>{{ page.client }}</dd></div>
+      <div><dt>Study area</dt><dd>{{ page.location }}</dd></div>
+      <div><dt>Role</dt><dd>{{ page.role }}</dd></div>
+    </dl></section>
+
+    <section class="project-section project-overview reveal">
+      <div><p class="kicker">Project objective</p><h2>{{ page.objective_heading }}</h2></div>
+      <div class="project-prose">{{ page.objective | markdownify }}</div>
+    </section>
+
+    {% if page.metrics %}<section class="project-numbers" aria-label="Project scale">
+      {% for metric in page.metrics %}<div><strong>{{ metric.value }}</strong><span>{{ metric.label }}</span></div>{% endfor %}
+    </section>{% endif %}
+
+    <section class="project-section contribution-section" id="contribution">
+      <div class="contribution-heading reveal"><p class="kicker">My contribution</p><h2>{{ page.contribution_heading }}</h2><p>{{ page.contribution_intro }}</p></div>
+      <div class="contribution-grid">
+        {% for item in page.contributions %}<article class="contribution-card reveal"><span>0{{ forloop.index }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>{% endfor %}
+      </div>
+    </section>
+
+    {% if page.workflow %}<section class="workflow-section"><div class="project-section">
+      <div class="workflow-heading reveal"><p class="kicker">Spatial workflow</p><h2>{{ page.workflow_heading }}</h2></div>
+      <ol class="project-workflow reveal">{% for item in page.workflow %}<li><span>0{{ forloop.index }}</span><div><strong>{{ item.title }}</strong><p>{{ item.description }}</p></div></li>{% endfor %}</ol>
+    </div></section>{% endif %}
+
+    {% if page.gallery %}<section class="project-section engagement-section">
+      <div class="section-heading reveal"><div><p class="kicker">Project gallery</p><h2>{{ page.gallery_heading | default: 'Evidence, analysis and engagement.' }}</h2></div></div>
+      <div class="engagement-gallery">{% for image in page.gallery %}<button class="engagement-photo{% if forloop.first %} engagement-large{% endif %} reveal" type="button" data-lightbox="{{ image.image | relative_url }}" data-caption="{{ image.caption | escape }}"><img src="{{ image.image | relative_url }}" alt="{{ image.alt | escape }}" loading="lazy"><span>{{ image.caption }}</span></button>{% endfor %}</div>
+    </section>{% endif %}
+
+    <section class="outcome-section"><div class="project-section outcome-grid">
+      <div class="reveal"><p class="kicker">Outputs and value</p><h2>{{ page.outcomes_heading }}</h2></div>
+      <div class="outcome-copy reveal"><p>{{ page.outcomes_intro }}</p><ul>{% for item in page.outcomes %}<li>{{ item }}</li>{% endfor %}</ul>{% if page.external_url %}<a class="button button-primary" href="{{ page.external_url }}" target="_blank" rel="noopener noreferrer">{{ page.external_label | default: 'Explore project' }} <span aria-hidden="true">↗</span></a>{% endif %}</div>
+    </div></section>
+
+    {% if page.attribution %}<section class="project-section attribution-note reveal"><p><strong>Project attribution:</strong> {{ page.attribution }}</p></section>{% endif %}
+    <section class="project-next"><div><p class="kicker">Continue exploring</p><h2>Explore more GIS, remote-sensing and environmental-planning work.</h2><a class="button button-light" href="{{ '/portfolio.html' | relative_url }}">View all projects <span aria-hidden="true">→</span></a></div></section>
+  </main>
+  {% include site-footer.html %}
+  <dialog class="lightbox" data-lightbox-dialog aria-label="Expanded project image"><button class="lightbox-close" type="button" data-lightbox-close aria-label="Close image">×</button><figure><img data-lightbox-image alt=""><figcaption data-lightbox-caption></figcaption></figure></dialog>
+</body>
+</html>

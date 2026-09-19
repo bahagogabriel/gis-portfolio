@@ -1,0 +1,16 @@
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header{% if page.collection == 'projects' %} project-header{% endif %}" data-header>
+  <a class="brand" href="{{ '/index.html' | relative_url }}" aria-label="Samuel Bahago Gabriel, home">
+    <span class="brand-mark" aria-hidden="true">SBG</span>
+    <span class="brand-copy"><strong>Samuel Bahago Gabriel</strong><small>GIS Analyst</small></span>
+  </a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span></span><span></span><span></span><span class="sr-only">Open menu</span></button>
+  <nav class="site-nav" id="site-nav" aria-label="Main navigation" data-nav>
+    <a href="{{ '/index.html' | relative_url }}">Home</a>
+    <a href="{{ '/about.html' | relative_url }}">About Me</a>
+    <a href="{{ '/resume.html' | relative_url }}">Résumé</a>
+    <a href="{{ '/portfolio.html' | relative_url }}">Portfolio</a>
+    <a class="nav-contact" href="mailto:{{ site.email }}">Contact</a>
+  </nav>
+</header>
+

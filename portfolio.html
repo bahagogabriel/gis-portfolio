@@ -1,0 +1,55 @@
+---
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GIS, remote-sensing, water-resource and environmental-planning portfolio of Samuel Bahago Gabriel.">
+  <meta name="theme-color" content="#07131d">
+  <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+  <script src="{{ '/app.js' | relative_url }}" defer></script>
+  <title>Portfolio | Samuel Bahago Gabriel</title>
+</head>
+<body class="multipage" data-page="portfolio">
+  {% include site-header.html %}
+  <main id="main">
+    <section class="page-hero portfolio-hero">
+      <p class="eyebrow"><span></span> Selected work</p>
+      <h1>GIS for landscapes, water and <em>resilience.</em></h1>
+      <p>Professional and independent projects showing the question, analytical approach and value delivered.</p>
+    </section>
+
+    <section class="section portfolio-catalogue">
+      <div class="portfolio-filter reveal" role="group" aria-label="Filter portfolio projects">
+        <button class="active" type="button" data-filter="all" aria-pressed="true">Show all</button>
+        <button type="button" data-filter="catchment" aria-pressed="false">Catchments</button>
+        <button type="button" data-filter="water" aria-pressed="false">Water</button>
+        <button type="button" data-filter="risk" aria-pressed="false">Risk</button>
+        <button type="button" data-filter="remote" aria-pressed="false">Remote sensing</button>
+        <button type="button" data-filter="webgis" aria-pressed="false">WebGIS</button>
+      </div>
+      <div class="portfolio-grid" data-project-grid>
+        {% assign ordered_projects = site.projects | sort: 'order' %}
+        {% for project in ordered_projects %}
+        <article class="portfolio-card portfolio-card-featured reveal" data-category="{{ project.categories | join: ' ' }}">
+          <a href="{{ project.url | relative_url }}">
+            <img src="{{ project.card_image | relative_url }}" alt="{{ project.card_alt | escape }}">
+            <div>
+              <span>{{ project.card_label }}</span>
+              <h2>{{ project.title }}</h2>
+              <p>{{ project.summary }}</p>
+              <ul>{% for label in project.card_tags %}<li>{{ label }}</li>{% endfor %}</ul>
+              <strong>Read full case study →</strong>
+            </div>
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="page-cta"><div><p class="kicker">Collaborate</p><h2>Need spatial evidence for an environmental or infrastructure decision?</h2><a class="button button-light" href="mailto:{{ site.email }}">Contact me →</a></div></section>
+  </main>
+  {% include site-footer.html %}
+</body>
+</html>

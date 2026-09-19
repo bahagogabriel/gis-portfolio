@@ -1,0 +1,227 @@
+media:
+  - name: project_images
+    label: Project images
+    input: assets
+    output: /assets
+    rename: safe
+    extensions: [png, jpg, jpeg, webp]
+
+content:
+  - name: projects
+    label: Portfolio projects
+    type: collection
+    path: _projects
+    format: yaml-frontmatter
+    filename:
+      template: "{primary}.md"
+      field: create
+    view:
+      primary: title
+      fields: [order, card_label, location]
+      sort: order
+      order: asc
+    fields:
+      - name: title
+        label: Project title
+        type: string
+        required: true
+      - name: eyebrow
+        label: Short heading above title
+        type: string
+        required: true
+      - name: order
+        label: Display order
+        type: number
+        required: true
+      - name: featured
+        label: Featured project
+        type: boolean
+      - name: categories
+        label: Filter categories
+        type: string
+        list: true
+        description: Use catchment, water, risk, remote or webgis.
+      - name: card_tags
+        label: Card technology tags
+        type: string
+        list:
+          max: 3
+      - name: card_label
+        label: Portfolio card label
+        type: string
+        required: true
+      - name: card_image
+        label: Portfolio card image
+        type: image
+        required: true
+        options:
+          media: project_images
+      - name: card_alt
+        label: Portfolio image description
+        type: string
+        required: true
+      - name: summary
+        label: Project summary
+        type: text
+        required: true
+        options:
+          minlength: 40
+          maxlength: 500
+      - name: duration
+        label: Duration
+        type: string
+        required: true
+      - name: client
+        label: Client or commissioning body
+        type: string
+        required: true
+      - name: location
+        label: Study area
+        type: string
+        required: true
+      - name: role
+        label: My role
+        type: string
+        required: true
+      - name: hero_image
+        label: Main project image
+        type: image
+        required: true
+        options:
+          media: project_images
+      - name: hero_alt
+        label: Main image description
+        type: string
+        required: true
+      - name: hero_caption
+        label: Main image caption
+        type: string
+        required: true
+      - name: external_url
+        label: Project or dashboard link
+        type: string
+      - name: external_label
+        label: Link button text
+        type: string
+      - name: objective_heading
+        label: Objective heading
+        type: string
+        required: true
+      - name: objective
+        label: Objective description
+        type: text
+        required: true
+      - name: metrics
+        label: Headline figures
+        type: object
+        list:
+          max: 4
+          collapsible:
+            collapsed: true
+            summary: "{value} — {label}"
+        fields:
+          - name: value
+            label: Figure
+            type: string
+            required: true
+          - name: label
+            label: Explanation
+            type: string
+            required: true
+      - name: contribution_heading
+        label: Contribution heading
+        type: string
+        required: true
+      - name: contribution_intro
+        label: Contribution introduction
+        type: text
+        required: true
+      - name: contributions
+        label: My contributions
+        type: object
+        list:
+          min: 1
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: title
+            label: Contribution title
+            type: string
+            required: true
+          - name: description
+            label: Description
+            type: text
+            required: true
+      - name: workflow_heading
+        label: Workflow heading
+        type: string
+      - name: workflow
+        label: Workflow steps
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: title
+            label: Step title
+            type: string
+            required: true
+          - name: description
+            label: Step description
+            type: text
+            required: true
+      - name: gallery_heading
+        label: Gallery heading
+        type: string
+      - name: gallery
+        label: Project gallery
+        type: object
+        list:
+          max: 6
+          collapsible:
+            collapsed: true
+            summary: "{caption}"
+        fields:
+          - name: image
+            label: Image
+            type: image
+            required: true
+            options:
+              media: project_images
+          - name: alt
+            label: Image description
+            type: string
+            required: true
+          - name: caption
+            label: Caption
+            type: string
+            required: true
+      - name: outcomes_heading
+        label: Outputs heading
+        type: string
+        required: true
+      - name: outcomes_intro
+        label: Outputs introduction
+        type: text
+        required: true
+      - name: outcomes
+        label: Outputs and outcomes
+        type: string
+        list:
+          min: 1
+      - name: attribution
+        label: Project attribution
+        type: text
+
+settings:
+  content:
+    merge: true
+  commit:
+    identity: user
+    templates:
+      create: "content: add {filename}"
+      update: "content: update {filename}"
+      delete: "content: remove {filename}"
+      rename: "content: rename {oldFilename} to {newFilename}"
