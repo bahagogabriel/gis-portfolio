@@ -1,7 +1,7 @@
 ---
 title: Mining-Induced Environmental Degradation Assessment
 eyebrow: Environmental impact assessment · Plateau State
-order: 4
+order: 7
 featured: true
 categories: [risk, remote]
 card_tags: [Mine ponds, NDVI, Field GIS]
