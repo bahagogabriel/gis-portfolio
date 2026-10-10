@@ -1,7 +1,7 @@
 ---
 title: Baseline Survey and Mapping of Project Sites in Kwara State
 eyebrow: Environmental baseline mapping · Kwara State
-order: 3
+order: 6
 featured: true
 categories: [water, remote, risk]
 card_tags: [LULC 1995–2025, NDVI, Field GIS]
