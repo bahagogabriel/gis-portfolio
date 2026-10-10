@@ -6,7 +6,7 @@ featured: true
 categories: [risk, water, remote, webgis]
 card_tags: [Erosion screening, Drainage connectivity, Interactive dashboard]
 card_label: Independent research · 2026
-card_image: /assets/anambra-erosion-cover.svg
+card_image: /assets/anambra-erosion-card.svg
 card_alt: Editorial overview of Anambra erosion-planning zone counts and screening priorities, not a spatial damage map
 summary: Where should Anambra investigate soil-erosion control first? Explore mapped planning areas grouped into three relative priorities with conservation scenarios and local-government comparisons.
 duration: 2026
