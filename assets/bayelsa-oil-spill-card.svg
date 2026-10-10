@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 980" role="img" aria-labelledby="title desc">
+<title id="title">Bayelsa Oil-Spill Evidence Atlas — research cover</title>
+<desc id="desc">Editorial research summary showing one key result. This is not a geographical map.</desc>
+<defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#081e2a"/><stop offset="1" stop-color="#21454b"/></linearGradient><pattern id="grid" width="58" height="58" patternUnits="userSpaceOnUse"><path d="M58 0H0V58" fill="none" stroke="#ffffff" stroke-opacity=".07"/></pattern></defs>
+<rect width="800" height="980" fill="url(#bg)"/><rect width="800" height="980" fill="url(#grid)"/>
+<circle cx="712" cy="620" r="300" fill="#f48d82" fill-opacity=".12" stroke="#f48d82" stroke-opacity=".4" stroke-width="3"/>
+<circle cx="712" cy="620" r="228" fill="none" stroke="#ffbf9e" stroke-opacity=".3" stroke-width="2" stroke-dasharray="12 19"/>
+<rect x="64" y="77" width="11" height="38" rx="5" fill="#f48d82"/>
+<text x="91" y="108" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="760" letter-spacing="2" fill="#ffbf9e">ENVIRONMENTAL RESEARCH</text>
+<text x="64" y="256" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="750">Bayelsa</text>
+<text x="64" y="346" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="750">Oil-Spill</text>
+<text x="64" y="436" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="750">Evidence Atlas</text>
+<rect x="64" y="566" width="650" height="207" rx="20" fill="#ffffff" fill-opacity=".085" stroke="#ffffff" stroke-opacity=".27"/>
+<text x="92" y="657" font-family="Arial,Helvetica,sans-serif" font-size="88" font-weight="780" fill="#ffffff">3,109</text>
+<text x="94" y="711" font-family="Arial,Helvetica,sans-serif" font-size="31" fill="#e4f0f1">documented spill events</text>
+<line x1="64" y1="838" x2="716" y2="838" stroke="#ffffff" stroke-opacity=".25"/>
+<text x="66" y="882" font-family="Arial,Helvetica,sans-serif" font-size="28" fill="#d3e3e3">2006–2018 · Documented history</text>
+<text x="66" y="936" font-family="Arial,Helvetica,sans-serif" font-size="18" fill="#a8c1c4">EDITORIAL OVERVIEW · SEE CASE STUDY FOR MAPPED EVIDENCE</text>
+</svg>

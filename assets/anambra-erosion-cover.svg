@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+<title id="title">Soil-erosion prioritization — research overview</title>
+<desc id="desc">Editorial summary of Where should erosion-control checks begin?. This is not a scientific map; use the linked interactive atlas for mapped evidence.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081e2a"/><stop offset=".57" stop-color="#102d37"/><stop offset="1" stop-color="#183b42"/></linearGradient><pattern id="grid" width="62" height="62" patternUnits="userSpaceOnUse"><path d="M62 0H0V62" fill="none" stroke="#ffffff" stroke-opacity=".065" stroke-width="1"/></pattern></defs>
+<rect width="1440" height="900" fill="url(#bg)"/><rect width="1440" height="900" fill="url(#grid)"/>
+<circle cx="1245" cy="305" r="275" fill="#4fbb9d" fill-opacity=".06" stroke="#4fbb9d" stroke-opacity=".32" stroke-width="2"/>
+<circle cx="1245" cy="305" r="210" fill="none" stroke="#b6e4b3" stroke-opacity=".18" stroke-width="2" stroke-dasharray="8 15"/>
+<path d="M970 258 Q1075 320 1011 421 T1120 575 Q1220 620 1369 477" fill="none" stroke="#4fbb9d" stroke-width="68" opacity=".2"/><path d="M1050 215 Q1220 400 1077 485 T1310 605" fill="none" stroke="#b6e4b3" stroke-width="14" stroke-dasharray="16 20" opacity=".73"/>
+<rect x="80" y="85" width="10" height="34" rx="5" fill="#4fbb9d"/>
+<text x="111" y="111" fill="#b6e4b3" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="760" letter-spacing="4">ENVIRONMENTAL PLANNING · ANAMBRA</text>
+<text x="80" y="248" fill="#ffffff" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="760">Soil-erosion</text>
+<text x="80" y="346" fill="#ffffff" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="760">prioritization</text>
+<text x="83" y="407" fill="#d0dfe1" font-family="Arial,Helvetica,sans-serif" font-size="28">Where should erosion-control checks begin?</text>
+<line x1="80" y1="584" x2="1352" y2="584" stroke="#ffffff" stroke-opacity=".22"/>
+<g transform="translate(80 627)"><rect width="396" height="155" rx="18" fill="#ffffff" fill-opacity=".065" stroke="#ffffff" stroke-opacity=".21"/><text x="22" y="62" fill="#ffffff" font-size="45" font-weight="760" font-family="Arial,Helvetica,sans-serif">441</text><text x="22" y="108" fill="#dce7ec" font-size="23" font-family="Arial,Helvetica,sans-serif">screened planning zones</text></g><g transform="translate(504 627)"><rect width="396" height="155" rx="18" fill="#ffffff" fill-opacity=".065" stroke="#ffffff" stroke-opacity=".21"/><text x="22" y="62" fill="#ffffff" font-size="45" font-weight="760" font-family="Arial,Helvetica,sans-serif">163.67</text><text x="22" y="108" fill="#dce7ec" font-size="23" font-family="Arial,Helvetica,sans-serif">km² across mapped zones</text></g><g transform="translate(928 627)"><rect width="396" height="155" rx="18" fill="#ffffff" fill-opacity=".065" stroke="#ffffff" stroke-opacity=".21"/><text x="22" y="62" fill="#ffffff" font-size="45" font-weight="760" font-family="Arial,Helvetica,sans-serif">3 tiers</text><text x="22" y="108" fill="#dce7ec" font-size="23" font-family="Arial,Helvetica,sans-serif">relative investigation priority</text></g>
+<text x="84" y="854" fill="#bdcfd4" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="1">RESEARCH SUMMARY · OPEN THE CASE STUDY FOR AUTHORITATIVE MAPS</text>
+</svg>

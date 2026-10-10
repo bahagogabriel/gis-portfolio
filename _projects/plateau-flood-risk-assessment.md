@@ -1,7 +1,7 @@
 ---
 title: Plateau Flood Hazard, Vulnerability and Risk Assessment
 eyebrow: Integrated flood-risk assessment · Plateau State
-order: 5
+order: 8
 featured: true
 categories: [water, risk, remote]
 card_tags: [7 LGAs, AHP overlay, Flood risk]

@@ -1,3 +1,5 @@
+---
+---
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,8 +8,8 @@
   <meta name="description" content="Samuel Bahago Gabriel is a GIS Analyst using spatial analysis, remote sensing and hydrology to support environmental and infrastructure decisions in Nigeria.">
   <meta name="theme-color" content="#07131d">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307131d'/%3E%3Cpath d='M9 42c10-17 20 7 29-12s15-2 17-12M9 50c11-12 19 5 30-7s12-6 16-16M10 32c8-15 19 5 28-13s14-5 17-9' fill='none' stroke='%2346d6a0' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='39' cy='30' r='4' fill='%23f5b942'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
+  <script src="{{ '/app.js' | relative_url }}" defer></script>
   <title>Samuel Bahago Gabriel | GIS Analyst</title>
 </head>
 <body class="multipage home-page" data-page="home">
@@ -29,9 +31,9 @@
       <div class="profile-intro reveal" data-delay="1">
         <p class="eyebrow"><span></span> GIS · Remote sensing · Hydrology</p>
         <h1>Hello, I’m <em>Samuel.</em></h1>
-        <p class="profile-lead">I use geospatial technology to understand landscapes, water systems and environmental risk—and turn that evidence into maps and decisions people can use.</p>
+        <p class="profile-lead">I turn satellite imagery, maps and field evidence into practical insights for flood resilience, water resources and environmental planning.</p>
         <p class="profile-summary">My work spans strategic catchment planning, flood resilience, dam and irrigation studies, land-cover analysis and environmental assessment across Nigeria.</p>
-        <div class="hero-actions"><a class="button button-primary" href="portfolio.html">Explore my work <span aria-hidden="true">↗</span></a><a class="button button-ghost" href="about.html">More about me</a></div>
+        <div class="hero-actions"><a class="button button-primary" href="{{ '/portfolio.html' | relative_url }}">Explore my work <span aria-hidden="true">↗</span></a><a class="button button-ghost" href="about.html">More about me</a></div>
         <div class="profile-links"><a href="https://www.linkedin.com/in/bahagogabriel" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="mailto:Bahagogabriel@gmail.com">Email</a><a href="{{ '/downloads/Samuel_Bahago_Gabriel_CV.pdf' | relative_url }}" download>Download CV</a></div>
       </div>
     </section>
@@ -44,9 +46,17 @@
       <div class="section-heading reveal"><div><p class="kicker">Featured work</p><h2>Spatial evidence for real decisions.</h2></div><p>A selection of professional and independent work across environmental planning, water resources and climate resilience.</p></div>
       <div class="home-feature-grid">
         <article class="feature-story reveal"><a href="projects/strategic-catchment-management-plans.html"><img src="assets/scmp-20-catchments.webp" alt="Twenty strategic catchments covering Northern Nigeria"><div><span>National programme · 2024–2026</span><h3>20 Strategic Catchment Management Plans</h3><p>Watershed delineation, baseline studies, stakeholder evidence and standardized GIS outputs across Northern Nigeria.</p><strong>Read the case study →</strong></div></a></article>
-        <article class="feature-story reveal" data-delay="1"><a href="https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/" target="_blank" rel="noopener noreferrer"><img src="assets/lokoja-intervention-priority.webp" alt="Lokoja flood-resilience intervention priority map"><div><span>Independent project · 2026</span><h3>Lokoja Flood Resilience</h3><p>A machine-learning and WebGIS workflow connecting flood susceptibility, exposure and intervention priorities.</p><strong>Open the dashboard ↗</strong></div></a></article>
+        <article class="feature-story reveal" data-delay="1"><a href="https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/" target="_blank" rel="noopener noreferrer"><img src="assets/lokoja-intervention-priority.webp" alt="Lokoja flood-resilience intervention priority map"><div><span>Independent project · 2026</span><h3>Lokoja Flood Resilience</h3><p>Explore where Lokoja is flood-prone and which locations could benefit from closer resilience planning.</p><strong>Open the dashboard ↗</strong></div></a></article>
       </div>
-      <a class="section-link reveal" href="portfolio.html">View the full portfolio <span aria-hidden="true">→</span></a>
+      <div class="research-spotlight reveal" aria-labelledby="research-heading">
+        <div class="research-heading"><div><p class="kicker">Interactive environmental research</p><h3 id="research-heading">Explore the evidence behind the maps.</h3></div><p>Three recent studies show where further environmental investigation or planning could be useful. Each atlas explains what was studied, what the evidence found and what remains uncertain.</p></div>
+        <div class="research-links">
+          <a href="{{ '/projects/niger-delta-gas-flaring-evidence-atlas.html' | relative_url }}"><span class="research-label">Niger Delta · 2012–2025</span><strong>Gas-Flaring Evidence Atlas</strong><span>Where might flare-reduction and environmental monitoring investigations begin?</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
+          <a href="{{ '/projects/bayelsa-oil-spill-evidence-atlas.html' | relative_url }}"><span class="research-label">Bayelsa · 2006–2018</span><strong>Oil-Spill Evidence Atlas</strong><span>Where did historical incident records show repeated spill reports?</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
+          <a href="{{ '/projects/anambra-soil-erosion-prioritization.html' | relative_url }}"><span class="research-label">Anambra · 2026 study</span><strong>Soil-Erosion Prioritization</strong><span>Where should erosion-control investigations and conservation planning begin?</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
+        </div>
+      </div>
+      <a class="section-link reveal" href="{{ '/portfolio.html' | relative_url }}">View the full portfolio <span aria-hidden="true">→</span></a>
     </section>
 
     <section class="home-band"><div class="section home-band-inner reveal"><p class="kicker">How I work</p><h2>Earth science informs the analysis. Clear communication makes it useful.</h2><div class="home-band-grid"><p>I combine satellite imagery, terrain models, field evidence and stakeholder knowledge to build defensible spatial products.</p><p>My goal is not simply to produce maps, but to explain patterns, support planning and make technical evidence accessible.</p></div></div></section>

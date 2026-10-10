@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+<title id="title">Gas-flaring evidence atlas — research overview</title>
+<desc id="desc">Editorial summary of Where should reduction investigations begin?. This is not a scientific map; use the linked interactive atlas for mapped evidence.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081e2a"/><stop offset=".57" stop-color="#102d37"/><stop offset="1" stop-color="#183b42"/></linearGradient><pattern id="grid" width="62" height="62" patternUnits="userSpaceOnUse"><path d="M62 0H0V62" fill="none" stroke="#ffffff" stroke-opacity=".065" stroke-width="1"/></pattern></defs>
+<rect width="1440" height="900" fill="url(#bg)"/><rect width="1440" height="900" fill="url(#grid)"/>
+<circle cx="1245" cy="305" r="275" fill="#f4a261" fill-opacity=".06" stroke="#f4a261" stroke-opacity=".32" stroke-width="2"/>
+<circle cx="1245" cy="305" r="210" fill="none" stroke="#ffd18b" stroke-opacity=".18" stroke-width="2" stroke-dasharray="8 15"/>
+<path d="M980 548 Q1034 444 1074 371 T1164 236 Q1161 353 1237 392 Q1270 480 1211 550Z" fill="#f4a261" opacity=".44"/><path d="M1090 552 Q1128 453 1171 394 Q1212 463 1218 508 L1174 555Z" fill="#ffd18b" opacity=".58"/>
+<rect x="80" y="85" width="10" height="34" rx="5" fill="#f4a261"/>
+<text x="111" y="111" fill="#ffd18b" font-family="Arial,Helvetica,sans-serif" font-size="27" font-weight="760" letter-spacing="4">ENVIRONMENTAL EVIDENCE · NIGER DELTA</text>
+<text x="80" y="248" fill="#ffffff" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="760">Gas-flaring</text>
+<text x="80" y="346" fill="#ffffff" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="760">evidence atlas</text>
+<text x="83" y="407" fill="#d0dfe1" font-family="Arial,Helvetica,sans-serif" font-size="28">Where should reduction investigations begin?</text>
+<line x1="80" y1="584" x2="1352" y2="584" stroke="#ffffff" stroke-opacity=".22"/>
+<g transform="translate(80 627)"><rect width="396" height="155" rx="18" fill="#ffffff" fill-opacity=".065" stroke="#ffffff" stroke-opacity=".21"/><text x="22" y="62" fill="#ffffff" font-size="45" font-weight="760" font-family="Arial,Helvetica,sans-serif">476</text><text x="22" y="108" fill="#dce7ec" font-size="23" font-family="Arial,Helvetica,sans-serif">recorded flare locations</text></g><g transform="translate(504 627)"><rect width="396" height="155" rx="18" fill="#ffffff" fill-opacity=".065" stroke="#ffffff" stroke-opacity=".21"/><text x="22" y="62" fill="#ffffff" font-size="45" font-weight="760" font-family="Arial,Helvetica,sans-serif">75</text><text x="22" y="108" fill="#dce7ec" font-size="23" font-family="Arial,Helvetica,sans-serif">reduction candidates</text></g><g transform="translate(928 627)"><rect width="396" height="155" rx="18" fill="#ffffff" fill-opacity=".065" stroke="#ffffff" stroke-opacity=".21"/><text x="22" y="62" fill="#ffffff" font-size="45" font-weight="760" font-family="Arial,Helvetica,sans-serif">2012–2025</text><text x="22" y="108" fill="#dce7ec" font-size="23" font-family="Arial,Helvetica,sans-serif">historical observation period</text></g>
+<text x="84" y="854" fill="#bdcfd4" font-family="Arial,Helvetica,sans-serif" font-size="20" letter-spacing="1">RESEARCH SUMMARY · OPEN THE CASE STUDY FOR AUTHORITATIVE MAPS</text>
+</svg>
