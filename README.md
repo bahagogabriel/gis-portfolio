@@ -2,19 +2,28 @@
 
 Professional portfolio covering GIS, remote sensing, hydrology, environmental planning and climate-resilience work in Nigeria.
 
-## Live sites
+## Published portfolio and studies
 
-- Portfolio repository: `bahagogabriel/gis-portfolio`
-- Lokoja dashboard: <https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/>
-- Planned custom domain: `bahagogabriel.com`
+- [Professional GIS portfolio](https://bahagogabriel.github.io/gis-portfolio/) — eight project case studies
+- [Niger Delta Gas-Flaring Evidence Atlas](https://bahagogabriel.github.io/niger-delta-gas-flaring-atlas/)
+- [Bayelsa Oil-Spill Evidence Atlas](https://bahagogabriel.github.io/bayelsa-evidence-atlas/)
+- [Anambra Erosion Prioritization Dashboard](https://bahagogabriel.github.io/anambra-erosion-dashboard/)
+- [Lokoja Flood Resilience Dashboard](https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/)
+- Repository: `bahagogabriel/gis-portfolio`
+- Planned custom domain: `bahagogabriel.com` (not yet connected)
 
 ## Portfolio projects
 
 1. Development of 20 Strategic Catchment Management Plans for Northern Nigeria
-2. Lokoja Flood Risk and Resilience Planning
-3. Baseline Survey and Mapping of Project Sites in Kwara State
-4. Mining-Induced Environmental Degradation Assessment
-5. Plateau Flood Hazard, Vulnerability and Risk Assessment
+2. Niger Delta Gas-Flaring Evidence Atlas
+3. Lokoja Flood Risk and Resilience Planning
+4. Bayelsa Oil-Spill Evidence Atlas
+5. Anambra Soil-Erosion Prioritization
+6. Baseline Survey and Mapping of Project Sites in Kwara State
+7. Mining-Induced Environmental Degradation Assessment
+8. Plateau Flood Hazard, Vulnerability and Risk Assessment
+
+The newer research case studies use editorial cover graphics, explicitly marked as illustrations rather than analytical maps. Each links to the corresponding published research platform for authoritative maps and data. The Nigeria–West Africa LULC system will be added only once its scientific and publication acceptance is complete.
 
 ## Edit projects without coding
 
