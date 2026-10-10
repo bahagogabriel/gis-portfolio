@@ -6,7 +6,7 @@ featured: true
 categories: [risk, remote, webgis]
 card_tags: [Historical incident records, Spatial recurrence, Interactive atlas]
 card_label: Independent research · 2026
-card_image: /assets/bayelsa-oil-spill-cover.svg
+card_image: /assets/bayelsa-oil-spill-card.svg
 card_alt: Editorial cover with documented oil-spill counts and historical study period, not a contamination map
 summary: Where were oil spills reported repeatedly in Bayelsa? Explore documented incident history and how earlier reports relate to the separate 2018 evaluation.
 duration: 2026
