@@ -4,7 +4,7 @@ media:
     input: assets
     output: /assets
     rename: safe
-    extensions: [png, jpg, jpeg, webp]
+    extensions: [png, jpg, jpeg, webp, svg]
 
 content:
   - name: projects
