@@ -6,7 +6,7 @@ featured: true
 categories: [risk, remote, webgis]
 card_tags: [Satellite estimates, Environmental screening, Interactive atlas]
 card_label: Independent research · 2026
-card_image: /assets/niger-delta-gas-flaring-cover.svg
+card_image: /assets/niger-delta-gas-flaring-card.svg
 card_alt: Editorial graphic summarizing the gas-flaring research and historical inventory, not a geographical map
 summary: Where should investigators look first to reduce gas flaring? Historical satellite estimates reveal locations for further investigation and separate community and mangrove monitoring checks.
 duration: 2026
