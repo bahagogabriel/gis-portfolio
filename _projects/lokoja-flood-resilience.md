@@ -1,16 +1,16 @@
 ---
 title: Lokoja Flood Risk and Resilience Planning
 eyebrow: Independent flood-resilience project · Lokoja, Nigeria
-order: 2
+order: 3
 featured: true
 categories: [risk, water, remote, webgis]
 card_tags: [Sentinel-1, Random Forest, MapLibre]
 card_label: Independent project · 2026
 card_image: /assets/lokoja-intervention-priority.webp
 card_alt: Integrated flood-resilience intervention priority map for Lokoja
-summary: A multi-event remote-sensing and machine-learning workflow connecting flood susceptibility, exposure, infrastructure risk and practical intervention priorities.
+summary: Where should flood-resilience work begin in Lokoja? Satellite-observed floods, mapped people and infrastructure help identify places for further investigation.
 duration: 2026
-client: Independent portfolio and research project
+client: Independent geospatial research
 location: Lokoja LGA, Kogi State, Nigeria
 role: Lead GIS and machine-learning analyst
 hero_image: /assets/lokoja-intervention-priority.webp
