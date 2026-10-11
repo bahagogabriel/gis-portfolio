@@ -1,10 +1,10 @@
 {
-  "seo_description": "Professional résumé of Samuel Bahago Gabriel, GIS Analyst specializing in remote sensing, hydrology and environmental planning.",
+  "seo_description": "Professional résumé of Samuel Bahago Gabriel, geospatial analyst with experience in GIS, remote sensing, hydrology, spatial modelling and environmental planning.",
   "hero": {
     "kicker": "Professional résumé",
     "heading": "Experience that connects",
     "emphasis": "analysis and action.",
-    "intro": "GIS, remote sensing, hydrology and environmental planning for multidisciplinary projects across Nigeria.",
+    "intro": "GIS, remote sensing, spatial modelling and geoscience-informed analysis for environmental, infrastructure and resource-management projects across Nigeria.",
     "download_label": "Download full CV"
   },
   "sidebar": {
@@ -16,6 +16,8 @@
       "Watershed and drainage analysis",
       "Flood, erosion and groundwater mapping",
       "LULC and change detection",
+      "Spatial machine learning and predictive modelling",
+      "WebGIS and interactive geospatial dashboards",
       "Geodatabase design and QA/QC",
       "HEC-RAS and HEC-HMS support"
     ],
@@ -25,7 +27,7 @@
   },
   "profile": {
     "kicker": "Profile",
-    "text": "GIS Analyst and geoscience professional with seven years of experience applying spatial analysis, remote sensing, terrain modelling and hydrologic methods to climate resilience, water resources, infrastructure and environmental-management assignments."
+    "text": "Geospatial analyst and geoscience professional with seven years of experience applying GIS, remote sensing, spatial modelling, terrain analysis and hydrologic methods to environmental, infrastructure, water-resource and climate-resilience assignments."
   },
   "experience": {
     "kicker": "Professional experience",
