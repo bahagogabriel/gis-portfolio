@@ -1,16 +1,16 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header{% if page.collection == 'projects' %} project-header{% endif %}" data-header>
-  <a class="brand" href="{{ '/index.html' | relative_url }}" aria-label="Samuel Bahago Gabriel, home">
-    <span class="brand-mark" aria-hidden="true">SBG</span>
-    <span class="brand-copy"><strong>Samuel Bahago Gabriel</strong><small>GIS Analyst</small></span>
+  <a class="brand" href="{{ '/index.html' | relative_url }}" aria-label="{{ site.data.site_content.public_name | escape }}, home">
+    <span class="brand-mark" aria-hidden="true">{{ site.data.site_content.initials | escape }}</span>
+    <span class="brand-copy"><strong>{{ site.data.site_content.public_name | escape }}</strong><small>{{ site.data.site_content.job_title | escape }}</small></span>
   </a>
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span></span><span></span><span></span><span class="sr-only">Open menu</span></button>
   <nav class="site-nav" id="site-nav" aria-label="Main navigation" data-nav>
-    <a href="{{ '/index.html' | relative_url }}">Home</a>
-    <a href="{{ '/about.html' | relative_url }}">About Me</a>
-    <a href="{{ '/resume.html' | relative_url }}">Résumé</a>
-    <a href="{{ '/portfolio.html' | relative_url }}">Portfolio</a>
-    <a class="nav-contact" href="mailto:{{ site.email }}">Contact</a>
+    <a href="{{ '/index.html' | relative_url }}">{{ site.data.site_content.nav.home | escape }}</a>
+    <a href="{{ '/about.html' | relative_url }}">{{ site.data.site_content.nav.about | escape }}</a>
+    <a href="{{ '/resume.html' | relative_url }}">{{ site.data.site_content.nav.resume | escape }}</a>
+    <a href="{{ '/portfolio.html' | relative_url }}">{{ site.data.site_content.nav.portfolio | escape }}</a>
+    <a class="nav-contact" href="{% if include.home %}#contact{% else %}mailto:{{ site.data.site_content.email }}{% endif %}">{{ site.data.site_content.nav.contact | escape }}</a>
   </nav>
 </header>
 
