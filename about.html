@@ -7,6 +7,8 @@
   <meta name="description" content="{{ site.data.about.seo_description | escape }}">
   <meta name="theme-color" content="#07131d"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307131d'/%3E%3Cpath d='M9 42c10-17 20 7 29-12s15-2 17-12M9 50c11-12 19 5 30-7s12-6 16-16M10 32c8-15 19 5 28-13s14-5 17-9' fill='none' stroke='%2346d6a0' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='39' cy='30' r='4' fill='%23f5b942'/%3E%3C/svg%3E"><link rel="stylesheet" href="styles.css"><script src="app.js" defer></script>
   <title>{{ site.data.site_content.nav.about | escape }} | {{ site.data.site_content.public_name | escape }}</title>
+  {% include seo-meta.html kind="about" path="/about.html" title=site.data.site_content.nav.about description=site.data.about.seo_description image=site.data.about.story.photo image_alt=site.data.about.story.photo_alt %}
+  {% include seo-identity.html kind="about" %}
 </head>
 <body class="multipage tone-{{ site.data.site_content.theme | default: 'green' }}" data-page="about">
   {% include site-header.html %}
