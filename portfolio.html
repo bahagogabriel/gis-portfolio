@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
   <script src="{{ '/app.js' | relative_url }}" defer></script>
   <title>{{ site.data.site_content.nav.portfolio | escape }} | {{ site.data.site_content.public_name | escape }}</title>
+  {% include seo-meta.html kind="portfolio" path="/portfolio.html" title=site.data.site_content.nav.portfolio description=site.data.portfolio.seo_description image=site.data.home.hero.portrait image_alt=site.data.home.hero.portrait_alt %}
 </head>
 <body class="multipage tone-{{ site.data.site_content.theme | default: 'green' }}" data-page="portfolio">
   {% include site-header.html %}
