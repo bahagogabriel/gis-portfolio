@@ -1,0 +1,23 @@
+{
+  "seo_description": "GIS, remote-sensing, water-resource and environmental-planning portfolio of Samuel Bahago Gabriel.",
+  "hero": {
+    "kicker": "Selected work",
+    "heading": "GIS for landscapes, water and",
+    "emphasis": "resilience.",
+    "intro": "Explore the environmental problems I worked on, the evidence I used, the results, and how each project can support real decisions."
+  },
+  "filters": {
+    "all": "Show all",
+    "catchment": "Watersheds",
+    "water": "Water resources",
+    "risk": "Environmental risk",
+    "remote": "Satellite imagery",
+    "webgis": "Interactive maps"
+  },
+  "card_link_label": "Read full case study →",
+  "cta": {
+    "kicker": "Collaborate",
+    "heading": "Need spatial evidence for an environmental or infrastructure decision?",
+    "button": "Contact me →"
+  }
+}
