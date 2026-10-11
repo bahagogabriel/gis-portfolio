@@ -1,11 +1,11 @@
 {
-  "seo_description": "Samuel Bahago Gabriel is a GIS Analyst using spatial analysis, remote sensing and hydrology to support environmental and infrastructure decisions in Nigeria.",
+  "seo_description": "Samuel Bahago Gabriel is a geospatial analyst specializing in GIS, remote sensing and spatial modelling for environmental, engineering and planning decisions.",
   "hero": {
-    "eyebrow": "GIS · Remote sensing · Hydrology",
+    "eyebrow": "GIS · Remote sensing · Spatial modelling · Hydrology",
     "greeting": "Hello, I’m",
     "emphasis": "Bahago.",
-    "lead": "I turn satellite imagery, maps and field evidence into practical insights for flood resilience, water resources and environmental planning.",
-    "summary": "My work spans strategic catchment planning, flood resilience, dam and irrigation studies, land-cover analysis and environmental assessment across Nigeria.",
+    "lead": "I use GIS, remote sensing and spatial modelling to turn complex geographic data into clear maps, reliable analysis and practical evidence for planning, engineering and environmental decisions.",
+    "summary": "My work spans water resources, catchment management, flood and erosion risk, infrastructure, land-use change, groundwater investigations and environmental assessments across Nigeria.",
     "portrait": "/assets/samuel-portrait.webp",
     "portrait_alt": "Professional portrait of Samuel Bahago Gabriel",
     "portfolio_button": "Explore my work",
@@ -93,7 +93,7 @@
   "contact": {
     "kicker": "Start a conversation",
     "heading": "Have a spatial problem worth solving?",
-    "intro": "I am open to GIS, remote-sensing, water-resources and environmental-planning opportunities.",
+    "intro": "I welcome geospatial analysis, remote sensing, spatial modelling and multidisciplinary project opportunities.",
     "linkedin_label": "LinkedIn",
     "email_label": "Email",
     "portfolio_all_label": "View the full portfolio"
