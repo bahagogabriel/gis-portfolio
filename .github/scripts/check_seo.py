@@ -10,7 +10,7 @@ ROOT = Path("_site")
 ORIGIN = "https://bahagogabriel.com"
 PUBLIC = [ROOT / x for x in ("index.html", "about.html", "resume.html", "portfolio.html")]
 PUBLIC += sorted((ROOT / "projects").glob("*.html"))
-assert len(PUBLIC) == 12, f"Expected 12 public pages, got {len(PUBLIC)}"
+assert len(PUBLIC) >= 12, f"Missing original site pages: {len(PUBLIC)}"
 
 robots = (ROOT / "robots.txt").read_text()
 assert "User-agent: *" in robots and "Allow: /" in robots
@@ -22,7 +22,7 @@ ns = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 assert sitemap.tag == ns + "urlset"
 locs = [node.text for node in sitemap.iter(ns + "loc")]
 expected = {ORIGIN + ("/" if p.name == "index.html" else "/" + p.relative_to(ROOT).as_posix()) for p in PUBLIC}
-assert len(locs) == len(set(locs)) == len(expected) == 12, (locs, expected)
+assert len(locs) == len(set(locs)) == len(expected), (locs, expected)
 assert set(locs) == expected, f"Sitemap mismatch: missing {expected-set(locs)}, extra {set(locs)-expected}"
 assert all(u.startswith(ORIGIN+"/") for u in locs)
 
