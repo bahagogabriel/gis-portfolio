@@ -20,3 +20,5 @@ jobs:
           destination: ./_site
       - name: Validate built pages and project links
         run: python3 .github/scripts/check_site.py
+      - name: Validate sitemap canonical and structured identity data
+        run: python3 .github/scripts/check_seo.py
