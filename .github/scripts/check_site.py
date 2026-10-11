@@ -11,7 +11,11 @@ subprocess.run(["ruby", ".github/scripts/check_cms_types.rb"], check=True)
 ROOT = Path("_site")
 PROJECTS = sorted((ROOT / "projects").glob("*.html"))
 assert ROOT.joinpath("index.html").is_file(), "Missing homepage"
-assert len(PROJECTS) == 8, f"Expected 8 project pages, found {len(PROJECTS)}"
+SOURCE_PROJECTS = sorted(Path("_projects").glob("*.md"))
+assert len(SOURCE_PROJECTS) >= 8, "Expected the original eight accepted projects"
+assert len(PROJECTS) == len(SOURCE_PROJECTS), (
+    f"Expected {len(SOURCE_PROJECTS)} generated project pages, found {len(PROJECTS)}"
+)
 assert ROOT.joinpath("CNAME").read_text().strip() == "bahagogabriel.com"
 assert ROOT.joinpath("downloads/Samuel_Bahago_Gabriel_CV.pdf").is_file()
 assert ROOT.joinpath("styles.css").is_file()
