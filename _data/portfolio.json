@@ -1,10 +1,10 @@
 {
-  "seo_description": "GIS, remote-sensing, water-resource and environmental-planning portfolio of Samuel Bahago Gabriel.",
+  "seo_description": "Portfolio of Samuel Bahago Gabriel, geospatial analyst working across GIS, remote sensing, spatial modelling, environmental assessment and engineering-related planning.",
   "hero": {
     "kicker": "Selected work",
-    "heading": "GIS for landscapes, water and",
-    "emphasis": "resilience.",
-    "intro": "Explore the environmental problems I worked on, the evidence I used, the results, and how each project can support real decisions."
+    "heading": "Geospatial analysis for",
+    "emphasis": "informed decisions.",
+    "intro": "Explore how I apply GIS, remote sensing, modelling and field evidence to real-world challenges—and how the results can support better decisions."
   },
   "filters": {
     "all": "Show all",
@@ -17,7 +17,7 @@
   "card_link_label": "Read full case study →",
   "cta": {
     "kicker": "Collaborate",
-    "heading": "Need spatial evidence for an environmental or infrastructure decision?",
+    "heading": "Need spatial evidence for a project or decision?",
     "button": "Contact me →"
   }
 }
