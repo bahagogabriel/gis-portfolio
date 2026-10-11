@@ -6,7 +6,677 @@ media:
     rename: safe
     extensions: [png, jpg, jpeg, webp, svg]
 
+  - name: cv_documents
+    label: CV and PDF documents
+    input: downloads
+    output: /downloads
+    rename: safe
+    extensions: [pdf]
+
 content:
+  - name: website_content
+    label: Website Pages
+    type: group
+    items:
+      - name: settings
+        label: "Website Settings"
+        type: file
+        path: _data/site_content.json
+        format: json
+        fields:
+          - name: public_name
+            label: "Public professional name"
+            type: string
+          - name: first_name
+            label: "First name"
+            type: string
+          - name: initials
+            label: "Initials"
+            type: string
+          - name: job_title
+            label: "Job title"
+            type: string
+          - name: location
+            label: "Location"
+            type: string
+          - name: email
+            label: "Email"
+            type: string
+          - name: telephone
+            label: "Dialling number with country code"
+            type: string
+          - name: phone_display
+            label: "Phone number as displayed"
+            type: string
+          - name: linkedin
+            label: "Linkedin"
+            type: string
+          - name: cv_file
+            label: "Current CV (PDF)"
+            type: file
+            options:
+              media: cv_documents
+              extensions: [pdf]
+            description: "Upload a PDF and save the page. The new file replaces the CV download link site-wide."
+          - name: nav
+            label: "Navigation labels"
+            type: object
+            fields:
+              - name: home
+                label: "Home"
+                type: string
+              - name: about
+                label: "About"
+                type: string
+              - name: resume
+                label: "Resume"
+                type: string
+              - name: portfolio
+                label: "Portfolio"
+                type: string
+              - name: contact
+                label: "Contact"
+                type: string
+          - name: theme
+            label: "Accent colour"
+            type: select
+            options:
+              values:
+                - name: green
+                  label: "Original green (default)"
+                - name: teal
+                  label: "Teal"
+                - name: blue
+                  label: "Blue"
+          - name: project_labels
+            label: "Project page headings"
+            type: object
+            fields:
+              - name: contribution
+                label: "Contribution"
+                type: string
+              - name: objective
+                label: "Objective"
+                type: string
+              - name: duration
+                label: "Duration"
+                type: string
+              - name: client
+                label: "Client"
+                type: string
+              - name: study_area
+                label: "Study area"
+                type: string
+              - name: role
+                label: "Role"
+                type: string
+              - name: workflow
+                label: "Workflow"
+                type: string
+              - name: gallery
+                label: "Gallery"
+                type: string
+              - name: outputs
+                label: "Outputs"
+                type: string
+              - name: attribution
+                label: "Attribution"
+                type: string
+              - name: next_kicker
+                label: "Next kicker"
+                type: string
+              - name: next_heading
+                label: "Next heading"
+                type: text
+              - name: next_button
+                label: "Next button"
+                type: string
+              - name: expand_image
+                label: "Expand image"
+                type: string
+      - name: home
+        label: "Homepage"
+        type: file
+        path: _data/home.json
+        format: json
+        fields:
+          - name: seo_description
+            label: "Search engine description"
+            type: text
+          - name: hero
+            label: "Introduction"
+            type: object
+            fields:
+              - name: eyebrow
+                label: "Eyebrow"
+                type: string
+              - name: greeting
+                label: "Greeting"
+                type: string
+              - name: emphasis
+                label: "Emphasis"
+                type: string
+              - name: lead
+                label: "Lead"
+                type: text
+              - name: summary
+                label: "Summary"
+                type: text
+              - name: portrait
+                label: "Portrait"
+                type: image
+                options:
+                  media: project_images
+              - name: portrait_alt
+                label: "Portrait alt"
+                type: text
+              - name: portfolio_button
+                label: "Portfolio button"
+                type: string
+              - name: about_button
+                label: "About button"
+                type: string
+              - name: cv_button
+                label: "CV download label"
+                type: string
+          - name: highlights
+            label: "Highlights"
+            type: object
+            list:
+              max: 6
+              collapsible:
+                collapsed: true
+                summary: "{value}"
+            fields:
+              - name: value
+                label: "Value"
+                type: string
+                description: "Use figures supported by your project evidence or professional records."
+              - name: label
+                label: "Label"
+                type: string
+          - name: featured
+            label: "Homepage featured projects"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: intro
+                label: "Intro"
+                type: text
+              - name: cards
+                label: "Cards"
+                type: object
+                list:
+                  max: 4
+                  collapsible:
+                    collapsed: true
+                    summary: "{alt}"
+                fields:
+                  - name: image
+                    label: "Image"
+                    type: image
+                    options:
+                      media: project_images
+                  - name: alt
+                    label: "Image description"
+                    type: text
+                  - name: label
+                    label: "Label"
+                    type: string
+                  - name: title
+                    label: "Title"
+                    type: string
+                  - name: text
+                    label: "Text"
+                    type: text
+                  - name: url
+                    label: "Link URL"
+                    type: string
+                    description: "Use a /projects/... path for an internal link, or a complete https:// URL for another website."
+                  - name: link_text
+                    label: "Link button label"
+                    type: text
+                  - name: external
+                    label: "External"
+                    type: string
+          - name: research
+            label: "Research atlas links"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: intro
+                label: "Intro"
+                type: text
+              - name: links
+                label: "Links"
+                type: object
+                list:
+                  max: 9
+                  collapsible:
+                    collapsed: true
+                    summary: "{title}"
+                fields:
+                  - name: label
+                    label: "Label"
+                    type: string
+                  - name: title
+                    label: "Title"
+                    type: string
+                  - name: text
+                    label: "Text"
+                    type: text
+                  - name: url
+                    label: "Link URL"
+                    type: string
+                    description: "Use a /projects/... path for an internal link, or a complete https:// URL for another website."
+          - name: work
+            label: "How I work"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: paragraphs
+                label: "Paragraphs"
+                type: text
+                list:
+                  max: 10
+          - name: contact
+            label: "Contact"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: intro
+                label: "Intro"
+                type: text
+              - name: linkedin_label
+                label: "Linkedin label"
+                type: string
+              - name: email_label
+                label: "Email label"
+                type: string
+              - name: portfolio_all_label
+                label: "Portfolio all label"
+                type: string
+      - name: about
+        label: "About Me"
+        type: file
+        path: _data/about.json
+        format: json
+        fields:
+          - name: seo_description
+            label: "Search engine description"
+            type: text
+          - name: hero
+            label: "Introduction"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: emphasis
+                label: "Emphasis"
+                type: string
+              - name: intro
+                label: "Intro"
+                type: text
+          - name: story
+            label: "Story"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: photo
+                label: "Photo"
+                type: image
+                options:
+                  media: project_images
+              - name: photo_alt
+                label: "Photograph description"
+                type: text
+              - name: photo_caption
+                label: "Photo caption"
+                type: string
+              - name: paragraphs
+                label: "Paragraphs"
+                type: text
+                list:
+                  max: 10
+          - name: values
+            label: "My work values"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: intro
+                label: "Intro"
+                type: text
+              - name: items
+                label: "Items"
+                type: object
+                list:
+                  max: 15
+                  collapsible:
+                    collapsed: true
+                    summary: "{title}"
+                fields:
+                  - name: title
+                    label: "Title"
+                    type: string
+                  - name: text
+                    label: "Text"
+                    type: text
+          - name: fieldwork
+            label: "Fieldwork"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: text
+                label: "Text"
+                type: text
+              - name: button
+                label: "Button"
+                type: string
+              - name: button_url
+                label: "Button url"
+                type: string
+              - name: photos
+                label: "Photos"
+                type: object
+                list:
+                  max: 8
+                  collapsible:
+                    collapsed: true
+                    summary: "{alt}"
+                fields:
+                  - name: image
+                    label: "Image"
+                    type: image
+                    options:
+                      media: project_images
+                  - name: alt
+                    label: "Image description"
+                    type: text
+          - name: education
+            label: "Education"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: items
+                label: "Items"
+                type: object
+                list:
+                  max: 15
+                  collapsible:
+                    collapsed: true
+                    summary: "{year}"
+                fields:
+                  - name: year
+                    label: "Year"
+                    type: string
+                  - name: degree
+                    label: "Degree"
+                    type: string
+                  - name: institution
+                    label: "Institution"
+                    type: string
+          - name: cta
+            label: "Closing invitation"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: button
+                label: "Button"
+                type: string
+      - name: resume
+        label: "Résumé and CV"
+        type: file
+        path: _data/resume.json
+        format: json
+        fields:
+          - name: seo_description
+            label: "Search engine description"
+            type: text
+          - name: hero
+            label: "Introduction"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: emphasis
+                label: "Emphasis"
+                type: string
+              - name: intro
+                label: "Intro"
+                type: text
+              - name: download_label
+                label: "Download label"
+                type: string
+          - name: sidebar
+            label: "Résumé sidebar"
+            type: object
+            fields:
+              - name: contact_heading
+                label: "Contact heading"
+                type: text
+              - name: expertise_heading
+                label: "Expertise heading"
+                type: text
+              - name: expertise
+                label: "Expertise"
+                type: string
+                list:
+                  max: 30
+              - name: languages_heading
+                label: "Languages heading"
+                type: text
+              - name: languages
+                label: "Languages"
+                type: string
+              - name: linkedin_label
+                label: "Linkedin label"
+                type: string
+          - name: profile
+            label: "Profile"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: text
+                label: "Text"
+                type: text
+          - name: experience
+            label: "Professional experience"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: positions
+                label: "Jobs"
+                type: object
+                list:
+                  max: 12
+                  collapsible:
+                    collapsed: true
+                    summary: "{title}"
+                fields:
+                  - name: period
+                    label: "Period"
+                    type: string
+                  - name: location
+                    label: "Location"
+                    type: string
+                  - name: title
+                    label: "Title"
+                    type: string
+                  - name: company
+                    label: "Company"
+                    type: string
+                  - name: bullets
+                    label: "Bullets"
+                    type: text
+                    list:
+                      max: 16
+          - name: education
+            label: "Education"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: items
+                label: "Items"
+                type: object
+                list:
+                  max: 15
+                  collapsible:
+                    collapsed: true
+                    summary: "{year}"
+                fields:
+                  - name: year
+                    label: "Year"
+                    type: string
+                  - name: qualification
+                    label: "Qualification"
+                    type: string
+                  - name: institution
+                    label: "Institution"
+                    type: string
+          - name: development
+            label: "Development"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: items
+                label: "Items"
+                type: object
+                list:
+                  max: 15
+                  collapsible:
+                    collapsed: true
+                    summary: "{provider}"
+                fields:
+                  - name: provider
+                    label: "Provider"
+                    type: string
+                  - name: details
+                    label: "Details"
+                    type: text
+      - name: portfolio
+        label: "Portfolio Catalogue"
+        type: file
+        path: _data/portfolio.json
+        format: json
+        fields:
+          - name: seo_description
+            label: "Search engine description"
+            type: text
+          - name: hero
+            label: "Introduction"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: emphasis
+                label: "Emphasis"
+                type: string
+              - name: intro
+                label: "Intro"
+                type: text
+          - name: filters
+            label: "Filters"
+            type: object
+            fields:
+              - name: all
+                label: "All"
+                type: string
+              - name: catchment
+                label: "Catchment"
+                type: string
+              - name: water
+                label: "Water"
+                type: string
+              - name: risk
+                label: "Risk"
+                type: string
+              - name: remote
+                label: "Remote"
+                type: string
+              - name: webgis
+                label: "Webgis"
+                type: string
+          - name: card_link_label
+            label: "Card link label"
+            type: string
+          - name: cta
+            label: "Closing invitation"
+            type: object
+            fields:
+              - name: kicker
+                label: "Kicker"
+                type: string
+              - name: heading
+                label: "Heading"
+                type: text
+              - name: button
+                label: "Button"
+                type: string
   - name: projects
     label: Portfolio projects
     type: collection
