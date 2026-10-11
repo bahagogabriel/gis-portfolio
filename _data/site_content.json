@@ -1,0 +1,20 @@
+{
+  "public_name": "Samuel Bahago Gabriel",
+  "first_name": "Samuel",
+  "initials": "SBG",
+  "job_title": "GIS Analyst",
+  "location": "Jos, Nigeria",
+  "email": "Bahagogabriel@gmail.com",
+  "telephone": "+2349034446050",
+  "phone_display": "+234 903 444 6050",
+  "linkedin": "https://www.linkedin.com/in/bahagogabriel",
+  "cv_file": "/downloads/Samuel_Bahago_Gabriel_CV.pdf",
+  "nav": {
+    "home": "Home",
+    "about": "About Me",
+    "resume": "Résumé",
+    "portfolio": "Portfolio",
+    "contact": "Contact"
+  },
+  "theme": "green"
+}
