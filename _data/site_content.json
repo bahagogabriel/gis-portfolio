@@ -16,5 +16,21 @@
     "portfolio": "Portfolio",
     "contact": "Contact"
   },
-  "theme": "green"
+  "theme": "green",
+  "project_labels": {
+    "contribution": "My contribution",
+    "objective": "Project objective",
+    "duration": "Duration",
+    "client": "Client",
+    "study_area": "Study area",
+    "role": "Role",
+    "workflow": "Spatial workflow",
+    "gallery": "Project gallery",
+    "outputs": "Outputs and value",
+    "attribution": "Project attribution",
+    "next_kicker": "Continue exploring",
+    "next_heading": "Explore more GIS, remote-sensing and environmental-planning work.",
+    "next_button": "View all projects",
+    "expand_image": "Expanded project image"
+  }
 }
