@@ -1,0 +1,59 @@
+{%- assign person_id = '/about.html' | absolute_url | append: '#person' -%}
+{%- capture person_data -%}
+{
+  "@type": "Person",
+  "@id": {{ person_id | jsonify }},
+  "name": {{ site.data.site_content.public_name | jsonify }},
+  "url": {{ '/about.html' | absolute_url | jsonify }},
+  "jobTitle": {{ site.data.site_content.job_title | jsonify }},
+  "description": {{ site.data.about.hero.intro | jsonify }},
+  "image": {{ site.data.home.hero.portrait | absolute_url | jsonify }},
+  "sameAs": [{{ site.data.site_content.linkedin | jsonify }}, "https://github.com/bahagogabriel"]
+}
+{%- endcapture -%}
+{%- if include.kind == 'home' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": {{ '/' | absolute_url | append: '#website' | jsonify }},
+      "name": {{ site.data.site_content.public_name | jsonify }},
+      "url": {{ '/' | absolute_url | jsonify }},
+      "description": {{ site.data.home.seo_description | jsonify }},
+      "inLanguage": "en",
+      "publisher": { "@id": {{ person_id | jsonify }} }
+    },
+    {{ person_data }}
+  ]
+}
+</script>
+{%- elsif include.kind == 'about' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ProfilePage",
+      "@id": {{ '/about.html' | absolute_url | append: '#profile' | jsonify }},
+      "url": {{ '/about.html' | absolute_url | jsonify }},
+      "mainEntity": { "@id": {{ person_id | jsonify }} }
+    },
+    {{ person_data }}
+  ]
+}
+</script>
+{%- elsif include.kind == 'project' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": {{ page.title | jsonify }},
+  "description": {{ page.summary | jsonify }},
+  "url": {{ page.url | absolute_url | jsonify }},
+  "creator": { "@id": {{ person_id | jsonify }} },
+  "isPartOf": { "@id": {{ '/' | absolute_url | append: '#website' | jsonify }} }
+}
+</script>
+{%- endif -%}
