@@ -5,64 +5,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Samuel Bahago Gabriel is a GIS Analyst using spatial analysis, remote sensing and hydrology to support environmental and infrastructure decisions in Nigeria.">
+  <meta name="description" content="{{ site.data.home.seo_description | escape }}">
   <meta name="theme-color" content="#07131d">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307131d'/%3E%3Cpath d='M9 42c10-17 20 7 29-12s15-2 17-12M9 50c11-12 19 5 30-7s12-6 16-16M10 32c8-15 19 5 28-13s14-5 17-9' fill='none' stroke='%2346d6a0' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='39' cy='30' r='4' fill='%23f5b942'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
   <script src="{{ '/app.js' | relative_url }}" defer></script>
-  <title>Samuel Bahago Gabriel | GIS Analyst</title>
+  <title>{{ site.data.site_content.public_name | escape }} | {{ site.data.site_content.job_title | escape }}</title>
 </head>
-<body class="multipage home-page" data-page="home">
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header" data-header>
-    <a class="brand" href="index.html" aria-label="Samuel Bahago Gabriel, home"><span class="brand-mark" aria-hidden="true">SBG</span><span class="brand-copy"><strong>Samuel Bahago Gabriel</strong><small>GIS Analyst</small></span></a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span></span><span></span><span></span><span class="sr-only">Open menu</span></button>
-    <nav class="site-nav" id="site-nav" aria-label="Main navigation" data-nav>
-      <a href="index.html" data-nav-page="home">Home</a><a href="about.html" data-nav-page="about">About Me</a><a href="resume.html" data-nav-page="resume">Résumé</a><a href="portfolio.html" data-nav-page="portfolio">Portfolio</a><a class="nav-contact" href="#contact">Contact</a>
-    </nav>
-  </header>
+<body class="multipage home-page tone-{{ site.data.site_content.theme | default: 'green' }}" data-page="home">
+  {% include site-header.html home=true %}
 
   <main id="main">
     <section class="profile-hero">
       <div class="profile-photo-wrap reveal">
-        <div class="profile-photo-ring"><img src="assets/samuel-portrait.webp" alt="Professional portrait of Samuel Bahago Gabriel" width="780" height="980"></div>
-        <span class="profile-location">Jos, Nigeria</span>
+        <div class="profile-photo-ring"><img src="{{ site.data.home.hero.portrait | relative_url }}" alt="{{ site.data.home.hero.portrait_alt | escape }}" width="780" height="980"></div>
+        <span class="profile-location">{{ site.data.site_content.location | escape }}</span>
       </div>
       <div class="profile-intro reveal" data-delay="1">
-        <p class="eyebrow"><span></span> GIS · Remote sensing · Hydrology</p>
-        <h1>Hello, I’m <em>Samuel.</em></h1>
-        <p class="profile-lead">I turn satellite imagery, maps and field evidence into practical insights for flood resilience, water resources and environmental planning.</p>
-        <p class="profile-summary">My work spans strategic catchment planning, flood resilience, dam and irrigation studies, land-cover analysis and environmental assessment across Nigeria.</p>
-        <div class="hero-actions"><a class="button button-primary" href="{{ '/portfolio.html' | relative_url }}">Explore my work <span aria-hidden="true">↗</span></a><a class="button button-ghost" href="about.html">More about me</a></div>
-        <div class="profile-links"><a href="https://www.linkedin.com/in/bahagogabriel" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="mailto:Bahagogabriel@gmail.com">Email</a><a href="{{ '/downloads/Samuel_Bahago_Gabriel_CV.pdf' | relative_url }}" download>Download CV</a></div>
+        <p class="eyebrow"><span></span> {{ site.data.home.hero.eyebrow | escape }}</p>
+        <h1>{{ site.data.home.hero.greeting | escape }} <em>{{ site.data.home.hero.emphasis | escape }}</em></h1>
+        <p class="profile-lead">{{ site.data.home.hero.lead | escape }}</p>
+        <p class="profile-summary">{{ site.data.home.hero.summary | escape }}</p>
+        <div class="hero-actions"><a class="button button-primary" href="{{ '/portfolio.html' | relative_url }}">{{ site.data.home.hero.portfolio_button | escape }} <span aria-hidden="true">↗</span></a><a class="button button-ghost" href="{{ '/about.html' | relative_url }}">{{ site.data.home.hero.about_button | escape }}</a></div>
+        <div class="profile-links"><a href="{{ site.data.site_content.linkedin }}" target="_blank" rel="noopener noreferrer">{{ site.data.home.contact.linkedin_label | escape }}</a><a href="mailto:{{ site.data.site_content.email }}">{{ site.data.home.contact.email_label | escape }}</a><a href="{{ site.data.site_content.cv_file | relative_url }}" download>{{ site.data.home.hero.cv_button | escape }}</a></div>
       </div>
     </section>
-
     <section class="home-proof" aria-label="Professional highlights">
-      <div><strong>7 years</strong><span>GIS experience</span></div><div><strong>20</strong><span>Strategic catchments</span></div><div><strong>19 states + FCT</strong><span>National field coverage</span></div><div><strong>3</strong><span>Earth-dam sites supported</span></div>
+      {% for item in site.data.home.highlights %}<div><strong>{{ item.value | escape }}</strong><span>{{ item.label | escape }}</span></div>{% endfor %}
     </section>
-
     <section class="section home-feature">
-      <div class="section-heading reveal"><div><p class="kicker">Featured work</p><h2>Spatial evidence for real decisions.</h2></div><p>A selection of professional and independent work across environmental planning, water resources and climate resilience.</p></div>
+      <div class="section-heading reveal"><div><p class="kicker">{{ site.data.home.featured.kicker | escape }}</p><h2>{{ site.data.home.featured.heading | escape }}</h2></div><p>{{ site.data.home.featured.intro | escape }}</p></div>
       <div class="home-feature-grid">
-        <article class="feature-story reveal"><a href="projects/strategic-catchment-management-plans.html"><img src="assets/scmp-20-catchments.webp" alt="Twenty strategic catchments covering Northern Nigeria"><div><span>National programme · 2024–2026</span><h3>20 Strategic Catchment Management Plans</h3><p>Watershed delineation, baseline studies, stakeholder evidence and standardized GIS outputs across Northern Nigeria.</p><strong>Read the case study →</strong></div></a></article>
-        <article class="feature-story reveal" data-delay="1"><a href="https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/" target="_blank" rel="noopener noreferrer"><img src="assets/lokoja-intervention-priority.webp" alt="Lokoja flood-resilience intervention priority map"><div><span>Independent project · 2026</span><h3>Lokoja Flood Resilience</h3><p>Explore where Lokoja is flood-prone and which locations could benefit from closer resilience planning.</p><strong>Open the dashboard ↗</strong></div></a></article>
+        {% for item in site.data.home.featured.cards %}
+        <article class="feature-story reveal"><a href="{% if item.external %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}"{% if item.external %} target="_blank" rel="noopener noreferrer"{% endif %}><img src="{{ item.image | relative_url }}" alt="{{ item.alt | escape }}"><div><span>{{ item.label | escape }}</span><h3>{{ item.title | escape }}</h3><p>{{ item.text | escape }}</p><strong>{{ item.link_text | escape }}</strong></div></a></article>
+        {% endfor %}
       </div>
       <div class="research-spotlight reveal" aria-labelledby="research-heading">
-        <div class="research-heading"><div><p class="kicker">Interactive environmental research</p><h3 id="research-heading">Explore the evidence behind the maps.</h3></div><p>Three recent studies show where further environmental investigation or planning could be useful. Each atlas explains what was studied, what the evidence found and what remains uncertain.</p></div>
+        <div class="research-heading"><div><p class="kicker">{{ site.data.home.research.kicker | escape }}</p><h3 id="research-heading">{{ site.data.home.research.heading | escape }}</h3></div><p>{{ site.data.home.research.intro | escape }}</p></div>
         <div class="research-links">
-          <a href="{{ '/projects/niger-delta-gas-flaring-evidence-atlas.html' | relative_url }}"><span class="research-label">Niger Delta · 2012–2025</span><strong>Gas-Flaring Evidence Atlas</strong><span>Where might flare-reduction and environmental monitoring investigations begin?</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
-          <a href="{{ '/projects/bayelsa-oil-spill-evidence-atlas.html' | relative_url }}"><span class="research-label">Bayelsa · 2006–2018</span><strong>Oil-Spill Evidence Atlas</strong><span>Where did historical incident records show repeated spill reports?</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
-          <a href="{{ '/projects/anambra-soil-erosion-prioritization.html' | relative_url }}"><span class="research-label">Anambra · 2026 study</span><strong>Soil-Erosion Prioritization</strong><span>Where should erosion-control investigations and conservation planning begin?</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
+          {% for item in site.data.home.research.links %}
+          <a href="{% if item.url contains '://' %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}"><span class="research-label">{{ item.label | escape }}</span><strong>{{ item.title | escape }}</strong><span>{{ item.text | escape }}</span><em>Read the case study <span aria-hidden="true">→</span></em></a>
+          {% endfor %}
         </div>
       </div>
-      <a class="section-link reveal" href="{{ '/portfolio.html' | relative_url }}">View the full portfolio <span aria-hidden="true">→</span></a>
+      <a class="section-link reveal" href="{{ '/portfolio.html' | relative_url }}">{{ site.data.home.contact.portfolio_all_label | escape }} <span aria-hidden="true">→</span></a>
     </section>
+    <section class="home-band"><div class="section home-band-inner reveal"><p class="kicker">{{ site.data.home.work.kicker | escape }}</p><h2>{{ site.data.home.work.heading | escape }}</h2><div class="home-band-grid">{% for paragraph in site.data.home.work.paragraphs %}<p>{{ paragraph | escape }}</p>{% endfor %}</div></div></section>
 
-    <section class="home-band"><div class="section home-band-inner reveal"><p class="kicker">How I work</p><h2>Earth science informs the analysis. Clear communication makes it useful.</h2><div class="home-band-grid"><p>I combine satellite imagery, terrain models, field evidence and stakeholder knowledge to build defensible spatial products.</p><p>My goal is not simply to produce maps, but to explain patterns, support planning and make technical evidence accessible.</p></div></div></section>
-
-    <section class="contact-section" id="contact"><div class="contact-inner reveal"><p class="kicker">Start a conversation</p><h2>Have a spatial problem worth solving?</h2><p>I am open to GIS, remote-sensing, water-resources and environmental-planning opportunities.</p><div class="contact-actions"><a class="button button-light" href="mailto:Bahagogabriel@gmail.com">Bahagogabriel@gmail.com <span aria-hidden="true">↗</span></a><a class="button button-outline-light" href="tel:+2349034446050">+234 903 444 6050</a><a class="button button-outline-light" href="https://www.linkedin.com/in/bahagogabriel" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></div></section>
+    <section class="contact-section" id="contact"><div class="contact-inner reveal"><p class="kicker">{{ site.data.home.contact.kicker | escape }}</p><h2>{{ site.data.home.contact.heading | escape }}</h2><p>{{ site.data.home.contact.intro | escape }}</p><div class="contact-actions"><a class="button button-light" href="mailto:{{ site.data.site_content.email }}">{{ site.data.site_content.email | escape }} <span aria-hidden="true">↗</span></a><a class="button button-outline-light" href="tel:{{ site.data.site_content.telephone }}">{{ site.data.site_content.phone_display | escape }}</a><a class="button button-outline-light" href="{{ site.data.site_content.linkedin }}" target="_blank" rel="noopener noreferrer">{{ site.data.home.contact.linkedin_label | escape }}</a></div></div></section>
   </main>
-  <footer class="site-footer"><p>Samuel Bahago Gabriel <span>·</span> GIS Analyst <span>·</span> Jos, Nigeria</p><a href="#main">Back to top ↑</a></footer>
+  {% include site-footer.html home=true %}
 </body>
 </html>
