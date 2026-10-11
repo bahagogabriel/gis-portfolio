@@ -1,0 +1,22 @@
+name: Validate Jekyll portfolio and CMS content
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Pages CMS YAML
+        run: ruby -ryaml -e 'config = YAML.load_file(".pages.yml"); abort "No CMS content" unless config["content"].is_a?(Array) && config["content"].length >= 2'
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: .
+          destination: ./_site
+      - name: Validate built pages and project links
+        run: python3 .github/scripts/check_site.py
