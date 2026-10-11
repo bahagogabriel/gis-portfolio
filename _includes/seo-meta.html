@@ -1,0 +1,20 @@
+{%- assign seo_path = include.path | default: page.url -%}
+{%- assign seo_canonical = seo_path | absolute_url -%}
+{%- assign seo_image = include.image | default: site.data.home.hero.portrait -%}
+{%- assign seo_extension = seo_image | slice: -4, 4 -%}
+{%- if seo_extension == '.svg' -%}
+  {%- assign seo_image = site.data.home.hero.portrait -%}
+{%- endif -%}
+<link rel="canonical" href="{{ seo_canonical | escape }}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_NG">
+<meta property="og:site_name" content="{{ site.data.site_content.public_name | escape }}">
+<meta property="og:title" content="{% if include.kind == 'home' %}{{ site.data.site_content.public_name | escape }} | {{ site.data.site_content.job_title | escape }}{% else %}{{ include.title | escape }} | {{ site.data.site_content.public_name | escape }}{% endif %}">
+<meta property="og:description" content="{{ include.description | escape }}">
+<meta property="og:url" content="{{ seo_canonical | escape }}">
+<meta property="og:image" content="{{ seo_image | absolute_url | escape }}">
+<meta property="og:image:alt" content="{% if seo_extension == '.svg' %}Professional portrait of {{ site.data.site_content.public_name | escape }}{% else %}{{ include.image_alt | default: 'Professional portrait' | escape }}{% endif %}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{% if include.kind == 'home' %}{{ site.data.site_content.public_name | escape }} | {{ site.data.site_content.job_title | escape }}{% else %}{{ include.title | escape }} | {{ site.data.site_content.public_name | escape }}{% endif %}">
+<meta name="twitter:description" content="{{ include.description | escape }}">
+<meta name="twitter:image" content="{{ seo_image | absolute_url | escape }}">
