@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Validate built Jekyll portfolio content, local assets and core user journeys."""
 import json
+import subprocess
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+subprocess.run(["ruby", ".github/scripts/check_cms_types.rb"], check=True)
 
 ROOT = Path("_site")
 PROJECTS = sorted((ROOT / "projects").glob("*.html"))
