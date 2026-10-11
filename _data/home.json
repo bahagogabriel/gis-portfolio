@@ -1,0 +1,101 @@
+{
+  "seo_description": "Samuel Bahago Gabriel is a GIS Analyst using spatial analysis, remote sensing and hydrology to support environmental and infrastructure decisions in Nigeria.",
+  "hero": {
+    "eyebrow": "GIS · Remote sensing · Hydrology",
+    "greeting": "Hello, I’m",
+    "emphasis": "Samuel.",
+    "lead": "I turn satellite imagery, maps and field evidence into practical insights for flood resilience, water resources and environmental planning.",
+    "summary": "My work spans strategic catchment planning, flood resilience, dam and irrigation studies, land-cover analysis and environmental assessment across Nigeria.",
+    "portrait": "/assets/samuel-portrait.webp",
+    "portrait_alt": "Professional portrait of Samuel Bahago Gabriel",
+    "portfolio_button": "Explore my work",
+    "about_button": "More about me",
+    "cv_button": "Download CV"
+  },
+  "highlights": [
+    {
+      "value": "7 years",
+      "label": "GIS experience"
+    },
+    {
+      "value": "20",
+      "label": "Strategic catchments"
+    },
+    {
+      "value": "19 states + FCT",
+      "label": "National field coverage"
+    },
+    {
+      "value": "3",
+      "label": "Earth-dam sites supported"
+    }
+  ],
+  "featured": {
+    "kicker": "Featured work",
+    "heading": "Spatial evidence for real decisions.",
+    "intro": "A selection of professional and independent work across environmental planning, water resources and climate resilience.",
+    "cards": [
+      {
+        "image": "/assets/scmp-20-catchments.webp",
+        "alt": "Twenty strategic catchments covering Northern Nigeria",
+        "label": "National programme · 2024–2026",
+        "title": "20 Strategic Catchment Management Plans",
+        "text": "Watershed delineation, baseline studies, stakeholder evidence and standardized GIS outputs across Northern Nigeria.",
+        "url": "/projects/strategic-catchment-management-plans.html",
+        "link_text": "Read the case study →",
+        "external": false
+      },
+      {
+        "image": "/assets/lokoja-intervention-priority.webp",
+        "alt": "Lokoja flood-resilience intervention priority map",
+        "label": "Independent project · 2026",
+        "title": "Lokoja Flood Resilience",
+        "text": "Explore where Lokoja is flood-prone and which locations could benefit from closer resilience planning.",
+        "url": "https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/",
+        "link_text": "Open the dashboard ↗",
+        "external": true
+      }
+    ]
+  },
+  "research": {
+    "kicker": "Interactive environmental research",
+    "heading": "Explore the evidence behind the maps.",
+    "intro": "Three recent studies show where further environmental investigation or planning could be useful. Each atlas explains what was studied, what the evidence found and what remains uncertain.",
+    "links": [
+      {
+        "label": "Niger Delta · 2012–2025",
+        "title": "Gas-Flaring Evidence Atlas",
+        "text": "Where might flare-reduction and environmental monitoring investigations begin?",
+        "url": "/projects/niger-delta-gas-flaring-evidence-atlas.html"
+      },
+      {
+        "label": "Bayelsa · 2006–2018",
+        "title": "Oil-Spill Evidence Atlas",
+        "text": "Where did historical incident records show repeated spill reports?",
+        "url": "/projects/bayelsa-oil-spill-evidence-atlas.html"
+      },
+      {
+        "label": "Anambra · 2026 study",
+        "title": "Soil-Erosion Prioritization",
+        "text": "Where should erosion-control investigations and conservation planning begin?",
+        "url": "/projects/anambra-soil-erosion-prioritization.html"
+      }
+    ]
+  },
+  "work": {
+    "kicker": "How I work",
+    "heading": "Earth science informs the analysis. Clear communication makes it useful.",
+    "paragraphs": [
+      "I combine satellite imagery, terrain models, field evidence and stakeholder knowledge to build defensible spatial products.",
+      "My goal is not simply to produce maps, but to explain patterns, support planning and make technical evidence accessible."
+    ]
+  },
+  "contact": {
+    "kicker": "Start a conversation",
+    "heading": "Have a spatial problem worth solving?",
+    "intro": "I am open to GIS, remote-sensing, water-resources and environmental-planning opportunities.",
+    "linkedin_label": "LinkedIn",
+    "email_label": "Email",
+    "portfolio_all_label": "View the full portfolio"
+  }
+}

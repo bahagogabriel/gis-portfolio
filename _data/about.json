@@ -1,0 +1,87 @@
+{
+  "seo_description": "About Samuel Bahago Gabriel, GIS Analyst and geoscience professional based in Jos, Nigeria.",
+  "hero": {
+    "kicker": "About me",
+    "heading": "Geoscience training.",
+    "emphasis": "Spatial thinking.",
+    "intro": "I am a GIS Analyst who enjoys using technology to understand the earth, water systems and the communities that depend on them."
+  },
+  "story": {
+    "kicker": "My story",
+    "heading": "From geology to decision-ready geography.",
+    "photo": "/assets/engagement-portrait.webp",
+    "photo_alt": "Samuel Bahago Gabriel during an ACReSAL stakeholder engagement",
+    "photo_caption": "Stakeholder engagement · ACReSAL",
+    "paragraphs": [
+      "My background in Geology and Mineral Resources Engineering shaped the way I read landscapes. GIS gave me the tools to connect terrain, water, land use, infrastructure and communities within one analytical framework.",
+      "Since beginning my GIS career in 2019, I have worked on catchment-management programmes, dam and irrigation studies, flood-risk assessments, groundwater investigations, mining-impact studies and environmental baselines. At MECON Services Ltd., I support multidisciplinary teams from early data preparation and fieldwork through analysis, cartography and technical reporting.",
+      "I am especially interested in work where spatial evidence can improve climate resilience, water-resource management and environmental planning in Nigeria and across Africa."
+    ]
+  },
+  "values": {
+    "kicker": "What guides my work",
+    "heading": "Analytical rigour with practical purpose.",
+    "intro": "Strong GIS work should be technically sound, understandable and grounded in the place it represents.",
+    "items": [
+      {
+        "title": "Evidence first",
+        "text": "I build conclusions from traceable datasets, appropriate methods and transparent assumptions."
+      },
+      {
+        "title": "Think in systems",
+        "text": "Environmental problems connect terrain, water, land use, infrastructure and human activity."
+      },
+      {
+        "title": "Listen locally",
+        "text": "Field observations and stakeholder knowledge make regional analysis more useful and realistic."
+      },
+      {
+        "title": "Communicate clearly",
+        "text": "Maps and reports should help both technical teams and decision-makers understand what matters."
+      }
+    ]
+  },
+  "fieldwork": {
+    "kicker": "Beyond the desktop",
+    "heading": "Field engagement is part of the analysis.",
+    "text": "For the Strategic Catchment Management Plans, I supported engagements and spatial data integration across the 19 Northern States and the FCT. Those conversations helped convert local experience and institutional priorities into mapped evidence.",
+    "button": "Explore the catchment project",
+    "button_url": "/projects/strategic-catchment-management-plans.html",
+    "photos": [
+      {
+        "image": "/assets/scmp-technical-discussion.webp",
+        "alt": "Technical discussion during a stakeholder engagement"
+      },
+      {
+        "image": "/assets/scmp-engagement-session.webp",
+        "alt": "Samuel at a strategic catchment stakeholder engagement"
+      }
+    ]
+  },
+  "education": {
+    "kicker": "Education",
+    "heading": "A foundation in earth science and project delivery.",
+    "items": [
+      {
+        "year": "2024",
+        "degree": "Diploma in Project, Quality, Safety, Environment, Risk & Sustainability Management",
+        "institution": "QHSES Leadership Academy"
+      },
+      {
+        "year": "2023",
+        "degree": "B.Tech. Geology",
+        "institution": "Federal University of Technology Minna"
+      },
+      {
+        "year": "2016",
+        "degree": "ND Mineral Resources Engineering",
+        "institution": "Petroleum Training Institute"
+      }
+    ]
+  },
+  "cta": {
+    "kicker": "Next",
+    "heading": "See the professional experience behind the work.",
+    "button": "View my résumé →"
+  }
+}

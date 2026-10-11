@@ -1,0 +1,104 @@
+{
+  "seo_description": "Professional résumé of Samuel Bahago Gabriel, GIS Analyst specializing in remote sensing, hydrology and environmental planning.",
+  "hero": {
+    "kicker": "Professional résumé",
+    "heading": "Experience that connects",
+    "emphasis": "analysis and action.",
+    "intro": "GIS, remote sensing, hydrology and environmental planning for multidisciplinary projects across Nigeria.",
+    "download_label": "Download full CV"
+  },
+  "sidebar": {
+    "contact_heading": "Contact",
+    "expertise_heading": "Core expertise",
+    "expertise": [
+      "Spatial analysis and cartography",
+      "Remote sensing and Earth Engine",
+      "Watershed and drainage analysis",
+      "Flood, erosion and groundwater mapping",
+      "LULC and change detection",
+      "Geodatabase design and QA/QC",
+      "HEC-RAS and HEC-HMS support"
+    ],
+    "languages_heading": "Languages",
+    "languages": "English · Hausa · Numana",
+    "linkedin_label": "LinkedIn profile"
+  },
+  "profile": {
+    "kicker": "Profile",
+    "text": "GIS Analyst and geoscience professional with seven years of experience applying spatial analysis, remote sensing, terrain modelling and hydrologic methods to climate resilience, water resources, infrastructure and environmental-management assignments."
+  },
+  "experience": {
+    "kicker": "Professional experience",
+    "positions": [
+      {
+        "period": "2024–Present",
+        "location": "Jos, Nigeria",
+        "title": "GIS Analyst",
+        "company": "MECON Geology and Engineering Services",
+        "bullets": [
+          "Deliver GIS and remote-sensing analysis for water resources, infrastructure, climate-resilience and environmental assignments.",
+          "Integrate imagery, DEMs, climate records, field observations and stakeholder data into standardized spatial databases.",
+          "Perform watershed, terrain, LULC, flood, erosion and groundwater-potential analysis.",
+          "Prepare report-ready maps and support field validation and multidisciplinary engineering teams."
+        ]
+      },
+      {
+        "period": "2023–2024",
+        "location": "Abuja, Nigeria",
+        "title": "Groundwater Site Geologist",
+        "company": "JustFixIt Synergy Ltd.",
+        "bullets": [
+          "Supported groundwater investigations through geological field observation and interpretation of geospatial and geophysical information.",
+          "Prepared site maps and field records for borehole-siting decisions and technical reporting."
+        ]
+      },
+      {
+        "period": "2019–2023",
+        "location": "Remote · Minna",
+        "title": "GIS Analyst",
+        "company": "Geodiscovery Nigeria Ltd.",
+        "bullets": [
+          "Produced GIS and remote-sensing outputs for geological, environmental and natural-resource assignments.",
+          "Compiled, digitized, georeferenced and analysed datasets and prepared cartographic products for distributed project teams."
+        ]
+      }
+    ]
+  },
+  "education": {
+    "kicker": "Education",
+    "items": [
+      {
+        "year": "2024",
+        "qualification": "Diploma in Project, Quality, Safety, Environment, Risk & Sustainability Management",
+        "institution": "QHSES Leadership Academy"
+      },
+      {
+        "year": "2023",
+        "qualification": "B.Tech. Geology",
+        "institution": "Federal University of Technology Minna"
+      },
+      {
+        "year": "2016",
+        "qualification": "ND Mineral Resources Engineering",
+        "institution": "Petroleum Training Institute"
+      }
+    ]
+  },
+  "development": {
+    "kicker": "Professional development",
+    "items": [
+      {
+        "provider": "Esri MOOCs",
+        "details": "Going Places with Spatial Analysis; GIS for Climate Action"
+      },
+      {
+        "provider": "Coursera",
+        "details": "GIS Data Acquisition and Map Design; Spatial Analysis and Satellite Imagery; Introduction to GIS Mapping; Fundamentals of Graphic Design"
+      },
+      {
+        "provider": "Central University of Karnataka",
+        "details": "QGIS Certification Course"
+      }
+    ]
+  }
+}
