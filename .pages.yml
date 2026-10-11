@@ -242,8 +242,9 @@ content:
                     label: "Link button label"
                     type: text
                   - name: external
-                    label: "External"
-                    type: string
+                    label: "Open link in a new tab?"
+                    type: boolean
+                    description: "Enable for a separate website; leave off for portfolio pages."
           - name: research
             label: "Research atlas links"
             type: object
