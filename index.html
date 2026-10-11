@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="{{ '/styles.css' | relative_url }}">
   <script src="{{ '/app.js' | relative_url }}" defer></script>
   <title>{{ site.data.site_content.public_name | escape }} | {{ site.data.site_content.job_title | escape }}</title>
+  {% include seo-meta.html kind="home" path="/" description=site.data.home.seo_description image=site.data.home.hero.portrait image_alt=site.data.home.hero.portrait_alt %}
+  {% include seo-identity.html kind="home" %}
 </head>
 <body class="multipage home-page tone-{{ site.data.site_content.theme | default: 'green' }}" data-page="home">
   {% include site-header.html home=true %}
