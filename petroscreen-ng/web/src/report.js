@@ -129,6 +129,42 @@ function drawDetails(pdf,result){
   for(const c of citations)y=wrapped(pdf,"- "+c,19,y+1,171,7.2,4.1);
   footer(pdf,2);
 }
+function drawReconnaissance(pdf,result){
+  const source=result.mapped_context_2021;
+  if(!source || !Array.isArray(source.indicators) || source.indicators.length!==4)
+    throw new Error("Mapped source-backed reconnaissance result missing");
+  pdf.addPage();
+  header(pdf,"SITE RECONNAISSANCE | ESA 2021");
+  text(pdf,"Mapped landscape context and field verification",18,39,13,INK,"bold");
+  text(pdf,(result.site_state||"Verified pilot")+" State | "+result.radius_km+" km study radius | ESA WorldCover 2021 v200",18,47,9,MUTED);
+  let y=59;
+  y=wrapped(pdf,
+    "This table reports the approximate distance from the selected point to the nearest mapped class PIXEL CENTRE within the chosen buffer. It is NOT a surveyed feature boundary, a setback distance, a risk assessment or confirmation that the feature exists today.",
+    18,y,174,8.6,5);
+  y+=8;
+  y=section(pdf,"06  Observed landscape-class indicators",y);
+  y=rows(pdf,source.indicators.map(indicator=>[
+    indicator.label,
+    indicator.status==="mapped_in_study_buffer"
+      ?fmt(indicator.nearest_pixel_centre_m_approx,0)+" m to pixel centre"
+      :"Not mapped in available 2021 pixels"
+  ]),y);
+  y+=5;
+  y=wrapped(pdf,
+    "Mapped class area is already reported in the land-cover results on page 2. A class not mapped inside this buffer may exist in reality, particularly when satellite classification is dated or incomplete. Mapped built-up land is not proof of an occupied residence.",
+    19,y,171,8,5);
+  y+=10;
+  y=section(pdf,"07  Recommended field verification",y);
+  for(const indicator of source.indicators){
+    y=wrapped(pdf,"- "+indicator.verification,19,y,171,8.3,5);
+    y+=3;
+  }
+  y+=6;
+  y=wrapped(pdf,
+    "Project-specific next steps: obtain current field observations, distinguish freshwater from tidal environments, identify actual people and facilities, check sensitive habitat with specialists, and confirm which Nigerian environmental approvals and setbacks apply. No automated risk category or regulatory conclusion is given.",
+    19,y,171,8.4,5);
+  footer(pdf,3);
+}
 const COLORS={
   10:[65,123,91],20:[151,165,97],30:[198,192,124],40:[230,188,111],
   50:[217,128,104],60:[192,166,130],70:[228,235,230],80:[93,156,192],
@@ -231,6 +267,7 @@ export async function exportReportPdf({result,worldcoverImages,download=true}){
   const pdf=new jsPDF({unit:"mm",format:"a4",compress:true});
   drawCover(pdf,result,mapData);
   drawDetails(pdf,result);
+  drawReconnaissance(pdf,result);
   const region=(result.coverage_region||"").includes("nine-state")?
     (result.site_state||"Unresolved_State").replace(/[^a-z0-9_-]/gi,"_"):
     /Rivers/i.test(result.coverage_region||"")?"Bayelsa_Rivers":"Bayelsa";
