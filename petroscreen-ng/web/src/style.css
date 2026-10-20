@@ -55,3 +55,11 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .export-button{border:1px solid #587e68;color:#d5eee1;background:#234936;border-radius:7px;font-weight:650;font-size:10px;padding:10px 9px;cursor:pointer;flex:1 0 43%}
 .export-button:hover,.export-button:focus-visible{background:#2c6650;outline-offset:2px}
 @media(max-width:500px){.field-info{grid-template-columns:1fr}.field-task{flex-wrap:wrap}.field-task select{max-width:100%;width:100%}}
+
+/* Reopen a research case locally; no network uploader or persistence. */
+.case-import{margin-top:13px;border-top:1px solid rgba(140,175,157,.23);padding-top:13px}
+.reopen-case{width:100%;background:transparent;color:#c7e9d3;border:1px solid #587e68;
+  border-radius:8px;padding:10px 12px;font-size:11px;font-weight:700;cursor:pointer}
+.reopen-case:hover,.reopen-case:focus-visible{background:rgba(51,112,79,.27);outline-offset:2px}
+.case-import p.fine{margin:9px 0;line-height:1.5}
+#case-import-status{font-size:11px;color:#b9d7c8;line-height:1.5;margin:8px 0}
