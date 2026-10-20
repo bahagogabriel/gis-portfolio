@@ -4,7 +4,7 @@ import {readFile,mkdir} from "node:fs/promises";
 import {spawn} from "node:child_process";
 import {chromium} from "playwright";
 
-const URL="http://127.0.0.1:4174/";
+const ORIGIN="http://127.0.0.1:4174/";
 const OUT="petroscreen-ng/artifacts_two_state_web";
 const ORACLE=JSON.parse(await readFile(
   "petroscreen-ng/artifacts_two_state/two_state_engine_acceptance.json","utf8"));
@@ -19,7 +19,7 @@ const server=spawn(process.execPath,["node_modules/vite/bin/vite.js","preview",
   {cwd:"petroscreen-ng/web",stdio:"pipe"});
 async function waitServer(){
   for(let i=0;i<80;i++){
-    try{let r=await fetch(URL);if(r.ok)return;}catch{}
+    try{let r=await fetch(ORIGIN);if(r.ok)return;}catch{}
     await new Promise(r=>setTimeout(r,300));
   }
   throw Error("Local two-state preview server did not start");
@@ -35,7 +35,7 @@ try{
   const errors=[],requests=[];
   page.on("pageerror",e=>errors.push(e.message));
   page.on("request",r=>requests.push(r.url()));
-  await page.goto(URL,{waitUntil:"domcontentloaded"});
+  await page.goto(ORIGIN,{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",
     null,{timeout:90000});
   await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
@@ -80,13 +80,13 @@ try{
     /outside the verified Bayelsa and Rivers screening area/);
   const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
   mobile.on("pageerror",e=>errors.push(e.message));
-  await mobile.goto(URL,{waitUntil:"domcontentloaded"});
+  await mobile.goto(ORIGIN,{waitUntil:"domcontentloaded"});
   await mobile.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",
     null,{timeout:90000});
   await mobile.screenshot({path:OUT+"/two_state_mobile_map.png",fullPage:true});
   assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>
       window.innerWidth+3),false,"Mobile page overflows horizontally");
-  const external=requests.filter(x=>/^https?:/.test(x)&&new URL(x).origin!==new URL(URL).origin);
+  const external=requests.filter(x=>/^https?:/.test(x)&&new URL(x).origin!==new URL(ORIGIN).origin);
   assert.deepEqual(external,[],"External network requests would expose information");
   assert.deepEqual(errors,[],"Unexpected browser JavaScript errors");
   console.log(JSON.stringify({status:"PASS",screening_cases:tests.length,
