@@ -1,7 +1,7 @@
 import * as maplibregl from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
-import {jsPDF} from "jspdf";
+import {exportReportPdf} from "./report.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -17,6 +17,7 @@ const map=new maplibregl.Map({container:"map",
   style:{version:8,sources:{},layers:[{id:"background",type:"background",
     paint:{"background-color":"#e6eee8"}}]},
   center:[6.02,4.83],zoom:8.35,attributionControl:false,
+  preserveDrawingBuffer:true,
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
 
@@ -133,10 +134,19 @@ function display(result){
     const name=document.createElement("span");name.textContent="km² · ≥"+item.threshold_pct+"% historical occurrence";
     node.append(b,name);water.append(node);
   }
-  $("warnings").textContent=result.warnings.length?
+  const status=$("warnings");
+  status.classList.toggle("coverage-ok",result.warnings.length===0);
+  status.classList.toggle("coverage-caution",result.warnings.length>0);
+  status.textContent=result.warnings.length?
     "Coverage caution: "+result.warnings.join(" | "):
     "Source coverage is sufficient for this preliminary buffer calculation.";
   drawSite(result.circle);
+  const ring=result.circle.geometry.coordinates[0];
+  const west=Math.min(...ring.map(p=>p[0])),east=Math.max(...ring.map(p=>p[0]));
+  const south=Math.min(...ring.map(p=>p[1])),north=Math.max(...ring.map(p=>p[1]));
+  map.fitBounds([[west,south],[east,north]],{
+    padding:{top:95,bottom:85,left:65,right:65},maxZoom:14.5,duration:450
+  });
 }
 ui.form.addEventListener("submit",async e=>{
   e.preventDefault();if(!layers){ui.feedback.textContent="Data not ready";return;}
@@ -151,38 +161,19 @@ ui.form.addEventListener("submit",async e=>{
   }catch(error){ui.feedback.textContent="Screening failed: "+error.message;}
   finally{ui.button.disabled=false;}
 });
-ui.pdf.addEventListener("click",()=>{
+ui.pdf.addEventListener("click",async()=>{
   if(!lastResult)return;
-  const doc=new jsPDF({unit:"mm",format:"a4"});
-  let y=20;const left=18;
-  function line(text,size=10,step=7){
-    doc.setFontSize(size);
-    const segments=doc.splitTextToSize(String(text),173);
-    if(y+segments.length*step>275){doc.addPage();y=20;}
-    doc.text(segments,left,y);y+=segments.length*step;
+  ui.pdf.disabled=true;
+  ui.pdf.textContent="Preparing mapped screening PDF…";
+  try{
+    await exportReportPdf({result:lastResult,map});
+    ui.feedback.textContent="Mapped screening PDF downloaded.";
+  }catch(error){
+    ui.feedback.textContent="PDF report could not be completed: "+error.message;
+  }finally{
+    ui.pdf.disabled=false;
+    ui.pdf.textContent="Download screening PDF ↓";
   }
-  line("PETROSCREEN NG",19,9);
-  line("PRELIMINARY ENVIRONMENTAL SITE SCREENING — RESEARCH PREVIEW",9,8);
-  line("Bayelsa, Nigeria  |  "+new Date().toISOString().slice(0,10),10,8);
-  line("WGS84 longitude: "+lastResult.location_wgs84.longitude+", latitude: "+
-    lastResult.location_wgs84.latitude+"; radius: "+lastResult.radius_km+" km",10);
-  line("Buffer area: "+fmt(lastResult.buffer_area_km2_approx,5)+" km2 (approximately)",10);
-  line("ESA WorldCover 2021 v200 — mapped land-cover composition",13);
-  for(const c of lastResult.land_cover_2021.classes)line(
-    c.class+": "+fmt(c.area_km2_approx,5)+" km2 ("+fmt(c.share_of_valid_classified_pct,2)+"% of valid classes)",9,5.5);
-  y+=5;line("JRC Global Surface Water 1984–2024 — historical occurrence",13);
-  for(const w of lastResult.surface_water_occurrence_1984_2024.threshold_areas)line(
-    "Occurrence >= "+w.threshold_pct+"%: "+fmt(w.area_km2_approx,5)+" km2",9,6);
-  line("Mapped land-cover coverage: "+fmt(lastResult.land_cover_2021.coverage.whole_buffer_coverage_pct_approx,2)+"%",9);
-  line("Water raster coverage: "+fmt(lastResult.surface_water_occurrence_1984_2024.coverage.whole_buffer_coverage_pct_approx,2)+"%",9);
-  if(lastResult.warnings.length)line("WARNINGS: "+lastResult.warnings.join("; "),9);
-  y+=5;line("SOURCES AND CONDITIONS",12);
-  line("ESA WorldCover 2021 v200, Zanaga et al. (2022), DOI:10.5281/zenodo.7254221; CC BY 4.0.",9,5);
-  line("© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium.",8,5);
-  line("European Commission Joint Research Centre, Global Surface Water v1.5 (1984–2024), CC BY 4.0.",8,5);
-  line("Bayelsa boundary: geoBoundaries gbOpen Nigeria ADM1 (2022), CC BY 4.0.",8,5);
-  line("LIMITATIONS: Preliminary satellite-derived screening only. Not a regulatory EIA, contamination map, spill prediction, flood-hazard assessment or field verification. Pixel-centre area approximations and coastline uncertainty apply.",9,6);
-  doc.save("PetroScreenNG_Bayelsa_Preliminary_Screening.pdf");
 });
 $("methods-link").addEventListener("click",e=>{e.preventDefault();$("methods-dialog").showModal();});
 $("close-methods").addEventListener("click",()=>$("methods-dialog").close());
