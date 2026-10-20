@@ -77,7 +77,7 @@ def main():
             "raster_domain_halo_m":5000,
             "source_qa":"passed_sha256_and_source_footprint",
             "reference_engine_1_3_5km":"passed"})
-    union=unary_union(shape(f["geometry"]) for f in all_features)
+    union=unary_union([shape(f["geometry"]) for f in all_features])
     if union.is_empty or not union.is_valid:raise RuntimeError("Invalid nine-state union")
     bounds=union.bounds
     wc_geo={"type":"FeatureCollection","features":[
