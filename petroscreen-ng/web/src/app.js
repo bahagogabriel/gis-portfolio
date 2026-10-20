@@ -2,6 +2,7 @@ import * as maplibregl from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
+import {renderSiteDetail} from "./site_detail.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -14,6 +15,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let verifiedStates=[];
+let detailRequestId=0;
 let loadState="loading",loadStage="Preparing local satellite data…",loadError=null;
 const map=new maplibregl.Map({container:"map",
   // Self-contained map style: essential geographic context must work without a tile provider.
@@ -82,6 +84,10 @@ function invalidatePrevious(){
   ui.results.hidden=true;
   ui.empty.hidden=false;
   ui.subtitle.textContent="Your site assessment appears here after analysis.";
+  detailRequestId++;
+  if(mapReady && map.getLayer("native-site-detail")){
+    map.removeLayer("native-site-detail");map.removeSource("native-site-detail");
+  }
   if(mapReady && map.getSource("study"))map.getSource("study").setData(emptyGeo);
 }
 for(const input of [ui.lon,ui.lat]){
@@ -231,6 +237,26 @@ function display(result){
   map.fitBounds([[west,south],[east,north]],{
     padding:{top:95,bottom:85,left:65,right:65},maxZoom:14.5,duration:450
   });
+  // Upgrade the visible background using the VERIFIED native 10m cells.
+  // This layer does not participate in screening arithmetic or the PDF.
+  const request=++detailRequestId;
+  Promise.resolve().then(()=>renderSiteDetail(layers.worldcoverImages,
+    result.location_wgs84.longitude,result.location_wgs84.latitude,result.radius_km))
+    .then(detail=>{
+      if(request!==detailRequestId || !mapReady || !lastResult)return;
+      if(map.getLayer("native-site-detail")){
+        map.removeLayer("native-site-detail");map.removeSource("native-site-detail");
+      }
+      map.addSource("native-site-detail",{type:"image",url:detail.url,
+        coordinates:detail.coordinates});
+      map.addLayer({id:"native-site-detail",type:"raster",source:"native-site-detail",
+        paint:{"raster-opacity":1,"raster-resampling":"nearest"}},"pilot-fill");
+      $("map").dataset.detailReady="true";
+    })
+    .catch(error=>{
+      console.warn("Detailed site view unavailable; verified overview retained:",error.message);
+      $("map").dataset.detailReady="fallback";
+    });
 }
 ui.form.addEventListener("submit",async e=>{
   e.preventDefault();if(!layers){ui.feedback.textContent="Data not ready";return;}
