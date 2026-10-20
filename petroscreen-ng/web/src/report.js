@@ -115,9 +115,9 @@ function drawDetails(pdf,result){
   const citations=[
     "ESA WorldCover 2021 v200; Zanaga et al. (2022), DOI:10.5281/zenodo.7254221; CC BY 4.0.",
     "Copyright ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium.",
-    "European Commission Joint Research Centre, Global Surface Water v1.5, 1984-2024; source terms and cautions apply.",
-    "geoBoundaries gbOpen Nigeria ADM1 2022, Bayelsa boundary, CC BY 4.0.",
-    "Interpretation: preliminary desk screening only. Verify sensitive habitats, receptors, site conditions and project-specific regulatory requirements in field studies."
+    "JRC Global Surface Water v1.5 1984-2024. Source: EC JRC/Google; Copernicus terms. Pekel et al. 2016, DOI:10.1038/nature20584.",
+    "geoBoundaries gbOpen Nigeria ADM1 2022 (original source GRID3), Bayelsa boundary, CC BY 4.0.",
+    "Interpretation: mapped data are not field findings. JRC Landsat collection offsets may exceed 30 m locally. Verify sensitive receptors and project-specific regulatory requirements in field studies."
   ];
   for(const c of citations)y=wrapped(pdf,"- "+c,19,y+1,171,7.2,4.1);
   footer(pdf,2);

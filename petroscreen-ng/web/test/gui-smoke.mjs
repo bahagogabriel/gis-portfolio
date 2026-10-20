@@ -27,6 +27,8 @@ try {
   const page=await browser.newPage({viewport:{width:1440,height:900},
     deviceScaleFactor:1,acceptDownloads:true});
   const errors=[];
+  const networkRequests=[];
+  page.on("request",req=>networkRequests.push(req.url()));
   page.on("pageerror",e=>errors.push(e.message));
   page.on("console",message=>{if(message.type()==="error")errors.push("console: "+message.text());});
   await page.goto(endpoint,{waitUntil:"domcontentloaded"});
@@ -112,6 +114,13 @@ try {
   const horizontalOverflow=await mobile.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+3);
   assert.equal(horizontalOverflow,false,"Unexpected mobile horizontal overflow");
   assert.deepEqual(errors,[],"Uncaught browser errors");
+  const external=networkRequests.filter(raw=>{
+    if(!raw.startsWith("http://")&&!raw.startsWith("https://"))return false;
+    return new URL(raw).origin!==new URL(endpoint).origin;
+  });
+  assert.deepEqual(external,[],"Unexpected non-local app/network requests during screening");
+  const sensitive=networkRequests.filter(url=>/6\\.066211|4\\.755211/.test(url));
+  assert.deepEqual(sensitive,[],"Selected location leaked in a requested URL");
   console.log(JSON.stringify({status:"PASS",
     desktop:"real Bayelsa 1km screening completed",
     pdf:download.suggestedFilename(),
