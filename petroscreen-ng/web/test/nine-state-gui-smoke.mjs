@@ -102,6 +102,20 @@ try{
       const csvPath="petroscreen-ng/artifacts_nine_state/Delta_data.csv";
       await csvDownload.saveAs(csvPath);
       assert.match(await readFile(csvPath,"utf8"),/nearest_mapped_pixel_centre/);
+      const geoPending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-site-geojson").click();
+      const geoDownload=await geoPending;
+      assert.equal(geoDownload.suggestedFilename(),"PetroScreenNG_Delta_Site_Buffer.geojson");
+      const geoPath="petroscreen-ng/artifacts_nine_state/Delta_site_buffer.geojson";
+      await geoDownload.saveAs(geoPath);
+      const geometry=JSON.parse(await readFile(geoPath,"utf8"));
+      assert.deepEqual(geometry.features.map(x=>x.geometry.type),["Point","Polygon"]);
+      assert.deepEqual(geometry.features[0].geometry.coordinates,[lon,lat]);
+      assert.equal(geometry.features[1].properties.radius_km,1);
+      const reviewedPending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-data-json").click();
+      const reviewedDownload=await reviewedPending;
+      await reviewedDownload.saveAs("petroscreen-ng/artifacts_nine_state/Delta_reviewed_case.json");
     }
     if(entry.state==="Rivers" || entry.state==="Delta"){
       const pending=page.waitForEvent("download",{timeout:90000});
@@ -112,6 +126,24 @@ try{
       await dl.saveAs("petroscreen-ng/artifacts_nine_state/"+entry.state+"_review.pdf");
     }
   }
+  // Reopen a saved Delta field record after switching to other regions.
+  // The app must rerun current ESA/JRC calculations before restoring notes.
+  await page.locator("#case-file").setInputFiles(
+    "petroscreen-ng/artifacts_nine_state/Delta_reviewed_case.json");
+  await page.waitForFunction(()=>{
+    const t=document.querySelector("#case-import-status")?.textContent||"";
+    return /Reopened case|NOT restored|not loaded/.test(t);
+  },null,{timeout:120000});
+  assert.match(await page.locator("#case-import-status").textContent(),/Reopened case:/);
+  assert.equal(Number(await page.locator("#longitude").inputValue()),
+    manifest.state_sources.find(x=>x.state==="Delta").qa_example_lon_lat[0]);
+  assert.equal(await page.locator('[data-field-task="surface_water"]').inputValue(),"field_observed");
+  assert.equal(await page.locator("#field-observer").inputValue(),"Field Team");
+  assert.equal(await page.locator("#field-notes").inputValue(),"Needs tidal check");
+  assert.match(await page.locator("#result-subtitle").textContent(),/Delta/);
+  // The imported metadata is not treated as a field verification certificate.
+  assert.match(await page.locator("#case-import-status").textContent(),/unverified user entries/);
+
   // No raster should be requested without its version checksum query.
   const rasters=requestUrls.filter(x=>/\.tif(?:\?|$)/.test(x));
   assert.ok(rasters.length>=19,"Missing real per-state raster requests");
