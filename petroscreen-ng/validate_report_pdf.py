@@ -4,9 +4,13 @@ import io
 import fitz
 from PIL import Image
 
-REPORT=Path("petroscreen-ng/artifacts_web/petroscreen_sample_report.pdf")
+REPORTS=[Path("petroscreen-ng/artifacts_web")/name for name in (
+    "petroscreen_sample_report.pdf",
+    "petroscreen_sample_report_3km.pdf",
+    "petroscreen_sample_report_5km.pdf",
+)]
 
-def main():
+def verify(REPORT):
     if not REPORT.is_file():
         raise SystemExit("Missing desktop-browser-generated PDF")
     doc=fitz.open(REPORT)
@@ -41,8 +45,12 @@ def main():
                     if x0 < 24 or x1 > page.rect.width-14:
                         raise SystemExit(
                           f"Text escapes safe page width on page {page_number}: {span['text']!r} at {span['bbox']}")
-    print({"status":"PASS","pages":len(doc),"map_unique_colors":unique_colors,
+    print({"status":"PASS","report":REPORT.name,"pages":len(doc),"map_unique_colors":unique_colors,
            "map_image_count":len(imgs),"bytes":REPORT.stat().st_size,
            "source_text_check":"PASS"})
+def main():
+    for report in REPORTS:
+        verify(report)
+    print({"status":"PASS","mapped_a4_reports_verified":len(REPORTS)})
 if __name__=="__main__":
     main()
