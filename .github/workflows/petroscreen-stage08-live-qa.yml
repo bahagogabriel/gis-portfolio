@@ -36,9 +36,10 @@ jobs:
               time.sleep(10)
           manifest=json.loads(get("data/manifest.json"))
           assert len(manifest["states"])==len(manifest["state_sources"])==9
-          scripts=re.findall(r'src="(\\./assets/[^"]+\\.js)"',html)
-          assert scripts,"Expected versioned JS asset in published HTML"
-          js=get(scripts[0].removeprefix("./")).decode("utf-8")
+          assert 'src="./assets/' in html, "Expected a versioned local JS asset"
+          filename=html.split('src="./assets/',1)[1].split('"',1)[0]
+          assert filename.endswith(".js"),"Unexpected module script"
+          js=get("assets/"+filename).decode("utf-8")
           assert "Desk-review findings and verification" in js
           assert "NIGER DELTA | RESEARCH PREVIEW" in js
           # Validate a state raster responds with the exact published source bytes.
