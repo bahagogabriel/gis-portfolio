@@ -1,0 +1,142 @@
+name: PetroScreen Stage10 independent proximity parity + field-record exports
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage10-parity-exports-fieldrecord']
+    paths: ['.github/workflows/petroscreen-stage10-update.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  validate-and-stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve previously scientifically checked nine-state bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 39436195657 --repo bahagogabriel/gis-portfolio \
+            --name petroscreen-nine-state-research-web-preview \
+            --dir /tmp/petroscreen-old-verified
+          test -f /tmp/petroscreen-old-verified/data/manifest.json
+          mkdir -p petroscreen-ng/web/public/data
+          cp -a /tmp/petroscreen-old-verified/data/. petroscreen-ng/web/public/data/
+      - name: Verify all 31 unchanged remote-sensing source files
+        run: |
+          python3 - <<'PY'
+          import json,hashlib,pathlib
+          dat=pathlib.Path('petroscreen-ng/web/public/data')
+          m=json.loads((dat/'manifest.json').read_text())
+          assert len(m['states'])==len(m['state_sources'])==9
+          count=0
+          for state in m['state_sources']:
+            for f in state['source_files']:
+              p=dat/f['file']
+              assert p.is_file() and hashlib.sha256(p.read_bytes()).hexdigest()==f['sha256'],p
+              count+=1
+          assert count==31,count
+          print('SOURCE_DATA_UNCHANGED_AND_VERIFIED=31')
+          PY
+      - name: Install pinned JavaScript dependencies
+        working-directory: petroscreen-ng/web
+        run: npm install --no-audit --no-fund
+      - name: Test scientific copy boundaries and guidance rules
+        working-directory: petroscreen-ng/web
+        run: npm test
+      - name: Install independent scientific raster/projection reference environment
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 pyproj==3.7.2
+      - name: Generate independent WGS84 geodesic nearest-pixel reference for 9 states
+        run: python petroscreen-ng/stage10_reference_proximity.py
+      - name: Compare 108 mapped pixel distances at 1/3/5 km against independent Python
+        working-directory: petroscreen-ng/web
+        run: node test/stage10-real-proximity-parity.mjs
+      - name: Build new static report/UI code
+        working-directory: petroscreen-ng/web
+        run: npm run build
+      - name: Install Chromium for real source-backed site screening
+        working-directory: petroscreen-ng/web
+        run: npx playwright install --with-deps chromium
+      - name: Browser-test all nine states and download Delta/Rivers PDFs
+        run: node petroscreen-ng/web/test/nine-state-gui-smoke.mjs
+      - name: Inspect actual mapped PDFs and detect cutoff/state mistakes
+        run: |
+          python -m pip install pymupdf==1.26.5
+          python petroscreen-ng/validate_stage08_pdf.py
+      - name: Cache fresh deployable build outside git before switching branches
+        run: |
+          mkdir -p /tmp/petroscreen-new
+          cp -a petroscreen-ng/web/dist/. /tmp/petroscreen-new/
+      - name: Create safely scoped Pages pull-request branch from deployed main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -b preview/petroscreen-stage10-live origin/main
+          test "$(cat CNAME)" = "bahagogabriel.com"
+          test -f index.html
+          test -f petroscreen/index.html
+          rm -rf petroscreen
+          mkdir petroscreen
+          cp -a /tmp/petroscreen-new/. petroscreen/
+          test -f petroscreen/index.html
+          test -f petroscreen/data/manifest.json
+          git add -A petroscreen
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(petroscreen): export provenance-linked case records and field verification'
+          if git diff --name-only origin/main HEAD | grep -Ev '^petroscreen/'; then
+            echo 'ABORT: unexpected change to portfolio files' >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import hashlib,pathlib,json
+          old=pathlib.Path('/tmp/petroscreen-old-verified/data')
+          now=pathlib.Path('petroscreen/data')
+          m=json.loads((now/'manifest.json').read_text())
+          num=0
+          for s in m['state_sources']:
+            for f in s['source_files']:
+              r=f['file']
+              a,b=(old/r).read_bytes(),(now/r).read_bytes()
+              assert hashlib.sha256(a).digest()==hashlib.sha256(b).digest()
+              num+=1
+          assert num==31,num
+          assert pathlib.Path('CNAME').read_text().strip()=='bahagogabriel.com'
+          print('SAFE_ONLY_PETROSCREEN_CHANGED_AND_31_RASTERS_IDENTICAL=PASS')
+          PY
+          git push origin HEAD:refs/heads/preview/petroscreen-stage10-live
+      - name: Verify Pages/Jekyll compatibility before PR
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: .
+          destination: ./_site
+      - name: Validate original homepage and new page survive
+        run: |
+          test -f _site/index.html
+          test "$(cat _site/CNAME)" = 'bahagogabriel.com'
+          test -f _site/petroscreen/index.html
+          test -f _site/petroscreen/data/manifest.json
+          echo 'PREMERGE_PORTFOLIO_AND_PETROSCREEN_COMPATIBILITY=PASS'
+      - name: Store browser PDF QA artifacts for reference
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage10-cases-and-reports
+          path: |
+            petroscreen-ng/artifacts_nine_state/
+            petroscreen-ng/artifacts_stage10/
+          if-no-files-found: warn
+          retention-days: 14
