@@ -1,4 +1,4 @@
-name: PetroScreen data-source discovery (research only)
+name: PetroScreen open-data feasibility (research only)
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
 jobs:
   source-discovery:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,11 +21,16 @@ jobs:
           python-version: '3.11'
       - name: Test source audit contract (offline)
         run: python -m unittest discover -s petroscreen-ng -p "test_*.py" -v
-      - name: Probe published data endpoints (informational, not download)
+      - name: Probe public dataset landing pages (informational only)
         run: python petroscreen-ng/audit_sources.py
-      - name: Preserve report for inspection
+      - name: Acquire actual Bayelsa polygon from public source
+        run: python petroscreen-ng/verify_boundary.py
+      - name: Preserve evidence manifests
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: petroscreen-source-probes
-          path: petroscreen-ng/source_probe_results.json
+          name: petroscreen-g0-acquisition-evidence
+          path: |
+            petroscreen-ng/source_probe_results.json
+            petroscreen-ng/boundary_acquisition_report.json
           retention-days: 14
