@@ -128,7 +128,7 @@ try{
   await failed.close();
   // All TIFF requests must be SHA-addressed to avoid a cached Stage04 TIFF
   // being served under Stage06's fixed localhost host/filenames.
-  const rasterRequests=requests.filter(raw=>/\\.tif(?:\\?|$)/.test(raw));
+  const rasterRequests=requests.filter(raw=>/\.tif(?:\?|$)/.test(raw));
   assert.ok(rasterRequests.length>=3,"Expected actual GeoTIFF file requests");
   assert.ok(rasterRequests.every(raw=>new URL(raw).searchParams.has("sha256")),
     "Raster requests must carry version-specific SHA256 query strings");
