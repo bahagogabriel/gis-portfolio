@@ -4,6 +4,7 @@
  */
 import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
+import {mkdir} from "node:fs/promises";
 import {chromium} from "playwright";
 const ORIGIN="http://127.0.0.1:4175/";
 const server=spawn(process.execPath,["node_modules/vite/bin/vite.js","preview",
@@ -23,6 +24,7 @@ try{
   assert.equal(manifest.state_sources.length,9);
   browser=await chromium.launch({headless:true,args:[
     "--enable-webgl","--use-gl=angle","--use-angle=swiftshader","--disable-dev-shm-usage"]});
+  await mkdir("petroscreen-ng/artifacts_nine_state",{recursive:true});
   const page=await browser.newPage({viewport:{width:1440,height:900},
     acceptDownloads:true});
   const requestUrls=[],exceptions=[];
@@ -50,11 +52,15 @@ try{
       document.querySelector("#map")?.dataset.detailReady),null,{timeout:40000});
     assert.equal(await page.locator("#map").getAttribute("data-detail-ready"),"true");
     reports.push({state:entry.state,site_lon_lat:[lon,lat]});
-    if(entry.state==="Rivers"){
+    assert.match(await page.locator("#interpretation").textContent(),/ESA WorldCover 2021/);
+    assert.match(await page.locator("#interpretation").textContent(),/not a flood-risk/);
+    if(entry.state==="Rivers" || entry.state==="Delta"){
       const pending=page.waitForEvent("download",{timeout:90000});
       await page.locator("#download-pdf").click();
       const dl=await pending;
-      assert.match(dl.suggestedFilename(),/Preliminary_Screening\.pdf/);
+      assert.equal(dl.suggestedFilename(),
+        "PetroScreenNG_"+entry.state+"_Preliminary_Screening.pdf");
+      await dl.saveAs("petroscreen-ng/artifacts_nine_state/"+entry.state+"_review.pdf");
     }
   }
   // No raster should be requested without its version checksum query.
