@@ -2,6 +2,7 @@ import * as maplibregl from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
+import {renderNativeLandCoverPatch} from "./native-map.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -15,6 +16,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let verifiedStates=[];
 let loadState="loading",loadStage="Preparing local satellite data…",loadError=null;
+let nativeMapRevision=0;
 const map=new maplibregl.Map({container:"map",
   // Self-contained map style: essential geographic context must work without a tile provider.
   style:{version:8,sources:{},layers:[{id:"background",type:"background",
@@ -82,7 +84,10 @@ function invalidatePrevious(){
   ui.results.hidden=true;
   ui.empty.hidden=false;
   ui.subtitle.textContent="Your site assessment appears here after analysis.";
+  nativeMapRevision++;
+  if($("map"))delete $("map").dataset.detailReady;
   if(mapReady && map.getSource("study"))map.getSource("study").setData(emptyGeo);
+  if(mapReady && map.getLayer("landcover-detail"))map.setLayoutProperty("landcover-detail","visibility","none");
 }
 for(const input of [ui.lon,ui.lat]){
   input.addEventListener("input",()=>{
@@ -190,6 +195,30 @@ async function loadData(){
   }
 }
 ui.retry.addEventListener("click",()=>loadData());
+/** Detail map is an optional view, never an input to scientific statistics. */
+async function showNativeDetail(result,revision){
+  try{
+    const point=result.location_wgs84;
+    const detail=await renderNativeLandCoverPatch(point.longitude,point.latitude,
+      result.radius_km,layers.worldcoverImages,1024);
+    if(revision!==nativeMapRevision || !lastResult || !mapReady)return;
+    const name="landcover-detail";
+    if(map.getSource(name)){
+      map.getSource(name).updateImage({url:detail.url,coordinates:detail.coordinates});
+    }else{
+      map.addSource(name,{type:"image",url:detail.url,coordinates:detail.coordinates});
+      map.addLayer({id:name,type:"raster",source:name,
+        paint:{"raster-opacity":.99,"raster-resampling":"nearest"}},"pilot-fill");
+    }
+    map.setLayoutProperty(name,"visibility","visible");
+    $("map").dataset.detailReady="true";
+  }catch(error){
+    // A graphical preview failure must not invalidate checked land-cover
+    // statistics or prevent downloading the mapped research report.
+    console.warn("Native detail layer unavailable:",error.message);
+    $("map").dataset.detailReady="failed";
+  }
+}
 function display(result){
   lastResult=result;
   ui.empty.hidden=true;ui.results.hidden=false;
@@ -251,7 +280,9 @@ ui.form.addEventListener("submit",async e=>{
       if(!result.site_state)throw new Error("Site state attribution could not be verified.");
     }else result.site_state="Bayelsa";
     site=[lon,lat];
-    display(result);ui.feedback.textContent="Screening completed in your browser.";
+    display(result);
+    await showNativeDetail(result,nativeMapRevision);
+    ui.feedback.textContent="Screening completed in your browser.";
   }catch(error){
     site=null;drawSite();
     ui.feedback.textContent="Screening failed: "+error.message;

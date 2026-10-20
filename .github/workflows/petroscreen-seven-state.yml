@@ -1,0 +1,45 @@
+name: PetroScreen Stage 07 — seven-state real source acquisition (research only)
+on:
+  pull_request:
+    paths:
+      - 'petroscreen-ng/**'
+      - '.github/workflows/petroscreen-seven-state.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  remaining-state-qa:
+    name: Acquire and verify ${{ matrix.state }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        state:
+          - Abia
+          - Akwa Ibom
+          - Cross River
+          - Delta
+          - Edo
+          - Imo
+          - Ondo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install geospatial reference environment
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2
+      - name: Acquire actual public WorldCover and JRC rasters with 5km data halo
+        run: python petroscreen-ng/acquire_additional_state.py --state "${{ matrix.state }}"
+      - name: Independently test 1km, 3km and 5km site screening
+        run: python petroscreen-ng/run_remaining_state_acceptance.py --state "${{ matrix.state }}"
+      - name: Archive reproducible verified state rasters (unpublished)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage07-${{ matrix.state }}
+          path: petroscreen-ng/artifacts_additional_states/
+          retention-days: 14
+          if-no-files-found: warn

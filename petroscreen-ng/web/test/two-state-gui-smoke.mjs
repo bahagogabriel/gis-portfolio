@@ -57,6 +57,8 @@ try{
     },null,{timeout:90000});
     let feedback=await page.locator("#form-feedback").textContent();
     assert.match(feedback,/Screening completed/,feedback);
+    assert.equal(await page.locator("#map").getAttribute("data-detail-ready"),"true",
+      "Native GeoTIFF-derived detailed map must render successfully after screening");
     assert.match(await page.locator("#result-subtitle").textContent(),new RegExp(t.state));
     const text=await page.locator("#warnings").textContent();
     if(t.kind==="interstate"&&t.result.coverage_status==="sufficient")
