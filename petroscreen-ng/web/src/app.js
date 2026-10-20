@@ -45,7 +45,7 @@ function addOverview(){
   if(!mapReady||!overview||map.getSource("landcover-overview"))return;
   const [west,south,east,north]=overview.bounds_lon_lat;
   map.addSource("landcover-overview",{type:"image",
-    url:"./data/"+overview.file,
+    url:"./data/"+overview.file+"?sha256="+encodeURIComponent(overview.sha256),
     coordinates:[[west,north],[east,north],[east,south],[west,south]]});
   map.addLayer({id:"landcover-overview",type:"raster",source:"landcover-overview",
     paint:{"raster-opacity":0.9}},"pilot-fill");
@@ -118,7 +118,8 @@ async function loadRaster(url,expectedHash){
   const timeout=setTimeout(()=>controller.abort(),120000);
   let res;
   try{
-    res=await fetch(url,{cache:"force-cache",signal:controller.signal});
+    // Preview versions use the same localhost URL; never reuse a prior version's TIFF.
+    res=await fetch(url,{cache:"no-store",signal:controller.signal});
     if(!res.ok)throw new Error("Unable to load "+url+" (HTTP "+res.status+")");
     const binary=await res.arrayBuffer();
     if(!globalThis.crypto?.subtle)throw new Error("Browser SHA-256 is unavailable for "+url);
@@ -143,13 +144,13 @@ async function loadData(){
        manifest.stage!=="research-preview")
       throw new Error("Unexpected research-preview data manifest.");
     setLoadProgress("Loading the verified state boundaries…");
-    const boundaryResponse=await fetch("./data/coverage.geojson");
+    const boundaryResponse=await fetch("./data/coverage.geojson",{cache:"no-store"});
     if(!boundaryResponse.ok)throw new Error("Verified geographic boundary could not be loaded.");
     coverage=await boundaryResponse.json();
     verifiedStates=manifest.states||["Bayelsa"];
     const statesFile=manifest.original_states?.file;
     const stateFeatures=statesFile?await (async()=>{
-      const r=await fetch("./data/"+statesFile);
+      const r=await fetch("./data/"+statesFile,{cache:"no-store"});
       if(!r.ok)throw new Error("Original state boundaries not found (HTTP "+r.status+").");
       const geo=await r.json();
       if(!Array.isArray(geo.features)||geo.features.length!==verifiedStates.length)
@@ -169,10 +170,10 @@ async function loadData(){
     for(let i=0;i<manifest.worldcover.length;i++){
       const source=manifest.worldcover[i];
       setLoadProgress("Verifying land-cover raster "+(i+1)+"/"+manifest.worldcover.length+"…");
-      images.push(await loadRaster("./data/"+source.file,source.sha256));
+      images.push(await loadRaster("./data/"+source.file+"?sha256="+encodeURIComponent(source.sha256),source.sha256));
     }
     setLoadProgress("Verifying historical surface-water data (final layer)…");
-    const water=await loadRaster("./data/"+manifest.water.file,manifest.water.sha256);
+    const water=await loadRaster("./data/"+manifest.water.file+"?sha256="+encodeURIComponent(manifest.water.sha256),manifest.water.sha256);
     layers={stateGeometries:stateFeatures,worldcoverImages:images,waterImage:water,manifest};
     setLoadState("ready","Ready to screen · "+images.length+" land-cover tiles and historical water verified.");
     ui.feedback.textContent=site?
