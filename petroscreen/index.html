@@ -4,15 +4,15 @@
 <meta name="theme-color" content="#0e242b">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-OLI-ywQW.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-BC2360Ev.css">
+  <script type="module" crossorigin src="./assets/index-CzAmK1Zl.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-bUQ-JzPa.css">
 </head><body>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
 <span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.0</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.1</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -73,6 +73,13 @@
 <button type="button" class="export-button" id="download-data-json">Case file · JSON</button>
 <button type="button" class="export-button" id="download-data-csv">Screening data · CSV</button>
 <button type="button" class="export-button" id="download-field-csv">Field checklist · CSV</button>
+<button type="button" class="export-button" id="download-site-geojson">Site &amp; buffer · GeoJSON</button>
+</div>
+<div class="case-import">
+<button type="button" id="reopen-case" class="reopen-case">Reopen saved case · JSON</button>
+<input type="file" id="case-file" accept=".json,application/json" hidden aria-label="Select a previously downloaded PetroScreen JSON case">
+<p class="fine">Reopening reruns satellite calculations from the current verified files. Your saved field notes are restored only if the original measurements still match; no file is uploaded.</p>
+<p id="case-import-status" role="status" aria-live="polite"></p>
 </div></div>
 <button type="button" class="download" id="download-pdf">Download screening PDF ↓</button>
 <p class="fine">Preliminary satellite-derived context only. Not an EIA, contamination assessment, spill prediction, or regulatory approval.</p>
@@ -88,6 +95,7 @@
 <p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigeria ADM1 state polygons (original source GRID3; CC BY 4.0). The currently published research preview supports the nine NDDC states: Abia, Akwa Ibom, Bayelsa, Cross River, Delta, Edo, Imo, Ondo and Rivers. Each selected site uses its state's validated satellite-data halo; supported area is approximate administrative context, not a surveyed legal boundary. Screening outside these states is unavailable.</p>
 <p><strong>Mapped context:</strong> the reconnaissance module scans ESA WorldCover 2021 pixels for mapped water (80), herbaceous wetland (90), mangroves (95) and built-up (50) within the selected buffer. Distances are approximate WGS84 point-to-pixel-centre measurements, not distances to feature edges, not present-day field measurements, and not statutory setbacks. The built-up class cannot distinguish occupied homes from industrial premises. “Not mapped” does not prove a feature absent, particularly when the source is incomplete or dated. No environmental sensitivity ranking is calculated.</p>
 <p><strong>Important:</strong> Satellite classifications contain uncertainty. Data may omit channels or assets; no petroleum-asset information is acquired. Do not use for regulatory EIA, spill-risk estimates, ecological damage, legal findings or field-inspection substitutes.</p>
+<p><strong>GIS and case continuity:</strong> GeoJSON includes a WGS84 screening point and an approximate circular study polygon, suitable for import into desktop GIS, but not a cadastral or surveyed boundary. Previously saved JSON cases can be reopened locally: the application verifies their state-specific source hashes, recalculates the screening and compares measured outputs before restoring optional field notes. This is reproducibility checking, not cryptographic proof of authorship, legal source authenticity or confirmation of field observations.</p>
 <p><strong>Records and exports:</strong> JSON screening cases contain the complete numeric baseline, source SHA-256 hashes, selected coordinates and optional user-entered field verification statuses. CSVs contain tidy numeric results or a separately identified field-verification checklist. Field observations are never inferred from satellite evidence. These records are downloaded in the current browser and are not stored in an application account. Review site coordinates, staff names and notes before sharing files.</p>
 <p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
 </body></html>
