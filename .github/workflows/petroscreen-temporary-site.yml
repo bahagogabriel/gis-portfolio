@@ -79,18 +79,20 @@ jobs:
                 result=find_url(val)
                 if result:return result
             return ""
-          url=find_url(j)
-          if not url:
-            match=re.findall(r'https://[a-zA-Z0-9.-]+\\.netlify\\.app',text)
-            url=match[0] if match else ""
-          if not url.startswith("https://") or ".netlify.app" not in url:
-            print("NETLIFY_DIAGNOSTIC: stdout_bytes="+str(len(text))+
-                  " response_keys="+str(list(j.keys()) if isinstance(j,dict) else type(j).__name__)+
-                  " stderr_bytes="+str(pathlib.Path("netlify-errors.txt").stat().st_size))
-            raise RuntimeError("No public .netlify.app URL in CLI output")
-          # Do not print claim URLs, which are bearer ownership links.
+          import urllib.parse
+          url=(j.get("site_url") if isinstance(j,dict) else None) or find_url(j)
+          if not isinstance(url,str) or not url.startswith("https://"):
+            print("NETLIFY_DIAGNOSTIC: response_keys="+str(list(j.keys())))
+            raise RuntimeError("No HTTPS site_url from anonymous deployment")
+          host=urllib.parse.urlsplit(url).hostname
+          if not host or not (host.endswith(".netlify.app") or host.endswith(".netlify.live") or host.endswith(".netlify.com")):
+            print("NETLIFY_DIAGNOSTIC_HOST="+str(host))
+            raise RuntimeError("Unexpected Netlify anonymous deployment hostname")
           print('PUBLIC_TEMPORARY_PREVIEW_URL='+url)
-          pathlib.Path('preview-public-url.txt').write_text(url+'\n')
+          # Anonymous preview access password is not an account or claim token.
+          if isinstance(j,dict) and j.get("password"):
+            print("PUBLIC_PREVIEW_ACCESS_PASSWORD="+str(j["password"]))
+          pathlib.Path('preview-public-url.txt').write_text(url+'\\n')
           PY
       - name: Verify real publicly hosted app and manifest over HTTPS
         run: |
