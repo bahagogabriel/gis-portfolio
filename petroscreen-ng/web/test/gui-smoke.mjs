@@ -28,8 +28,17 @@ try {
     deviceScaleFactor:1,acceptDownloads:true});
   const errors=[];
   page.on("pageerror",e=>errors.push(e.message));
+  page.on("console",message=>{if(message.type()==="error")errors.push("console: "+message.text());});
   await page.goto(endpoint,{waitUntil:"domcontentloaded"});
-  await page.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:120000});
+  await page.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:14000}).catch(async error=>{
+    await page.screenshot({path:OUTPUT+"/map_debug_desktop.png",fullPage:true});
+    console.error("Map readiness failure",{
+      text:await page.locator("#form-feedback").textContent(),
+      mapReady:await page.locator("#map").getAttribute("data-overview-ready"),
+      errors
+    });
+    throw error;
+  });
   await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
     "Verified satellite data loaded") ||
     document.querySelector("#form-feedback")?.textContent.includes("could not be loaded"),
@@ -59,7 +68,7 @@ try {
     deviceScaleFactor:1});
   mobile.on("pageerror",e=>errors.push(e.message));
   await mobile.goto(endpoint,{waitUntil:"domcontentloaded"});
-  await mobile.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:120000});
+  await mobile.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:14000});
   await mobile.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
     "Verified satellite data loaded"),{timeout:120000});
   await mobile.screenshot({path:OUTPUT+"/petroscreen_mobile_initial.png",fullPage:true});
