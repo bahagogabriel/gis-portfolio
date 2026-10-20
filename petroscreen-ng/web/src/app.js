@@ -1,4 +1,4 @@
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import {fromArrayBuffer} from "geotiff";
 import {jsPDF} from "jspdf";
 import {screenBrowser,inPolygon} from "./engine.js";
