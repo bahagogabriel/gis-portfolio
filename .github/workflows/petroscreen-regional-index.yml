@@ -40,3 +40,25 @@ jobs:
             petroscreen-ng/regional_source_pixel_probe.json
           retention-days: 14
           if-no-files-found: error
+
+  rivers-regional-clip:
+    needs: region-discovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned geospatial environment
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2
+      - name: Acquire actual Rivers land-cover and JRC rasters plus 5km boundary halo
+        run: python petroscreen-ng/acquire_additional_state.py --state Rivers
+      - name: Archive Rivers structural QA and acquired derived GeoTIFFs (not yet published)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-rivers-regional-acquisition-evidence
+          path: petroscreen-ng/artifacts_additional_states/Rivers/
+          retention-days: 14
+          if-no-files-found: warn
