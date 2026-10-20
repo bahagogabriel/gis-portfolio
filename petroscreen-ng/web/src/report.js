@@ -46,7 +46,10 @@ function rows(pdf,items,startY){
   return y;
 }
 function drawCover(pdf,result,mapData){
-  header(pdf,(result.coverage_region||"BAYELSA PILOT").toUpperCase().slice(0,36));
+  // Keep the header fully readable; never truncate the regional context mid-word.
+  header(pdf,(result.coverage_region||"").includes("nine-state")?
+    "NIGER DELTA | RESEARCH PREVIEW":
+    /Rivers/i.test(result.coverage_region||"")?"BAYELSA + RIVERS PILOT":"BAYELSA PILOT");
   text(pdf,"Preliminary environmental site screening",18,38,14,INK,"bold");
   text(pdf,"Evidence-based site context, not petroleum impact or risk prediction",18,45,8,MUTED);
   pdf.setFillColor(...PALE);pdf.roundedRect(18,51,174,25,3,3,"F");
@@ -62,6 +65,10 @@ function drawCover(pdf,result,mapData){
     text(pdf,cols[i][1],x,69,12,INK,"bold");
   }
   text(pdf,"01   SITE CONTEXT MAP",18,85,10,GREEN,"bold");
+  if(result.site_state){
+    pdf.setFont("helvetica","bold");pdf.setFontSize(8);pdf.setTextColor(...GREEN);
+    pdf.text(result.site_state+" State, Nigeria",190,85,{align:"right"});
+  }
   pdf.setDrawColor(220,230,221);
   pdf.roundedRect(18,89,174,95,2,2,"S");
   pdf.addImage(mapData,"PNG",19,90,172,93,"map","FAST");
