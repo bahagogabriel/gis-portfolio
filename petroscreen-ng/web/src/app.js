@@ -4,6 +4,7 @@ import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
 import {renderSiteDetail} from "./site_detail.js";
 import {screeningNotes} from "./insights.js";
+import {parseCaseText,confirmRescreenedCase,caseGeoJSON} from "./case_continuity.js";
 import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
@@ -17,6 +18,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let verifiedStates=[];
+let pendingImportedCase=null;
 const regionalCache=new Map();
 let detailRequestId=0;
 let loadState="loading",loadStage="Preparing local satellite data…",loadError=null;
@@ -353,6 +355,8 @@ ui.form.addEventListener("submit",async e=>{
   const lon=Number(ui.lon.value),lat=Number(ui.lat.value);
   const radiusKm=Number(document.querySelector("input[name=radius]:checked").value);
   ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
+  const importToRestore=pendingImportedCase;
+  pendingImportedCase=null;
   invalidatePrevious();
   try{
     let stateName=null;
@@ -378,10 +382,23 @@ ui.form.addEventListener("submit",async e=>{
       result.site_state=names.find(name=>values.some(v=>v.toLowerCase()===name.toLowerCase()))||null;
       if(!result.site_state)throw new Error("Site state attribution could not be verified.");
     }else result.site_state="Bayelsa";
+    if(importToRestore)confirmRescreenedCase(importToRestore,result);
     site=[lon,lat];
-    display(result);ui.feedback.textContent="Screening completed in your browser.";
+    display(result);
+    if(importToRestore){
+      const previous=importToRestore.field;
+      $("field-visit-date").value=previous.visit_date;
+      $("field-observer").value=previous.observer;
+      $("field-notes").value=previous.notes;
+      for(const select of document.querySelectorAll("#field-checklist select"))
+        select.value=previous.statuses[select.dataset.fieldTask]||"not_checked";
+      $("field-record").open=true;
+      $("case-import-status").textContent="Reopened case: current source hashes and screening measurements agree. Saved field notes restored as unverified user entries.";
+      ui.feedback.textContent="Saved case re-screened and matched against current source data.";
+    }else ui.feedback.textContent="Screening completed in your browser.";
   }catch(error){
     site=null;drawSite();
+    if(importToRestore)$("case-import-status").textContent="Saved case was NOT restored: "+error.message;
     ui.feedback.textContent="Screening failed: "+error.message;
   }finally{
     if(loadState==="loading" && layers?.manifest?.state_sources)
@@ -404,7 +421,8 @@ function exportCase(){
 }
 for(const [id,format] of [["download-data-json","json"],
                          ["download-data-csv","screening_csv"],
-                         ["download-field-csv","field_csv"]]){
+                         ["download-field-csv","field_csv"],
+                         ["download-site-geojson","geojson"]]){
   $(id).addEventListener("click",()=>{
     try{
       const item=exportCase();
@@ -415,6 +433,10 @@ for(const [id,format] of [["download-data-json","json"],
       }else if(format==="screening_csv"){
         downloadText("PetroScreenNG_"+slug+"_ScreeningData.csv",
           screeningCsv(item),"text/csv;charset=utf-8");
+      }else if(format==="geojson"){
+        downloadText("PetroScreenNG_"+slug+"_Site_Buffer.geojson",
+          JSON.stringify(caseGeoJSON(lastResult),null,2)+"\n",
+          "application/geo+json;charset=utf-8");
       }else{
         downloadText("PetroScreenNG_"+slug+"_FieldChecklist.csv",
           fieldChecklistCsv(item),"text/csv;charset=utf-8");
@@ -425,6 +447,33 @@ for(const [id,format] of [["download-data-json","json"],
     }
   });
 }
+$("reopen-case").addEventListener("click",()=>$("case-file").click());
+$("case-file").addEventListener("change",async()=>{
+  const input=$("case-file"),file=input.files?.[0];
+  input.value=""; // allow selecting the same file again after an error
+  if(!file)return;
+  try{
+    if(!layers?.manifest || loadState!=="ready")
+      throw new Error("Wait until the verified environmental data are ready.");
+    if(file.size>2*1024*1024)
+      throw new Error("Case file exceeds the 2 MB local import limit.");
+    const imported=parseCaseText(await file.text(),layers.manifest);
+    // Set these without dispatching input events. The actual submit path below
+    // runs the geospatial engine independently and controls any field restoration.
+    ui.lon.value=String(imported.site.longitude);
+    ui.lat.value=String(imported.site.latitude);
+    const radius=document.querySelector('input[name="radius"][value="'+imported.site.radius_km+'"]');
+    if(!radius)throw new Error("Unsupported radius in saved case.");
+    radius.checked=true;
+    $("case-import-status").textContent="Rechecking saved screening with current local satellite data…";
+    pendingImportedCase=imported;
+    ui.form.requestSubmit();
+  }catch(error){
+    pendingImportedCase=null;
+    $("case-import-status").textContent="Saved case not loaded: "+error.message;
+    ui.feedback.textContent="Saved case import rejected: "+error.message;
+  }
+});
 ui.pdf.addEventListener("click",async()=>{
   if(!lastResult)return;
   ui.pdf.disabled=true;
