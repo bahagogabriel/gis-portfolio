@@ -1,0 +1,36 @@
+name: PetroScreen nine-state candidate data index (research only)
+
+on:
+  pull_request:
+    paths:
+      - 'petroscreen-ng/regional_tile_inventory.py'
+      - 'petroscreen-ng/test_regional_tile_inventory.py'
+      - 'petroscreen-ng/STAGE05_RIGHTS_AND_EXPANSION.md'
+      - '.github/workflows/petroscreen-regional-index.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  region-discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned geometry dependencies
+        run: python -m pip install shapely==2.1.2 pyproj==3.7.2
+      - name: Test tile-grid and 5-km halo contracts
+        run: python -m unittest discover -s petroscreen-ng -p "test_regional_tile_inventory.py" -v
+      - name: Get public NGA boundaries and generate NDDC nine-state candidate tile index
+        run: python petroscreen-ng/regional_tile_inventory.py
+      - name: Archive candidate tiles and source provenance, not environmental raster files
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-nine-state-source-candidates
+          path: petroscreen-ng/regional_expansion_candidate_index.json
+          retention-days: 14
+          if-no-files-found: error
