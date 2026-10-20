@@ -67,6 +67,40 @@ try {
   assert.match(download.suggestedFilename(),/PetroScreenNG.*\.pdf$/);
   await download.saveAs(OUTPUT+"/petroscreen_sample_report.pdf");
 
+  // Owner-confirmed 3-km site and 5-km regression tests with actual loaded data.
+  await page.locator("#longitude").fill("6.066211");
+  await page.locator("#latitude").fill("4.755211");
+  assert.equal(await page.locator("#results").isVisible(),false,
+    "Changing coordinates must immediately invalidate stale results");
+  for(const [radius,index] of [[3,1],[5,2]]){
+    await page.locator(".radius label").nth(index).click();
+    await page.locator("#screen-btn").click();
+    await page.waitForFunction(()=>{
+      const t=document.querySelector("#form-feedback")?.textContent||"";
+      return t.includes("Screening completed")||t.includes("Screening failed");
+    },null,{timeout:120000});
+    const feedback=await page.locator("#form-feedback").textContent();
+    assert.match(feedback,/Screening completed/,feedback);
+    assert.equal(await page.locator("#results").isVisible(),true);
+    assert.match(await page.locator("#warnings").getAttribute("class"),/coverage-ok/);
+    const area=await page.locator("#area-value").textContent();
+    assert.ok(Math.abs(Number(area.replace(/[^0-9.]/g,""))-Math.PI*radius*radius)<.03,
+      "Unexpected area for "+radius+" km: "+area);
+    if(radius===3)assert.match(area,/28\.27/);
+    const pending=page.waitForEvent("download",{timeout:90000});
+    await page.locator("#download-pdf").click();
+    const report=await pending;
+    await report.saveAs(OUTPUT+"/petroscreen_sample_report_"+radius+"km.pdf");
+  }
+  // Out-of-region or rejected screening must not leave a downloadable stale report.
+  await page.locator("#longitude").fill("4.100000");
+  await page.locator("#latitude").fill("7.100000");
+  assert.equal(await page.locator("#results").isVisible(),false);
+  await page.locator("#screen-btn").click();
+  await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes("Screening failed"),null,{timeout:20000});
+  assert.match(await page.locator("#form-feedback").textContent(),/outside verified Bayelsa coverage/);
+  assert.equal(await page.locator("#results").isVisible(),false);
+
   const mobile=await browser.newPage({viewport:{width:390,height:844},
     deviceScaleFactor:1});
   mobile.on("pageerror",e=>errors.push(e.message));
