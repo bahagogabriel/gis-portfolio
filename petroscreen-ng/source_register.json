@@ -1,0 +1,57 @@
+{
+  "project": "PetroScreen NG",
+  "as_of": "2026-10-20",
+  "scope": "Bayelsa MVP",
+  "required": [
+    {
+      "id": "gbopen_nigeria_adm1",
+      "url": "https://www.geoboundaries.org/api/current/gbOpen/NGA/ADM1/",
+      "license": "CC BY 4.0",
+      "fallback": "Cache allowed verified gbOpen release",
+      "data_gate": "Bayelsa polygon valid and fully covers AOI"
+    },
+    {
+      "id": "worldcover_2021",
+      "url": "https://esa-worldcover.org/en/data-access",
+      "license": "CC BY 4.0",
+      "fallback": "ESA Zenodo/AWS alternate mirrors",
+      "data_gate": "Real source GeoTIFF, class and nodata verification"
+    },
+    {
+      "id": "jrc_gsw",
+      "url": "https://global-surface-water.appspot.com/download",
+      "license": "Copernicus attribution",
+      "fallback": "JRC v1.4 1984-2021 with date disclosed",
+      "data_gate": "2024 v1.5 tile access; exclude erroneous monthly recurrence"
+    }
+  ],
+  "optional": [
+    {
+      "id": "worldpop_2025",
+      "url": "https://stac.worldpop.org/collections/NGA/Population/2025/100m",
+      "license": "CC BY 4.0",
+      "fallback": "Omit population section"
+    },
+    {
+      "id": "gmw_2025",
+      "url": "https://zenodo.org/records/21346457",
+      "license": "Needs exact file license check",
+      "fallback": "WorldCover 2021 mangroves as dated proxy, else omit"
+    },
+    {
+      "id": "hydrorivers",
+      "url": "https://www.hydrosheds.org/products/hydrorivers",
+      "license": "Scientific/commercial use allowed; check redistribution conditions",
+      "fallback": "Omit mapped network proximity"
+    },
+    {
+      "id": "osm",
+      "url": "https://download.geofabrik.de/africa/nigeria.html",
+      "license": "ODbL",
+      "fallback": "Omit"
+    }
+  ],
+  "no_mandatory_nigerian_agency_data": true,
+  "stage": "G0",
+  "deployment_allowed": false
+}
