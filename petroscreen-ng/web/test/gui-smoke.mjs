@@ -29,6 +29,7 @@ try {
   const errors=[];
   page.on("pageerror",e=>errors.push(e.message));
   await page.goto(endpoint,{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:120000});
   await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
     "Verified satellite data loaded") ||
     document.querySelector("#form-feedback")?.textContent.includes("could not be loaded"),
