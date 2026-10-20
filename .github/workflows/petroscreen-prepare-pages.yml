@@ -1,0 +1,104 @@
+name: Prepare PetroScreen GitHub Pages subsite (safe preview PR)
+
+on:
+  push:
+    branches: [research/petroscreen-ng-stage07-batch-seven-states]
+    paths: ['.github/workflows/petroscreen-prepare-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: petroscreen-pages-prepare
+  cancel-in-progress: false
+
+jobs:
+  prepare-petro-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out only the existing published portfolio main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Download verified nine-state PetroScreen static build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 39436195657 \
+            --repo bahagogabriel/gis-portfolio \
+            --name petroscreen-nine-state-research-web-preview \
+            --dir /tmp/petroscreen-verified-dist
+          test -f /tmp/petroscreen-verified-dist/index.html
+          test -f /tmp/petroscreen-verified-dist/data/manifest.json
+      - name: Verify regional asset data and ensure portable relative paths
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re
+          root=pathlib.Path('/tmp/petroscreen-verified-dist')
+          j=json.loads((root/'data/manifest.json').read_text())
+          assert j.get('region')=='Niger Delta nine-state research pilot'
+          assert len(j['states'])==len(j['state_sources'])==9
+          count=0
+          for state in j['state_sources']:
+            for entry in state['source_files']:
+              p=root/'data'/entry['file']
+              assert p.is_file(),str(p)
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==entry['sha256'],str(p)
+              count+=1
+          assert count==31,count
+          html=(root/'index.html').read_text()
+          assert 'PetroScreen' in html
+          assert not re.search(r'(?:src|href)="/(?:assets|data)/',html), 'Root-relative build paths break subsite'
+          for file in root.rglob('*'):
+            if file.is_symlink():raise RuntimeError('Symlink not permitted in public directory')
+            if file.is_file() and file.stat().st_size>95*1024*1024:
+              raise RuntimeError('Single published file too large: '+str(file))
+          print('PORTABLE_PREVIEW_PASS states=9 tif_sha256=31')
+          PY
+      - name: Stage additive /petroscreen/ folder on a separate review branch
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -b preview/petroscreen-pages-live origin/main
+          mkdir -p petroscreen
+          cp -a /tmp/petroscreen-verified-dist/. petroscreen/
+          cat > petroscreen/README-PREVIEW.txt <<'TEXT'
+          PetroScreen NG · nine-state environmental desk-screening research preview
+          Satellite data: ESA WorldCover 2021; JRC Global Surface Water 1984–2024.
+          Not field-verified, not EIA, not a contamination/incident/flood risk prediction.
+          This folder is updated from independently tested GitHub Actions artifacts.
+          TEXT
+          git add petroscreen
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'preview(petroscreen): publish verified nine-state research site under dedicated path'
+          changed="$(git diff --name-only origin/main HEAD)"
+          if printf '%s\n' "$changed" | grep -v '^petroscreen/'; then
+            echo 'SAFETY_HOLD: unexpected non-PetroScreen file change' >&2
+            exit 1
+          fi
+          echo "SAFE_ADDITIVE_PREVIEW_ONLY=true"
+          git push origin HEAD:refs/heads/preview/petroscreen-pages-live
+      - name: Build portfolio Jekyll site including additive app (pre-merge compatibility check)
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: .
+          destination: ./_site
+      - name: Confirm portfolio homepage, custom domain and PetroScreen all survive build
+        run: |
+          python3 - <<'PY'
+          import pathlib,hashlib
+          root=pathlib.Path('_site')
+          assert (root/'index.html').is_file()
+          assert (root/'CNAME').read_text().strip()=='bahagogabriel.com'
+          assert (root/'petroscreen/index.html').is_file()
+          assert (root/'petroscreen/data/manifest.json').is_file()
+          assert (root/'petroscreen/data/regions/Rivers/wc_N03E006.tif').is_file()
+          assert 'PetroScreen' in (root/'petroscreen/index.html').read_text()
+          print('JEKYLL_BUILD_PRESERVES_EXISTING_PORTFOLIO_AND_ADD_SUBSITE=PASS')
+          PY

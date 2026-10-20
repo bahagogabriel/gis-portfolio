@@ -1,0 +1,28 @@
+name: Verify temporary PetroScreen HTTPS preview without redeploying
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage07-batch-seven-states']
+    paths: ['.github/workflows/petroscreen-preview-url-check.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  verify-link:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check DNS, SSL, access gate and manifest status
+        run: |
+          set -eu
+          URL='https://lucent-queijadas-cccd24.netlify.app'
+          for route in / /data/manifest.json /data/regions/Rivers/wc_N03E006.tif; do
+            status=$(curl -sSL --connect-timeout 9 --max-time 15 -o /tmp/body -w '%{http_code}' "$URL$route" || true)
+            type=$(file -b --mime-type /tmp/body 2>/dev/null || true)
+            echo "ROUTE=$route HTTP=$status MIME=$type BYTES=$(wc -c </tmp/body)"
+            if [ "$route" = "/" ]; then
+              if grep -qi 'PetroScreen' /tmp/body; then echo 'APP_HTML_PRESENT=true'; fi
+              if grep -Eqi 'password|access denied|login' /tmp/body; then echo 'SITE_MAY_REQUIRE_PASSWORD=true'; fi
+            fi
+          done

@@ -1,0 +1,110 @@
+name: PetroScreen temporary Netlify preview (no portfolio deployment)
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage07-batch-seven-states']
+    paths:
+      - '.github/workflows/petroscreen-temporary-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  temporary-netlify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download previously validated nine-state static artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 39436195657 --repo bahagogabriel/gis-portfolio \
+            --name petroscreen-nine-state-research-web-preview --dir temporary_preview
+          test -f temporary_preview/index.html
+          test -f temporary_preview/data/manifest.json
+      - name: Recheck all raster SHA256 hashes before public temporary publication
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path("temporary_preview")
+          j=json.loads((root/"data/manifest.json").read_text())
+          assert j["region"]=="Niger Delta nine-state research pilot"
+          assert len(j["states"])==len(j["state_sources"])==9
+          num=0
+          for state in j["state_sources"]:
+            for f in state["source_files"]:
+              p=root/"data"/f["file"]
+              assert p.is_file(),str(p)
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==f["sha256"],str(p)
+              num+=1
+          assert num==31,num
+          print("Verified 31 source TIFFs and 9 state manifests before public temporary upload")
+          PY
+      - name: Deploy anonymously to a brand-new temporary preview host
+        env:
+          CI: 'true'
+          NETLIFY_TELEMETRY_DISABLED: '1'
+        run: |
+          set -o pipefail
+          npx --yes netlify-cli@latest deploy \
+            --allow-anonymous --dir=temporary_preview --no-build --json \
+            > netlify-private-response.txt 2> netlify-errors.txt || {
+              echo 'Anonymous deployment failed; redacted last error lines follow.'
+              tail -n 25 netlify-errors.txt | sed -E 's@https://[^ ]+@<redacted-link>@g'
+              exit 1
+            }
+          python3 - <<'PY'
+          import json,re,pathlib
+          text=pathlib.Path('netlify-private-response.txt').read_text()
+          try:
+            j=json.loads(text)
+          except json.JSONDecodeError:
+            j={}
+          def find_url(obj):
+            if isinstance(obj,dict):
+              for key,value in obj.items():
+                if key.lower() in ("url","deploy_url","deployurl","siteurl","site_url","ssl_url") and isinstance(value,str) and ".netlify.app" in value:
+                  return value
+              for val in obj.values():
+                result=find_url(val)
+                if result:return result
+            if isinstance(obj,list):
+              for val in obj:
+                result=find_url(val)
+                if result:return result
+            return ""
+          import urllib.parse
+          url=(j.get("site_url") if isinstance(j,dict) else None) or find_url(j)
+          if url is not None and not isinstance(url,str):
+            print("NETLIFY_URL_TYPE="+type(url).__name__)
+          if isinstance(url,str) and url:
+            if url.startswith("http://"):url="https://"+url[len("http://"):]
+            elif not url.startswith("https://"):url="https://"+url.lstrip("/")
+          if not isinstance(url,str) or not url.startswith("https://"):
+            print("NETLIFY_DIAGNOSTIC: response_keys="+str(list(j.keys()))+
+                  " site_url_type="+str(type(j.get("site_url")).__name__)+
+                  " site_url_length="+str(len(str(j.get("site_url") or ""))))
+            raise RuntimeError("Netlify did not return a usable site URL")
+          print("NETLIFY_SAFE_SITE_URL="+url)
+          host=urllib.parse.urlsplit(url).hostname
+          if not host or not (host.endswith(".netlify.app") or host.endswith(".netlify.live") or host.endswith(".netlify.com")):
+            print("NETLIFY_DIAGNOSTIC_HOST="+str(host))
+            raise RuntimeError("Unexpected Netlify anonymous deployment hostname")
+          print('PUBLIC_TEMPORARY_PREVIEW_URL='+url)
+          # Anonymous preview access password is not an account or claim token.
+          if isinstance(j,dict) and j.get("password"):
+            print("PUBLIC_PREVIEW_ACCESS_PASSWORD="+str(j["password"]))
+          pathlib.Path('preview-public-url.txt').write_text(url+'\\n')
+          PY
+      - name: Verify real publicly hosted app and manifest over HTTPS
+        run: |
+          URL="$(cat preview-public-url.txt)"
+          curl -fsSL --retry 3 --max-time 60 "$URL/" | grep -qi 'PetroScreen'
+          curl -fsSL --retry 3 --max-time 60 "$URL/data/manifest.json" | grep -q 'Niger Delta nine-state research pilot'
+          echo "PUBLIC_TEMPORARY_PREVIEW_VERIFIED=$URL"

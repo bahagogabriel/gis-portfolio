@@ -1,0 +1,59 @@
+name: Verify published PetroScreen GitHub Pages URL
+
+on:
+  push:
+    branches: [research/petroscreen-ng-stage07-batch-seven-states]
+    paths: ['.github/workflows/petroscreen-public-url-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-site-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify real HTTPS site, manifest, JS and native raster data
+        run: |
+          set -euo pipefail
+          ROOT='https://bahagogabriel.com/petroscreen'
+          for attempt in $(seq 1 12); do
+            if curl -fLSs --connect-timeout 10 --max-time 25 "$ROOT/" -o /tmp/ps-index.html && \
+               curl -fLSs --connect-timeout 10 --max-time 25 "$ROOT/data/manifest.json" -o /tmp/ps-manifest.json; then
+               if grep -qi 'PetroScreen' /tmp/ps-index.html && \
+                  grep -q 'Niger Delta nine-state research pilot' /tmp/ps-manifest.json; then
+                  echo 'HTML_MANIFEST_ONLINE=PASS'
+                  break
+               fi
+            fi
+            if [ "$attempt" -eq 12 ]; then
+              echo 'Public path or manifest was not available after 12 attempts'
+              exit 1
+            fi
+            sleep 12
+          done
+          python3 - <<'PY'
+          import json,re,urllib.request,hashlib,pathlib
+          base='https://bahagogabriel.com/petroscreen/'
+          m=json.loads(pathlib.Path('/tmp/ps-manifest.json').read_text())
+          assert len(m['states'])==len(m['state_sources'])==9
+          html=pathlib.Path('/tmp/ps-index.html').read_text()
+          paths=re.findall(r'(?:src|href)="([^"]+)"',html)
+          assert paths, 'No app JS/CSS paths found'
+          for path in paths:
+            if path.startswith(('./','assets/')):
+              uri=base+path.removeprefix('./')
+              with urllib.request.urlopen(uri,timeout=30) as r:
+                body=r.read()
+                assert len(body)>0,(uri,r.status)
+          # Validate actual served raster bytes, not only the manifest listing.
+          entry=next(x for x in m['state_sources'] if x['state']=='Rivers')
+          raster=next(x for x in entry['source_files'] if x['kind']=='worldcover')
+          uri=base+'data/'+raster['file']
+          with urllib.request.urlopen(uri,timeout=120) as resp:
+            content=resp.read()
+          assert hashlib.sha256(content).hexdigest()==raster['sha256']
+          print('PUBLIC_GITHUB_PAGES_SMOKE_PASS url='+base)
+          print('Verified 9 state entries, JS/CSS and full remote Rivers GeoTIFF SHA256')
+          PY

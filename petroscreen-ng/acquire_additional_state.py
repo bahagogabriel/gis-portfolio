@@ -22,8 +22,21 @@ from validate_bayelsa import approximate_pixel_area
 G=Geod(ellps="WGS84")
 
 def read(url):
-    with urlopen(Request(url,headers={"User-Agent":"PetroScreenNG-Regional-Pilot/0.1"}),timeout=60) as f:
-        return json.loads(f.read())
+    """Retry transient public boundary endpoint failures; preserve hard error on exhaustion."""
+    import time
+    from urllib.error import URLError, HTTPError
+    delays=(0,2,5,10)
+    for index,delay in enumerate(delays):
+        if delay:time.sleep(delay)
+        try:
+            with urlopen(Request(url,headers={
+                "User-Agent":"PetroScreenNG-Regional-Pilot/0.1",
+                "Accept":"application/json"}),timeout=90) as response:
+                return json.loads(response.read())
+        except (URLError, TimeoutError, HTTPError) as err:
+            if index==len(delays)-1:raise
+            print(f"Temporary boundary source error; retry {index+1}/{len(delays)-1}: {type(err).__name__}",flush=True)
+    raise RuntimeError("Public boundary endpoint retry loop exhausted")
 
 def source_boundary(name):
     meta=read(API)
@@ -37,8 +50,8 @@ def source_boundary(name):
     return meta,hits[0],geom
 
 def process(state):
-    if state not in TARGETS or state=="Bayelsa":
-        raise ValueError("Choose one of eight *additional* NDDC states")
+    if state not in TARGETS:
+        raise ValueError("Choose one of the nine NDDC states")
     meta,feature,geom=source_boundary(state)
     halo=projected_buffer(geom,5000)
     wc,jrc=candidates(halo)
@@ -118,6 +131,6 @@ def process(state):
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
-    parser.add_argument("--state",choices=tuple(s for s in TARGETS if s!="Bayelsa"),default="Rivers")
+    parser.add_argument("--state",choices=tuple(TARGETS),default="Rivers")
     args=parser.parse_args()
     process(args.state)

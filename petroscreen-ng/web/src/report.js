@@ -224,7 +224,9 @@ export async function exportReportPdf({result,worldcoverImages,download=true}){
   const pdf=new jsPDF({unit:"mm",format:"a4",compress:true});
   drawCover(pdf,result,mapData);
   drawDetails(pdf,result);
-  const region=/Rivers/i.test(result.coverage_region||"")?"Bayelsa_Rivers":"Bayelsa";
+  const region=(result.coverage_region||"").includes("nine-state")?
+    (result.site_state||"Unresolved_State").replace(/[^a-z0-9_-]/gi,"_"):
+    /Rivers/i.test(result.coverage_region||"")?"Bayelsa_Rivers":"Bayelsa";
   if(download)pdf.save("PetroScreenNG_"+region+"_Preliminary_Screening.pdf");
   return pdf;
 }
