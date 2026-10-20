@@ -44,6 +44,19 @@ jobs:
       - name: Build standalone map application
         working-directory: petroscreen-ng/web
         run: npm run build
+      - name: Install Chromium for UI smoke verification
+        working-directory: petroscreen-ng/web
+        run: npx playwright install --with-deps chromium
+      - name: Run desktop/mobile and PDF download browser tests
+        run: node petroscreen-ng/web/test/gui-smoke.mjs
+      - name: Archive actual browser screenshots and PDF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage03-visual-and-pdf-qa
+          path: petroscreen-ng/artifacts_web/
+          retention-days: 14
+          if-no-files-found: warn
       - name: Inspect output assets
         run: |
           test -s petroscreen-ng/web/dist/index.html
