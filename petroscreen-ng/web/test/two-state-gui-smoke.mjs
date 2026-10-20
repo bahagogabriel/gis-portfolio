@@ -38,8 +38,9 @@ try{
   await page.goto(ORIGIN,{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",
     null,{timeout:90000});
-  await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
-    "Verified satellite data loaded"),null,{timeout:90000});
+  await page.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
+    null,{timeout:120000});
+  assert.equal(await page.locator("#screen-btn").isEnabled(),true);
   assert.match(await page.locator(".status-pill").textContent(),/BAYELSA AND RIVERS/);
   for(let i=0;i<tests.length;i++){
     const t=tests[i],point=t.result.location_wgs84;
