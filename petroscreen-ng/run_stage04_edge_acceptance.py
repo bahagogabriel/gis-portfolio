@@ -66,8 +66,8 @@ def main():
            next(x["result"]["study"]["outside_supported_domain_km2_geodesic"]
                 for x in cases if x["name"]=="boundary_near_edge" and x["radius_km"]==1),
         "owner_3km_tree_pct":
-           next((c["share_of_valid_classified_pct"]
-                for c in x["result"]["land_cover_2021"]["classes"] if c["code"]==10)
-                for x in cases if x["name"]=="owner_windows_site" and x["radius_km"]==3)},indent=2))
+           next(c["share_of_valid_classified_pct"]
+                for x in cases if x["name"]=="owner_windows_site" and x["radius_km"]==3
+                for c in x["result"]["land_cover_2021"]["classes"] if c["code"]==10)},indent=2))
 
 if __name__=="__main__":main()
