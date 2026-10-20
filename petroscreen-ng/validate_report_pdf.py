@@ -18,7 +18,8 @@ def verify(REPORT):
         raise SystemExit(f"Expected exactly two report pages; got {len(doc)}")
     text="\n".join(page.get_text() for page in doc).casefold()
     required=("petroscreen ng","bayelsa","worldcover","global surface water",
-              "regulatory eia","1984-2024","study buffer")
+              "regulatory eia","1984-2024","study buffer",
+              "ec jrc/google","pekel","grid3")
     missing=[t for t in required if t not in text]
     if missing:
         raise SystemExit(f"Report does not include mandatory fields: {missing}")
