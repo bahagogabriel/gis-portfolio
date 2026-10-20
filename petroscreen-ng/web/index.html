@@ -3,14 +3,14 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0e242b">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
-<meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites in Bayelsa, Nigeria.">
+<meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
 </head><body>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
 <span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
-<div class="top-right"><span class="status-pill">RESEARCH PREVIEW · BAYELSA</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
+<div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 0.3</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 0.6</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -25,19 +25,19 @@
 <button class="action" id="screen-btn" type="submit">Run environmental screening <span>↗</span></button>
 <p class="help" id="form-feedback" role="status" aria-live="polite">Loading verified environmental layers…</p>
 </form>
-<section class="source-note"><h3>Source coverage</h3><div class="legend"><span class="legend-dot"></span> Bayelsa pilot boundary</div>
-<p>ESA WorldCover (2021) · JRC Global Surface Water (1984–2024). Expansion to all nine Niger Delta states and then nationwide is planned but not yet available.</p>
+<section class="source-note"><h3>Source coverage</h3><div class="legend"><span class="legend-dot"></span> Verified study boundary</div>
+<p id="region-coverage-text">ESA WorldCover (2021) and JRC Global Surface Water (1984–2024) are available only for data-verified pilot regions. Expansion to other states remains pending.</p>
 <p class="fine">No user account or application screening backend. Site computations occur in your browser; ordinary hosting access logs may record your IP address and requested files, but the app does not intentionally transmit your chosen coordinates. The map uses a locally served derived ESA land-cover overview.</p></section>
 </aside>
-<section class="map-panel" aria-label="Interactive Bayelsa screening map">
-<div id="map" aria-label="Map: click a site in Bayelsa to select it"></div>
+<section class="map-panel" aria-label="Interactive pilot-region screening map">
+<div id="map" aria-label="Map: click a site inside a verified pilot region to select it"></div>
 <div class="map-tip"><span class="pulse-dot"></span> Click inside the highlighted boundary to set a screening point</div>
 <div class="map-credit">© ESA WorldCover project 2021 · JRC/European Commission · geoBoundaries</div>
 </section>
 <aside class="results-panel" aria-label="Site screening findings">
 <div class="results-top"><span class="overline">ENVIRONMENTAL INTELLIGENCE</span><h2>Screening findings</h2>
 <p id="result-subtitle">Your site assessment appears here after analysis.</p></div>
-<div id="empty-state" class="empty-state"><div class="empty-icon">◎</div><h3>Ready to screen</h3><p>Choose a location within the Bayelsa pilot area. The map and data are loaded locally in your browser.</p></div>
+<div id="empty-state" class="empty-state"><div class="empty-icon">◎</div><h3>Ready to screen</h3><p>Choose a location inside the highlighted verified pilot region. The map and data are loaded locally in your browser.</p></div>
 <section id="results" hidden>
 <div class="metric-grid"><div><span>Buffer area</span><strong id="area-value">—</strong></div><div><span>Data coverage</span><strong id="coverage-value">—</strong></div></div>
 <h3>Mapped land cover <small>ESA 2021</small></h3>
@@ -56,7 +56,7 @@
 <p><strong>Study area:</strong> WGS84 geographic site coordinate; selected 1, 3 or 5 km radius. Pixels are included if their centres fall within the study buffer. Pixel areas are weighted by latitude on the WGS84 ellipsoid. All site calculations execute in your browser.</p>
 <p><strong>Land cover:</strong> ESA WorldCover 2021 v200, 10 m nominal. Not a field-verified contemporary land-cover survey. Data © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. Dataset citation: Zanaga et al. (2022), <a href="https://doi.org/10.5281/zenodo.7254221" target="_blank" rel="noopener noreferrer">DOI:10.5281/zenodo.7254221</a>.</p>
 <p><strong>Water:</strong> JRC Global Surface Water v1.5 occurrence (1984–2024), 30 m nominal, available under the provider's Copernicus programme terms. Map attribution: <strong>Source: EC JRC/Google</strong>. Cite Pekel et al. (2016), <a href="https://doi.org/10.1038/nature20584" target="_blank" rel="noopener noreferrer">Nature DOI:10.1038/nature20584</a>. Observed water occurrence is not current water, flood probability or contamination; combined Landsat collections can have local positional offsets at or above 30 m. <a href="https://global-surface-water.appspot.com/download" target="_blank" rel="noopener noreferrer">Official source and release cautions</a>.</p>
-<p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigerian ADM1 Bayelsa polygon, derived from GRID3; CC BY 4.0. This preview does not support sites outside Bayelsa. Study buffers overlapping the pilot boundary are flagged as incomplete.</p>
+<p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigerian ADM1 Bayelsa polygon, derived from GRID3; CC BY 4.0. The valid site region is read from the checked data manifest. The two-state research preview supports Bayelsa and Rivers when those files are packaged. Buffers crossing the outer region boundary are flagged; crossing an internal state border does not create a data gap.</p>
 <p><strong>Important:</strong> Satellite classifications contain uncertainty. Data may omit channels or assets; no petroleum-asset information is acquired. Do not use for regulatory EIA, spill-risk estimates, ecological damage, legal findings or field-inspection substitutes.</p>
 <p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
 <script type="module" src="/src/app.js"></script>
