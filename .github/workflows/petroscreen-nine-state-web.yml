@@ -1,0 +1,75 @@
+name: PetroScreen Stage 09 — nine-state on-demand browser QA (research only)
+on:
+  pull_request:
+    paths:
+      - 'petroscreen-ng/build_nine_state_web_assets.py'
+      - 'petroscreen-ng/web/**'
+      - 'petroscreen-ng/validate_nine_state_pdf.py'
+      - '.github/workflows/petroscreen-nine-state-web.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nine-state-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Python geospatial and report validation libraries
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2 pillow==11.3.0 pymupdf==1.26.5
+      - name: Install browser frontend and Chromium libraries
+        working-directory: petroscreen-ng/web
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+      - name: Acquire nine-state continuous source data (original tiles, bounded RAM)
+        run: python -u petroscreen-ng/acquire_nine_state_stream.py
+      - name: Validate nine-state source pixels and real interstate screening
+        run: python petroscreen-ng/run_nine_state_reference_acceptance.py
+      - name: Convert verified source TIFFs into spatially indexed nonoverlapping chunks
+        run: python -u petroscreen-ng/build_nine_state_web_assets.py
+      - name: Compare 14 browser lazy tile cases with independent real Python reference
+        working-directory: petroscreen-ng/web
+        run: node test/nine-state-parity.mjs
+      - name: Compile standalone research preview
+        working-directory: petroscreen-ng/web
+        run: npm run build
+      - name: Install local Chromium browser
+        working-directory: petroscreen-ng/web
+        run: npx playwright install --with-deps chromium
+      - name: Run nine-state Chromium screens, integrity-checked tile loads and PDF tests
+        run: node petroscreen-ng/web/test/nine-state-gui-smoke.mjs
+      - name: Verify regional mapped PDF attribution and page bounds
+        run: python petroscreen-ng/validate_nine_state_pdf.py
+      - name: Archive detailed nine-state numerical and delivery QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage09-science-and-delivery-qa
+          path: |
+            petroscreen-ng/artifacts_nine_state/*.json
+            petroscreen-ng/web/public/data/manifest.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Archive nine-state web preview (not publicly deployed)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage09-nine-state-web-preview
+          path: petroscreen-ng/web/dist/
+          retention-days: 14
+          if-no-files-found: error
+      - name: Archive browser screenshots and PDF QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage09-browser-qa
+          path: petroscreen-ng/artifacts_nine_state_web/
+          retention-days: 14
+          if-no-files-found: warn
