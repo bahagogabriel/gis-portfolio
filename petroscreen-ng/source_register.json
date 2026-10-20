@@ -8,7 +8,8 @@
       "url": "https://www.geoboundaries.org/api/current/gbOpen/NGA/ADM1/",
       "license": "CC BY 4.0",
       "fallback": "Cache allowed verified gbOpen release",
-      "data_gate": "Bayelsa polygon valid and fully covers AOI"
+      "data_gate": "Bayelsa polygon valid and fully covers AOI",
+      "attribution": "geoBoundaries gbOpen Nigeria ADM1 (2022), original source GRID3; CC BY 4.0"
     },
     {
       "id": "worldcover_2021",
@@ -20,9 +21,12 @@
     {
       "id": "jrc_gsw",
       "url": "https://global-surface-water.appspot.com/download",
-      "license": "Copernicus attribution",
+      "license": "Copernicus programme terms (provider page); attribution required",
       "fallback": "JRC v1.4 1984-2021 with date disclosed",
-      "data_gate": "2024 v1.5 tile access; exclude erroneous monthly recurrence"
+      "data_gate": "2024 v1.5 tile access; exclude erroneous monthly recurrence",
+      "attribution": "Source: EC JRC/Google; cite Pekel et al. (2016), Nature 540:418–422 DOI:10.1038/nature20584",
+      "limitations": "1984–2024 historical occurrence; Collection 1/2 geolocation offsets can exceed 30m locally. Monthly recurrence errors irrelevant to occurrence but exclude recurrence.",
+      "provider_terms_page": "https://global-surface-water.appspot.com/download"
     }
   ],
   "optional": [
