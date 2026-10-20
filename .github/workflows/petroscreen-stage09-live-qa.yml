@@ -1,0 +1,53 @@
+name: Verify live Stage09 mapped context on GitHub Pages
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage09-receptor-reconnaissance']
+    paths: ['.github/workflows/petroscreen-stage09-live-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-site-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Validate updated HTTPS markup, source raster and browser module
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,time,hashlib,json
+          base="https://bahagogabriel.com/petroscreen/"
+          def fetch(path,timeout=30):
+            with urllib.request.urlopen(urllib.request.Request(base+path,headers={
+              "User-Agent":"PetroScreenNG-Stage09-Release-Acceptance"
+            }),timeout=timeout) as response:
+              assert response.status==200
+              return response.read()
+          for attempt in range(20):
+            html=fetch("").decode("utf-8")
+            if "VERSION 0.9" in html and 'id="receptor-summary"' in html:break
+            if attempt==19:raise RuntimeError("Stage09 release did not propagate to hosted index")
+            time.sleep(10)
+          script=html.split('src="./assets/',1)[1].split('"',1)[0]
+          assert script.endswith('.js')
+          js=fetch("assets/"+script).decode("utf-8")
+          for token in ("Mapped permanent water","Mapped herbaceous wetland",
+              "Mapped mangroves","Mapped built-up",
+              "SITE RECONNAISSANCE | ESA 2021"):
+            assert token in js,("Browser JS does not include Stage09 feature",token)
+          manifest=json.loads(fetch("data/manifest.json"))
+          assert len(manifest["states"])==len(manifest["state_sources"])==9
+          total=sum(len(s["source_files"]) for s in manifest["state_sources"])
+          assert total==31,total
+          data=next(f for s in manifest["state_sources"] if s["state"]=="Delta"
+              for f in s["source_files"] if f["kind"]=="worldcover")
+          assert hashlib.sha256(fetch("data/"+data["file"],120)).hexdigest()==data["sha256"]
+          print("PUBLIC_STAGE09_RECONNAISSANCE_PASS=YES")
+          print("PUBLIC_URL="+base)
+          print("NINE_STATES=9")
+          print("MAPPED_CLASS_INDICATORS=4")
+          print("REAL_DELTA_RASTER_CHECKSUM=PASS")
+          PY
