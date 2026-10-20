@@ -47,11 +47,19 @@ def clip(url,geom,output,kind):
             nodata=0 if kind=="worldcover" else 255
             clipped,transform=mask(src,[mapping(geom)],crop=True,filled=True,nodata=nodata)
             image=clipped[0]
+            anomalous_codes={}
             if kind=="worldcover":
                 unknown=set(np.unique(image).tolist())-WORLD_COVER_CODES-{0}
+                if unknown:raise RuntimeError(f"Unexpected {kind} pixel codes {sorted(unknown)}")
             else:
-                unknown=set(np.unique(image).tolist())-set(range(101))-{255}
-            if unknown:raise RuntimeError(f"Unexpected {kind} pixel codes {sorted(unknown)}")
+                anomalous_mask=(image>100)&(image!=255)
+                abnormal,counts=np.unique(image[anomalous_mask],return_counts=True)
+                anomalous_codes={str(int(k)):int(v) for k,v in zip(abnormal,counts)}
+                if anomalous_codes:
+                    print(f"JRC source anomaly: {anomalous_codes}; mark as unknown, never clip to 100%",flush=True)
+                    if int(counts.sum())>max(100,round(image.size*0.0001)):
+                        raise RuntimeError(f"Too many unexplained >100 JRC pixels: {anomalous_codes}")
+                    image[anomalous_mask]=255
             pixel_mask=geometry_mask([mapping(geom)],out_shape=image.shape,
                 transform=transform,invert=True,all_touched=False)
             inside=image[pixel_mask]
@@ -77,6 +85,7 @@ def clip(url,geom,output,kind):
                 "inside_polygon_nodata_count":int(inside.size-valid.size),
                 "valid_codes_histogram":{str(int(c)):int(n) for c,n in zip(codes,counts)},
                 "source_nodata_metadata":src.nodata,"derived_nodata_value":nodata,
+                "nonstandard_source_codes_excluded_as_nodata":anomalous_codes,
                 "not_a_field_validation":True}
 
 def main():
