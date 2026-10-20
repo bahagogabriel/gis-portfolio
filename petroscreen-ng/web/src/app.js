@@ -273,6 +273,17 @@ function display(result){
   status.textContent=result.warnings.length?
     "Coverage caution: "+result.warnings.join(" | "):
     "Source coverage is sufficient for this preliminary buffer calculation.";
+  const receptorPanel=$("receptor-summary");
+  receptorPanel.replaceChildren();
+  for(const item of result.mapped_context_2021.indicators){
+    const line=document.createElement("div");line.className="receptor-item";
+    const label=document.createElement("span");label.textContent=item.label;
+    const detail=document.createElement("strong");
+    detail.textContent=item.status==="mapped_in_study_buffer"
+      ?fmt(item.nearest_pixel_centre_m_approx,0)+" m · "+fmt(item.area_km2_approx,3)+" km² mapped"
+      :"Not mapped in buffer";
+    line.append(label,detail);receptorPanel.append(line);
+  }
   const notes=$("interpretation");
   notes.replaceChildren();
   const heading=document.createElement("strong");
