@@ -91,7 +91,7 @@ try{
   // Regression: selecting a site while an HTTP raster is still loading must
   // NOT hide the data-readiness indicator or imply the Run button is usable.
   const slow=await browser.newPage();
-  await slow.route("**/data/wc_west.tif",async route=>{
+  await slow.route("**/data/wc_west.tif*",async route=>{
     await new Promise(resolve=>setTimeout(resolve,2500));
     await route.continue();
   });
@@ -111,7 +111,7 @@ try{
   // Regression: browser-local server failure must leave an explicit visible
   // error and a real retry path; map/coordinate interaction cannot hide it.
   const failed=await browser.newPage();
-  await failed.route("**/data/water_occurrence.tif",route=>route.abort("failed"));
+  await failed.route("**/data/water_occurrence.tif*",route=>route.abort("failed"));
   await failed.goto(ORIGIN,{waitUntil:"domcontentloaded"});
   await failed.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="failed",
     null,{timeout:120000});
@@ -120,12 +120,18 @@ try{
   await failed.locator("#longitude").fill("6.066211");
   await failed.locator("#latitude").fill("4.755211");
   assert.match(await failed.locator("#data-status").textContent(),/Data loading failed/);
-  await failed.unroute("**/data/water_occurrence.tif");
+  await failed.unroute("**/data/water_occurrence.tif*");
   await failed.locator("#retry-data").click();
   await failed.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
     null,{timeout:120000});
   assert.equal(await failed.locator("#screen-btn").isEnabled(),true);
   await failed.close();
+  // All TIFF requests must be SHA-addressed to avoid a cached Stage04 TIFF
+  // being served under Stage06's fixed localhost host/filenames.
+  const rasterRequests=requests.filter(raw=>/\\.tif(?:\\?|$)/.test(raw));
+  assert.ok(rasterRequests.length>=3,"Expected actual GeoTIFF file requests");
+  assert.ok(rasterRequests.every(raw=>new URL(raw).searchParams.has("sha256")),
+    "Raster requests must carry version-specific SHA256 query strings");
   const external=requests.filter(x=>/^https?:/.test(x)&&new URL(x).origin!==new URL(ORIGIN).origin);
   assert.deepEqual(external,[],"External network requests would expose information");
   assert.deepEqual(errors,[],"Unexpected browser JavaScript errors");
