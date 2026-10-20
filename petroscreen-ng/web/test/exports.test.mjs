@@ -39,7 +39,7 @@ test("structured case includes verified sources and all unchecked default field 
   assert.match(csv,/0\.0191/);
   assert.match(csv,/historical_water/);
   assert.ok(csv.startsWith("\ufeff"));
-  assert.match(csv,/"Mapped herbaceous wetland","","metres"/);
+  assert.match(csv,/"Mapped herbaceous wetland",,"metres"/);
   const checklist=fieldChecklistCsv(r);
   assert.match(checklist,/not_checked/);
   assert.equal(checklist.split("\r\n").filter(Boolean).length,8);
