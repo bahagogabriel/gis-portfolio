@@ -64,12 +64,30 @@ jobs:
           text=pathlib.Path('netlify-private-response.txt').read_text()
           try:
             j=json.loads(text)
-            url=j.get('deploy_url') or j.get('url') or j.get('ssl_url') or ''
           except json.JSONDecodeError:
-            urls=re.findall(r'https://[a-zA-Z0-9.-]+\.netlify\.app',text)
-            url=urls[0] if urls else ''
-          if not url.startswith('https://') or '.netlify.app' not in url:
-            raise RuntimeError('No verifiable public Netlify preview URL was returned')
+            j={}
+          def find_url(obj):
+            if isinstance(obj,dict):
+              for key,value in obj.items():
+                if key.lower() in ("url","deploy_url","deployurl","siteurl","site_url","ssl_url") and isinstance(value,str) and ".netlify.app" in value:
+                  return value
+              for val in obj.values():
+                result=find_url(val)
+                if result:return result
+            if isinstance(obj,list):
+              for val in obj:
+                result=find_url(val)
+                if result:return result
+            return ""
+          url=find_url(j)
+          if not url:
+            match=re.findall(r'https://[a-zA-Z0-9.-]+\\.netlify\\.app',text)
+            url=match[0] if match else ""
+          if not url.startswith("https://") or ".netlify.app" not in url:
+            print("NETLIFY_DIAGNOSTIC: stdout_bytes="+str(len(text))+
+                  " response_keys="+str(list(j.keys()) if isinstance(j,dict) else type(j).__name__)+
+                  " stderr_bytes="+str(pathlib.Path("netlify-errors.txt").stat().st_size))
+            raise RuntimeError("No public .netlify.app URL in CLI output")
           # Do not print claim URLs, which are bearer ownership links.
           print('PUBLIC_TEMPORARY_PREVIEW_URL='+url)
           pathlib.Path('preview-public-url.txt').write_text(url+'\n')
