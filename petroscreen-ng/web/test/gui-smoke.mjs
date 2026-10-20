@@ -41,12 +41,11 @@ try {
     });
     throw error;
   });
-  await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
-    "Verified satellite data loaded") ||
-    document.querySelector("#form-feedback")?.textContent.includes("could not be loaded"),
-    {timeout:120000});
-  let notice=await page.locator("#form-feedback").textContent();
-  assert.match(notice,/Verified satellite data loaded/,notice);
+  await page.waitForFunction(()=>["ready","failed"].includes(
+    document.querySelector("#data-status")?.dataset.state),null,{timeout:120000});
+  let notice=await page.locator("#data-status").textContent();
+  assert.equal(await page.locator("#data-status").getAttribute("data-state"),"ready",notice);
+  assert.equal(await page.locator("#screen-btn").isEnabled(),true);
   await page.locator("#longitude").fill("6");
   await page.locator("#latitude").fill("4.7286535");
   await page.locator("#screen-btn").click();
@@ -100,7 +99,7 @@ try {
   assert.equal(await page.locator("#results").isVisible(),false);
   await page.locator("#screen-btn").click();
   await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes("Screening failed"),null,{timeout:20000});
-  assert.match(await page.locator("#form-feedback").textContent(),/outside verified Bayelsa coverage/);
+  assert.match(await page.locator("#form-feedback").textContent(),/outside (the )?verified (Bayelsa|Bayelsa and Rivers) (screening area|coverage)/);
   assert.equal(await page.locator("#results").isVisible(),false);
 
   const mobile=await browser.newPage({viewport:{width:390,height:844},
@@ -108,8 +107,8 @@ try {
   mobile.on("pageerror",e=>errors.push(e.message));
   await mobile.goto(endpoint,{waitUntil:"domcontentloaded"});
   await mobile.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:14000});
-  await mobile.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
-    "Verified satellite data loaded"),{timeout:120000});
+  await mobile.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
+    null,{timeout:120000});
   await mobile.screenshot({path:OUTPUT+"/petroscreen_mobile_initial.png",fullPage:true});
   const horizontalOverflow=await mobile.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+3);
   assert.equal(horizontalOverflow,false,"Unexpected mobile horizontal overflow");

@@ -131,9 +131,9 @@ export function summarizeCount(count,kind,bufferAreaKm2){
   })};
 }
 /** Target area is geodesic circle approximation, not clipped political boundary area. */
-export async function screenBrowser({lon,lat,radiusKm,coverage,worldcoverImages,waterImage}){
+export async function screenBrowser({lon,lat,radiusKm,coverage,worldcoverImages,waterImage,regionName="Bayelsa"}){
   validateLocation(lon,lat,radiusKm);
-  if(!inPolygon([lon,lat],coverage))throw new Error("This point is outside verified Bayelsa coverage.");
+  if(!inPolygon([lon,lat],coverage))throw new Error("This point is outside the verified "+regionName+" screening area.");
   if(!worldcoverImages.length || !waterImage)throw new Error("Mandatory environmental rasters unavailable.");
   const circle=circleGeometry(lon,lat,radiusKm);
   const outside=circle.geometry.coordinates[0].some(p=>!inPolygon(p,coverage));
@@ -157,7 +157,7 @@ export async function screenBrowser({lon,lat,radiusKm,coverage,worldcoverImages,
     engine_version:ENGINE_VERSION,scope:"preliminary_environmental_baseline",
     location_wgs84:{longitude:lon,latitude:lat},radius_km:radiusKm,
     buffer_area_km2_approx:+bufferAreaKm2.toFixed(5),
-    coverage_region:"Bayelsa only (verified pilot)",
+    coverage_region:regionName+" (verified pilot)",
     land_cover_2021:{source:"ESA WorldCover 2021 v200",...wc},
     surface_water_occurrence_1984_2024:{source:"JRC GSW v1.5, 1984-2024",...jrc},
     coverage_status:warnings.length?"partial":"sufficient",warnings,

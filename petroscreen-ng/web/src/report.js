@@ -46,7 +46,7 @@ function rows(pdf,items,startY){
   return y;
 }
 function drawCover(pdf,result,mapData){
-  header(pdf,"BAYELSA PILOT");
+  header(pdf,(result.coverage_region||"BAYELSA PILOT").toUpperCase().slice(0,36));
   text(pdf,"Preliminary environmental site screening",18,38,14,INK,"bold");
   text(pdf,"Evidence-based site context, not petroleum impact or risk prediction",18,45,8,MUTED);
   pdf.setFillColor(...PALE);pdf.roundedRect(18,51,174,25,3,3,"F");
@@ -116,7 +116,7 @@ function drawDetails(pdf,result){
     "ESA WorldCover 2021 v200; Zanaga et al. (2022), DOI:10.5281/zenodo.7254221; CC BY 4.0.",
     "Copyright ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium.",
     "JRC Global Surface Water v1.5 1984-2024. Source: EC JRC/Google; Copernicus terms. Pekel et al. 2016, DOI:10.1038/nature20584.",
-    "geoBoundaries gbOpen Nigeria ADM1 2022 (original source GRID3), Bayelsa boundary, CC BY 4.0.",
+    "geoBoundaries gbOpen Nigeria ADM1 2022 (GRID3), official supported state boundary, CC BY 4.0.",
     "Interpretation: mapped data are not field findings. JRC Landsat collection offsets may exceed 30 m locally. Verify sensitive receptors and project-specific regulatory requirements in field studies."
   ];
   for(const c of citations)y=wrapped(pdf,"- "+c,19,y+1,171,7.2,4.1);
@@ -224,6 +224,7 @@ export async function exportReportPdf({result,worldcoverImages,download=true}){
   const pdf=new jsPDF({unit:"mm",format:"a4",compress:true});
   drawCover(pdf,result,mapData);
   drawDetails(pdf,result);
-  if(download)pdf.save("PetroScreenNG_Bayelsa_Preliminary_Screening.pdf");
+  const region=/Rivers/i.test(result.coverage_region||"")?"Bayelsa_Rivers":"Bayelsa";
+  if(download)pdf.save("PetroScreenNG_"+region+"_Preliminary_Screening.pdf");
   return pdf;
 }

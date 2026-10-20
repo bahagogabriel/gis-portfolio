@@ -79,6 +79,6 @@ for(const item of edgeFixture.cases){
 await assert.rejects(
   ()=>screenBrowser({lon:4.1,lat:7.1,radiusKm:1,coverage,
     worldcoverImages:[west,east],waterImage:water}),
-  /outside verified Bayelsa coverage/
+  /outside (the )?verified Bayelsa (screening area|coverage)/
 );
 console.log(JSON.stringify({status:"PASS",tests:results.length,cases:results},null,2));
