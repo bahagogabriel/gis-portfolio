@@ -59,6 +59,7 @@ try {
     deviceScaleFactor:1});
   mobile.on("pageerror",e=>errors.push(e.message));
   await mobile.goto(endpoint,{waitUntil:"domcontentloaded"});
+  await mobile.waitForFunction(()=>document.querySelector("#map")?.dataset.overviewReady==="true",null,{timeout:120000});
   await mobile.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes(
     "Verified satellite data loaded"),{timeout:120000});
   await mobile.screenshot({path:OUTPUT+"/petroscreen_mobile_initial.png",fullPage:true});
