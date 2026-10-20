@@ -22,8 +22,10 @@
 <label><input type="radio" name="radius" value="1" checked><span>1 km</span></label>
 <label><input type="radio" name="radius" value="3"><span>3 km</span></label>
 <label><input type="radio" name="radius" value="5"><span>5 km</span></label></fieldset>
-<button class="action" id="screen-btn" type="submit">Run environmental screening <span>↗</span></button>
-<p class="help" id="form-feedback" role="status" aria-live="polite">Loading verified environmental layers…</p>
+<p class="load-status" id="data-status" data-state="loading" role="status" aria-live="polite">Preparing local satellite data…</p>
+<button class="retry-data" id="retry-data" type="button" hidden>Retry loading satellite data ↻</button>
+<button class="action" id="screen-btn" type="submit" disabled>Loading environmental data…</button>
+<p class="help" id="form-feedback" aria-live="polite">Select a location while the source rasters load.</p>
 </form>
 <section class="source-note"><h3>Source coverage</h3><div class="legend"><span class="legend-dot"></span> Verified study boundary</div>
 <p id="region-coverage-text">ESA WorldCover (2021) and JRC Global Surface Water (1984–2024) are available only for data-verified pilot regions. Expansion to other states remains pending.</p>
