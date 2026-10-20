@@ -17,7 +17,6 @@ const map=new maplibregl.Map({container:"map",
   style:{version:8,sources:{},layers:[{id:"background",type:"background",
     paint:{"background-color":"#e6eee8"}}]},
   center:[6.02,4.83],zoom:8.35,attributionControl:false,
-  preserveDrawingBuffer:true,
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
 
@@ -166,7 +165,7 @@ ui.pdf.addEventListener("click",async()=>{
   ui.pdf.disabled=true;
   ui.pdf.textContent="Preparing mapped screening PDF…";
   try{
-    await exportReportPdf({result:lastResult,map});
+    await exportReportPdf({result:lastResult,worldcoverImages:layers.worldcoverImages});
     ui.feedback.textContent="Mapped screening PDF downloaded.";
   }catch(error){
     ui.feedback.textContent="PDF report could not be completed: "+error.message;
