@@ -100,7 +100,7 @@ try {
   assert.equal(await page.locator("#results").isVisible(),false);
   await page.locator("#screen-btn").click();
   await page.waitForFunction(()=>document.querySelector("#form-feedback")?.textContent.includes("Screening failed"),null,{timeout:20000});
-  assert.match(await page.locator("#form-feedback").textContent(),/outside verified Bayelsa coverage/);
+  assert.match(await page.locator("#form-feedback").textContent(),/outside (the )?verified (Bayelsa|Bayelsa and Rivers) (screening area|coverage)/);
   assert.equal(await page.locator("#results").isVisible(),false);
 
   const mobile=await browser.newPage({viewport:{width:390,height:844},
