@@ -46,7 +46,7 @@ jobs:
     name: Package nine-state source-indexed research bundle
     needs: state-acquisition
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -62,6 +62,28 @@ jobs:
           merge-multiple: true
       - name: Build checksum-verified nine-state lazy-loading catalogue
         run: python petroscreen-ng/build_nine_state_assets.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser tooling
+        working-directory: petroscreen-ng/web
+        run: npm install --no-audit --no-fund
+      - name: Build regional static site with the nine-state data catalogue
+        working-directory: petroscreen-ng/web
+        run: npm run build
+      - name: Install Chromium browser
+        working-directory: petroscreen-ng/web
+        run: npx playwright install --with-deps chromium
+      - name: Test all nine candidate states in real Chromium
+        run: node petroscreen-ng/web/test/nine-state-gui-smoke.mjs
+      - name: Archive full nine-state research web preview (NOT publicly deployed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-nine-state-research-web-preview
+          path: petroscreen-ng/web/dist/
+          retention-days: 7
+          compression-level: 4
+          if-no-files-found: error
       - name: Archive research-only region index and all rasters
         uses: actions/upload-artifact@v4
         with:
