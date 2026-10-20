@@ -48,4 +48,37 @@ for(const item of oracle.cases){
     jrc_diff_pct:+(jrcError*100).toFixed(3),
     browser_status:browser.coverage_status});
 }
+// Stage 04: owner-observed site and a boundary point independently selected from
+// the authoritative polygon in Python. No screenshot is used as quantitative truth.
+const edgeFixture=JSON.parse(await readFile(new URL("stage04_edge_acceptance.json",root),"utf8"));
+assert.equal(edgeFixture.status,"PASS");
+assert.equal(edgeFixture.cases.length,6);
+for(const item of edgeFixture.cases){
+  const py=item.result;
+  const browser=await screenBrowser({
+    lon:py.location_wgs84.longitude,lat:py.location_wgs84.latitude,
+    radiusKm:item.radius_km,coverage,worldcoverImages:[west,east],waterImage:water
+  });
+  const wcErr=relativeAbs(browser.land_cover_2021.coverage.valid_area_km2_approx,
+                          py.land_cover_2021.coverage.valid_area_km2_approx);
+  const waterErr=relativeAbs(browser.surface_water_occurrence_1984_2024.coverage.valid_area_km2_approx,
+                             py.surface_water_occurrence_1984_2024.coverage.valid_area_km2_approx);
+  // Boundary-edge pixel-centre vs local-projection differences: 2% / 3% budgets.
+  assert.ok(wcErr<.02,`Stage 04 ${item.name}/${item.radius_km}: land-area delta ${wcErr}`);
+  assert.ok(waterErr<.03,`Stage 04 ${item.name}/${item.radius_km}: JRC-area delta ${waterErr}`);
+  if(item.name==="boundary_near_edge"){
+    assert.equal(browser.coverage_status,"partial");
+    assert.ok(browser.warnings.some(v=>v.startsWith("BUFFER_CROSSES_SUPPORTED_BOUNDARY")),
+      `No buffer-boundary warning in browser for ${item.radius_km} km`);
+  }
+  results.push({scenario:item.name,radius_km:item.radius_km,
+    worldcover_diff_pct:+(wcErr*100).toFixed(3),
+    jrc_diff_pct:+(waterErr*100).toFixed(3),
+    browser_status:browser.coverage_status});
+}
+await assert.rejects(
+  ()=>screenBrowser({lon:4.1,lat:7.1,radiusKm:1,coverage,
+    worldcoverImages:[west,east],waterImage:water}),
+  /outside verified Bayelsa coverage/
+);
 console.log(JSON.stringify({status:"PASS",tests:results.length,cases:results},null,2));
