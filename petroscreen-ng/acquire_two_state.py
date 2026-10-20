@@ -26,8 +26,19 @@ OUT=Path("petroscreen-ng/artifacts_two_state")
 G=Geod(ellps="WGS84")
 
 def retrieve(url):
-    with urlopen(Request(url,headers={"User-Agent":"PetroScreenNG-Stage06/0.1"}),timeout=65) as response:
-        return json.loads(response.read())
+    """Retry public boundary service timeouts, without bypassing source QA."""
+    import time
+    from urllib.error import URLError
+    for attempt,delay in enumerate((0,2,5,10),1):
+        if delay:time.sleep(delay)
+        try:
+            with urlopen(Request(url,headers={
+                "User-Agent":"PetroScreenNG-Stage06/0.1","Accept":"application/json"
+            }),timeout=90) as response:
+                return json.loads(response.read())
+        except (URLError, TimeoutError):
+            if attempt==4:raise
+            print(f"Transient gbOpen timeout, retry {attempt}/3",flush=True)
 
 def boundaries():
     meta=retrieve(API)
