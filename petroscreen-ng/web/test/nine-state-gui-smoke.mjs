@@ -79,6 +79,8 @@ try{
       "Field statuses must reset between separate site screenings");
     assert.equal(exported.measurements.mapped_landscape_proximity_2021.indicators.length,4);
     if(entry.state==="Delta"){
+      await page.locator("#field-record summary").click();
+      assert.equal(await page.locator("#field-record").getAttribute("open"),"");
       await page.locator('[data-field-task="surface_water"]').selectOption("field_observed");
       await page.locator("#field-observer").fill("Field Team");
       await page.locator("#field-notes").fill("Needs tidal check");
