@@ -1,0 +1,82 @@
+name: PetroScreen temporary Netlify preview (no portfolio deployment)
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage07-batch-seven-states']
+    paths:
+      - '.github/workflows/petroscreen-temporary-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  temporary-netlify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download previously validated nine-state static artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 39436195657 --repo bahagogabriel/gis-portfolio \
+            --name petroscreen-nine-state-research-web-preview --dir temporary_preview
+          test -f temporary_preview/index.html
+          test -f temporary_preview/data/manifest.json
+      - name: Recheck all raster SHA256 hashes before public temporary publication
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path("temporary_preview")
+          j=json.loads((root/"data/manifest.json").read_text())
+          assert j["region"]=="Niger Delta nine-state research pilot"
+          assert len(j["states"])==len(j["state_sources"])==9
+          num=0
+          for state in j["state_sources"]:
+            for f in state["source_files"]:
+              p=root/"data"/f["file"]
+              assert p.is_file(),str(p)
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==f["sha256"],str(p)
+              num+=1
+          assert num==31,num
+          print("Verified 31 source TIFFs and 9 state manifests before public temporary upload")
+          PY
+      - name: Deploy anonymously to a brand-new temporary preview host
+        env:
+          CI: 'true'
+          NETLIFY_TELEMETRY_DISABLED: '1'
+        run: |
+          set -o pipefail
+          npx --yes netlify-cli@latest deploy \
+            --allow-anonymous --dir=temporary_preview --no-build --json \
+            > netlify-private-response.txt 2> netlify-errors.txt || {
+              echo 'Anonymous deployment failed; redacted last error lines follow.'
+              tail -n 25 netlify-errors.txt | sed -E 's@https://[^ ]+@<redacted-link>@g'
+              exit 1
+            }
+          python3 - <<'PY'
+          import json,re,pathlib
+          text=pathlib.Path('netlify-private-response.txt').read_text()
+          try:
+            j=json.loads(text)
+            url=j.get('deploy_url') or j.get('url') or j.get('ssl_url') or ''
+          except json.JSONDecodeError:
+            urls=re.findall(r'https://[a-zA-Z0-9.-]+\.netlify\.app',text)
+            url=urls[0] if urls else ''
+          if not url.startswith('https://') or '.netlify.app' not in url:
+            raise RuntimeError('No verifiable public Netlify preview URL was returned')
+          # Do not print claim URLs, which are bearer ownership links.
+          print('PUBLIC_TEMPORARY_PREVIEW_URL='+url)
+          pathlib.Path('preview-public-url.txt').write_text(url+'\n')
+          PY
+      - name: Verify real publicly hosted app and manifest over HTTPS
+        run: |
+          URL="$(cat preview-public-url.txt)"
+          curl -fsSL --retry 3 --max-time 60 "$URL/" | grep -qi 'PetroScreen'
+          curl -fsSL --retry 3 --max-time 60 "$URL/data/manifest.json" | grep -q 'Niger Delta nine-state research pilot'
+          echo "PUBLIC_TEMPORARY_PREVIEW_VERIFIED=$URL"
