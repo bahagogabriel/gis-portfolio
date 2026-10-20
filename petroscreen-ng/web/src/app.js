@@ -4,6 +4,7 @@ import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
 import {renderSiteDetail} from "./site_detail.js";
 import {screeningNotes} from "./insights.js";
+import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -83,6 +84,14 @@ function drawSite(circle=null) {
 /** A changed or rejected location must never leave an old report presented as current. */
 function invalidatePrevious(){
   lastResult=null;
+  const form=$("field-record");
+  if(form){
+    form.open=false;
+    $("field-observer").value="";
+    $("field-visit-date").value="";
+    $("field-notes").value="";
+    for(const select of document.querySelectorAll("#field-checklist select"))select.value="not_checked";
+  }
   ui.results.hidden=true;
   ui.empty.hidden=false;
   ui.subtitle.textContent="Your site assessment appears here after analysis.";
@@ -284,6 +293,23 @@ function display(result){
       :"Not mapped in buffer";
     line.append(label,detail);receptorPanel.append(line);
   }
+  const checklist=$("field-checklist");
+  checklist.replaceChildren();
+  for(const task of FIELD_TASKS){
+    const label=document.createElement("label");
+    label.className="field-task";
+    const title=document.createElement("span");
+    title.textContent=task.title;
+    title.title=task.detail;
+    const select=document.createElement("select");
+    select.dataset.fieldTask=task.id;
+    select.setAttribute("aria-label",task.title+" field verification status");
+    for(const option of FIELD_STATUSES){
+      const item=document.createElement("option");
+      item.value=option.value;item.textContent=option.label;select.append(item);
+    }
+    label.append(title,select);checklist.append(label);
+  }
   const notes=$("interpretation");
   notes.replaceChildren();
   const heading=document.createElement("strong");
@@ -363,6 +389,42 @@ ui.form.addEventListener("submit",async e=>{
     ui.button.disabled=loadState!=="ready";
   }
 });
+function currentFieldDraft(){
+  const statuses={};
+  for(const input of document.querySelectorAll("#field-checklist select"))
+    statuses[input.dataset.fieldTask]=input.value;
+  return {visit_date:$("field-visit-date").value,
+    observer:$("field-observer").value,
+    notes:$("field-notes").value,statuses};
+}
+function exportCase(){
+  if(!lastResult)throw new Error("Complete a screening first");
+  return createCaseFile({result:lastResult,manifest:layers.manifest,
+    fieldRecord:currentFieldDraft()});
+}
+for(const [id,format] of [["download-data-json","json"],
+                         ["download-data-csv","screening_csv"],
+                         ["download-field-csv","field_csv"]]){
+  $(id).addEventListener("click",()=>{
+    try{
+      const item=exportCase();
+      const slug=item.site.state.replace(/[^A-Za-z0-9_-]/g,"_");
+      if(format==="json"){
+        downloadText("PetroScreenNG_"+slug+"_ScreeningCase.json",
+          JSON.stringify(item,null,2)+"\n","application/json;charset=utf-8");
+      }else if(format==="screening_csv"){
+        downloadText("PetroScreenNG_"+slug+"_ScreeningData.csv",
+          screeningCsv(item),"text/csv;charset=utf-8");
+      }else{
+        downloadText("PetroScreenNG_"+slug+"_FieldChecklist.csv",
+          fieldChecklistCsv(item),"text/csv;charset=utf-8");
+      }
+      ui.feedback.textContent="Local "+format.replaceAll("_"," ")+" file downloaded. Review coordinates and notes before sharing.";
+    }catch(error){
+      ui.feedback.textContent="Export not completed: "+error.message;
+    }
+  });
+}
 ui.pdf.addEventListener("click",async()=>{
   if(!lastResult)return;
   ui.pdf.disabled=true;
