@@ -86,12 +86,51 @@ try{
   await mobile.screenshot({path:OUT+"/two_state_mobile_map.png",fullPage:true});
   assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>
       window.innerWidth+3),false,"Mobile page overflows horizontally");
+
+  // Regression: selecting a site while an HTTP raster is still loading must
+  // NOT hide the data-readiness indicator or imply the Run button is usable.
+  const slow=await browser.newPage();
+  await slow.route("**/data/wc_west.tif",async route=>{
+    await new Promise(resolve=>setTimeout(resolve,2500));
+    await route.continue();
+  });
+  await slow.goto(ORIGIN,{waitUntil:"domcontentloaded"});
+  await slow.waitForFunction(()=>document.querySelector("#data-status")?.textContent.includes(
+    "Verifying land-cover raster"),null,{timeout:30000});
+  await slow.locator("#longitude").fill("6.066211");
+  await slow.locator("#latitude").fill("4.755211");
+  assert.equal(await slow.locator("#screen-btn").isDisabled(),true);
+  assert.equal(await slow.locator("#data-status").getAttribute("data-state"),"loading");
+  assert.match(await slow.locator("#data-status").textContent(),/Verifying land-cover raster/);
+  await slow.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
+    null,{timeout:120000});
+  assert.equal(await slow.locator("#screen-btn").isEnabled(),true);
+  await slow.close();
+
+  // Regression: browser-local server failure must leave an explicit visible
+  // error and a real retry path; map/coordinate interaction cannot hide it.
+  const failed=await browser.newPage();
+  await failed.route("**/data/water_occurrence.tif",route=>route.abort("failed"));
+  await failed.goto(ORIGIN,{waitUntil:"domcontentloaded"});
+  await failed.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="failed",
+    null,{timeout:120000});
+  assert.equal(await failed.locator("#screen-btn").isDisabled(),true);
+  assert.equal(await failed.locator("#retry-data").isVisible(),true);
+  await failed.locator("#longitude").fill("6.066211");
+  await failed.locator("#latitude").fill("4.755211");
+  assert.match(await failed.locator("#data-status").textContent(),/Data loading failed/);
+  await failed.unroute("**/data/water_occurrence.tif");
+  await failed.locator("#retry-data").click();
+  await failed.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
+    null,{timeout:120000});
+  assert.equal(await failed.locator("#screen-btn").isEnabled(),true);
+  await failed.close();
   const external=requests.filter(x=>/^https?:/.test(x)&&new URL(x).origin!==new URL(ORIGIN).origin);
   assert.deepEqual(external,[],"External network requests would expose information");
   assert.deepEqual(errors,[],"Unexpected browser JavaScript errors");
   console.log(JSON.stringify({status:"PASS",screening_cases:tests.length,
     states:["Bayelsa","Rivers"],pdfs:tests.length,mobile:"PASS",
-    external_requests:0},null,2));
+    external_requests:0,readiness_late_raster:"PASS",retry_after_failure:"PASS"},null,2));
 }finally{
   await browser?.close();
   server.kill("SIGTERM");
