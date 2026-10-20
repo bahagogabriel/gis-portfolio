@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install pinned Python geospatial QA libraries
-        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2 pillow==11.3.0
       - name: Install browser build dependencies
         working-directory: petroscreen-ng/web
         run: npm install --no-audit --no-fund
