@@ -50,5 +50,6 @@ jobs:
             petroscreen-ng/artifacts_bayelsa/acquisition_report.json
             petroscreen-ng/artifacts_bayelsa/geodesic_area_qa.json
             petroscreen-ng/artifacts_bayelsa/stage02_real_data_qa.json
+            petroscreen-ng/artifacts_bayelsa/example_screen_seam_1km.json
           retention-days: 14
           if-no-files-found: warn
