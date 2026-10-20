@@ -98,6 +98,8 @@ def main():
                 "warnings":result["warnings"],
             }
             if scenario=="seam" and radius==1:
+                (ROOT/"example_screen_seam_1km.json").write_text(
+                    json.dumps(result,indent=2,allow_nan=False)+chr(10),encoding="utf-8")
                 comparison=projected_control(point)
                 reference=wc["coverage"]["valid_area_km2_approx"]
                 rel=abs(comparison["area_km2"]-reference)/max(reference,1e-6)
