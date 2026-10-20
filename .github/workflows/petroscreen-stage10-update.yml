@@ -3,7 +3,13 @@ name: PetroScreen Stage10 independent proximity parity + field-record exports
 on:
   push:
     branches: ['research/petroscreen-ng-stage10-parity-exports-fieldrecord']
-    paths: ['.github/workflows/petroscreen-stage10-update.yml']
+    paths:
+      - '.github/workflows/petroscreen-stage10-update.yml'
+      - 'petroscreen-ng/stage10_reference_proximity.py'
+      - 'petroscreen-ng/web/src/**'
+      - 'petroscreen-ng/web/test/**'
+      - 'petroscreen-ng/web/index.html'
+      - 'petroscreen-ng/validate_stage08_pdf.py'
   workflow_dispatch:
 
 permissions:
