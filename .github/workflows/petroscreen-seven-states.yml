@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        state: [Abia, 'Akwa Ibom', 'Cross River', Delta, Edo, Imo, Ondo]
+        state: [Abia, 'Akwa Ibom', Bayelsa, 'Cross River', Delta, Edo, Imo, Ondo, Rivers]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -41,3 +41,32 @@ jobs:
           retention-days: 7
           compression-level: 4
           if-no-files-found: warn
+
+  nine-state-candidate-bundle:
+    name: Package nine-state source-indexed research bundle
+    needs: state-acquisition
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install raster, projection and image libraries
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2 pillow==11.3.0
+      - name: Download accepted state clips from every matrix job
+        uses: actions/download-artifact@v4
+        with:
+          pattern: petroscreen-stage07-*-state
+          path: petroscreen-ng/artifacts_additional_states
+          merge-multiple: true
+      - name: Build checksum-verified nine-state lazy-loading catalogue
+        run: python petroscreen-ng/build_nine_state_assets.py
+      - name: Archive research-only region index and all rasters
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-nine-state-unpublished-preview-assets
+          path: petroscreen-ng/web/public/data/
+          retention-days: 7
+          compression-level: 4
+          if-no-files-found: error
