@@ -22,3 +22,8 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .retry-data{width:100%;text-align:center;border-radius:8px;background:#fff;color:#14553a;border:1px solid #78ae89;padding:10px 13px;font-weight:700;font-size:12px;margin:0 0 12px}
 .retry-data[hidden]{display:none!important}
 .retry-data:focus-visible{outline:3px solid #85c8a0;outline-offset:2px}
+
+/* Factual screening notes; no predicted risk or implied regulatory approval. */
+.interpretation{margin:14px 0 17px;padding:12px 13px;border:1px solid rgba(123,167,143,.35);border-radius:8px;color:#b5cdc0;background:rgba(34,74,58,.17);font-size:11px;line-height:1.55}
+.interpretation strong{display:block;color:#d0eee0;font-weight:700;font-size:12px;margin-bottom:7px}
+.interpretation p{margin:7px 0}
