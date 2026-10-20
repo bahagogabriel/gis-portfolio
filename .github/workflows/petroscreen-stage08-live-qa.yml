@@ -1,0 +1,54 @@
+name: Check live PetroScreen Stage 08 HTTPS release
+
+on:
+  push:
+    branches: [research/petroscreen-ng-stage08-report-ux]
+    paths: [.github/workflows/petroscreen-stage08-live-qa.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for GitHub Pages deployment and check hosted assets
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,time,re,json,hashlib
+          url="https://bahagogabriel.com/petroscreen/"
+          def get(p,timeout=35):
+              request=urllib.request.Request(url+p,headers={"User-Agent":"PetroScreenNG-Stage08-Release-QA/1.0"})
+              with urllib.request.urlopen(request,timeout=timeout) as response:
+                  assert response.status==200,response.status
+                  return response.read()
+          for trial in range(18):
+              try:
+                  html=get("").decode("utf-8")
+                  if 'VERSION 0.8' in html and 'id="interpretation"' in html:
+                      break
+              except Exception as exc:
+                  print("Pages propagation wait:",type(exc).__name__)
+              if trial==17:raise RuntimeError("New v0.8 UI not served by public Pages after retry period")
+              time.sleep(10)
+          manifest=json.loads(get("data/manifest.json"))
+          assert len(manifest["states"])==len(manifest["state_sources"])==9
+          scripts=re.findall(r'src="(\\./assets/[^"]+\\.js)"',html)
+          assert scripts,"Expected versioned JS asset in published HTML"
+          js=get(scripts[0].removeprefix("./")).decode("utf-8")
+          assert "Desk-review findings and verification" in js
+          assert "NIGER DELTA | RESEARCH PREVIEW" in js
+          # Validate a state raster responds with the exact published source bytes.
+          rivers=next(s for s in manifest["state_sources"] if s["state"]=="Rivers")
+          one=next(f for f in rivers["source_files"] if f["kind"]=="worldcover")
+          data=get("data/"+one["file"],timeout=120)
+          assert hashlib.sha256(data).hexdigest()==one["sha256"]
+          print("PUBLIC_STAGE08_PASS=YES")
+          print("PUBLIC_URL="+url)
+          print("NINE_STATES=9")
+          print("LIVE_BUNDLE_CODE=VERIFIED")
+          print("RIVERS_NATIVE_GEOTIFF_HASH=VERIFIED")
+          PY
