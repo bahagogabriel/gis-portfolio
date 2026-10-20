@@ -59,16 +59,37 @@ map.on("click",e=>{
     ui.feedback.textContent="Choose a site inside the highlighted Bayelsa pilot boundary.";
     return;
   }
+  invalidatePrevious();
   site=[lon,lat];ui.lon.value=lon.toFixed(6);ui.lat.value=lat.toFixed(6);
   drawSite();
   ui.feedback.textContent="Site selected. Choose a radius and run screening.";
 });
 function drawSite(circle=null) {
-  if(!mapReady||!site)return;
-  map.getSource("site").setData({type:"FeatureCollection",features:[
-    {type:"Feature",properties:{},geometry:{type:"Point",coordinates:site}}]});
+  if(!mapReady)return;
+  map.getSource("site").setData(site ? {type:"FeatureCollection",features:[
+    {type:"Feature",properties:{},geometry:{type:"Point",coordinates:site}}]} : emptyGeo);
   map.getSource("study").setData(circle||emptyGeo);
 }
+/** A changed or rejected location must never leave an old report presented as current. */
+function invalidatePrevious(){
+  lastResult=null;
+  ui.results.hidden=true;
+  ui.empty.hidden=false;
+  ui.subtitle.textContent="Your site assessment appears here after analysis.";
+  if(mapReady && map.getSource("study"))map.getSource("study").setData(emptyGeo);
+}
+for(const input of [ui.lon,ui.lat]){
+  input.addEventListener("input",()=>{
+    invalidatePrevious();site=null;drawSite();
+    ui.feedback.textContent="Location changed. Run a new environmental screening.";
+  });
+}
+document.querySelectorAll('input[name="radius"]').forEach(input=>{
+  input.addEventListener("change",()=>{
+    invalidatePrevious();
+    ui.feedback.textContent="Screening radius changed. Run a new analysis.";
+  });
+});
 const fmt=(v,d=2)=>Number(v).toLocaleString("en-NG",{maximumFractionDigits:d,minimumFractionDigits:d});
 async function loadRaster(url,expectedHash){
   const res=await fetch(url,{cache:"force-cache"});
@@ -152,13 +173,16 @@ ui.form.addEventListener("submit",async e=>{
   const lon=Number(ui.lon.value),lat=Number(ui.lat.value);
   const radiusKm=Number(document.querySelector("input[name=radius]:checked").value);
   ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
+  invalidatePrevious();
   try{
-    site=[lon,lat];
     const result=await screenBrowser({lon,lat,radiusKm,coverage,
       worldcoverImages:layers.worldcoverImages,waterImage:layers.waterImage});
+    site=[lon,lat];
     display(result);ui.feedback.textContent="Screening completed in your browser.";
-  }catch(error){ui.feedback.textContent="Screening failed: "+error.message;}
-  finally{ui.button.disabled=false;}
+  }catch(error){
+    site=null;drawSite();
+    ui.feedback.textContent="Screening failed: "+error.message;
+  }finally{ui.button.disabled=false;}
 });
 ui.pdf.addEventListener("click",async()=>{
   if(!lastResult)return;
