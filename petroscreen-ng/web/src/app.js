@@ -3,6 +3,7 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
 import {renderNativeLandCoverPatch} from "./native-map.js";
+import {matchingSiteTiles,VerifiedTileCache} from "./tile-index.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -15,6 +16,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let verifiedStates=[];
+let regionChunkCache=null;
 let loadState="loading",loadStage="Preparing local satellite data…",loadError=null;
 let nativeMapRevision=0;
 const map=new maplibregl.Map({container:"map",
@@ -138,14 +140,14 @@ async function loadRaster(url,expectedHash){
   }finally{clearTimeout(timeout);}
 }
 async function loadData(){
-  setLoadState("loading","Reading the verified Bayelsa–Rivers data manifest…");
+  setLoadState("loading","Reading the supported-region source manifest…");
   ui.retry.hidden=true;
   loadError=null;
   try{
     const response=await fetch("./data/manifest.json",{cache:"no-store"});
     if(!response.ok)throw new Error("No local data manifest (HTTP "+response.status+").");
     const manifest=await response.json();
-    if(!["Bayelsa","Bayelsa and Rivers"].includes(manifest.region) ||
+    if(!["Bayelsa","Bayelsa and Rivers","Niger Delta nine-state pilot"].includes(manifest.region) ||
        manifest.stage!=="research-preview")
       throw new Error("Unexpected research-preview data manifest.");
     setLoadProgress("Loading the verified state boundaries…");
@@ -171,6 +173,22 @@ async function loadData(){
     if(!overview?.file)throw new Error("Regional map overview is missing.");
     if(mapReady)map.getSource("pilot").setData(coverage);
     addOverview();
+    if(manifest.data_mode==="regional_chunk_index"){
+      if(!Array.isArray(manifest.worldcover_index)||
+         !Array.isArray(manifest.water_index)||
+         !manifest.worldcover_index.length || !manifest.water_index.length)
+        throw new Error("Regional raster tile index is missing or empty.");
+      regionChunkCache=new VerifiedTileCache(
+        entry=>loadRaster("./data/"+entry.file+"?sha256="+encodeURIComponent(entry.sha256),entry.sha256),
+        24);
+      layers={stateGeometries:stateFeatures,worldcoverImages:[],waterImages:[],
+        waterImage:null,manifest};
+      setLoadState("ready","Ready to screen · Nine-state index loaded; verified raster tiles will load for each site.");
+      ui.feedback.textContent=site?
+        "Site selected. Choose a radius and run screening.":
+        "Region ready. Click a location to load only the necessary raster tiles.";
+      return;
+    }
     const images=[];
     for(let i=0;i<manifest.worldcover.length;i++){
       const source=manifest.worldcover[i];
@@ -261,6 +279,27 @@ function display(result){
     padding:{top:95,bottom:85,left:65,right:65},maxZoom:14.5,duration:450
   });
 }
+/** Lazy source loading for the validated nine-state source index. */
+async function getSiteRasters(lon,lat,radiusKm){
+  const meta=layers.manifest;
+  const landIndex=matchingSiteTiles(meta.worldcover_index,lon,lat,radiusKm);
+  const waterIndex=matchingSiteTiles(meta.water_index,lon,lat,radiusKm);
+  if(!landIndex.length||!waterIndex.length)
+    throw new Error("This site has no prepared raster data tiles.");
+  setLoadState("loading","Loading "+landIndex.length+" land-cover and "+
+    waterIndex.length+" water tiles for this site…");
+  const [land,water]=await Promise.all([
+    regionChunkCache.preload(landIndex),
+    regionChunkCache.preload(waterIndex)
+  ]);
+  if(!land.length||!water.length)throw new Error("Missing mandatory site raster data.");
+  layers.worldcoverImages=land;
+  layers.waterImages=water;
+  layers.waterImage=null;
+  setLoadState("ready","Ready to screen · "+(land.length+water.length)+
+    " requested site tiles verified by SHA-256.");
+  return {worldcoverImages:land,waterImages:water};
+}
 ui.form.addEventListener("submit",async e=>{
   e.preventDefault();if(!layers){ui.feedback.textContent="Data not ready";return;}
   const lon=Number(ui.lon.value),lat=Number(ui.lat.value);
@@ -268,8 +307,13 @@ ui.form.addEventListener("submit",async e=>{
   ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
   invalidatePrevious();
   try{
+    if(!inPolygon([lon,lat],coverage))
+      throw new Error("This point is outside the verified "+layers.manifest.region+" screening area.");
+    if(layers.manifest.data_mode==="regional_chunk_index")
+      await getSiteRasters(lon,lat,radiusKm);
     const result=await screenBrowser({lon,lat,radiusKm,coverage,
-      worldcoverImages:layers.worldcoverImages,waterImage:layers.waterImage,
+      worldcoverImages:layers.worldcoverImages,
+      waterImage:layers.waterImage,waterImages:layers.waterImages,
       regionName:layers.manifest.region});
     if(layers.stateGeometries){
       const names=layers.manifest.states;
@@ -285,8 +329,11 @@ ui.form.addEventListener("submit",async e=>{
     ui.feedback.textContent="Screening completed in your browser.";
   }catch(error){
     site=null;drawSite();
+    if(layers?.manifest?.data_mode==="regional_chunk_index" && loadState==="loading")
+      setLoadState("failed","Site raster failed to load: "+error.message+
+        ". Select Retry to restore the source index.");
     ui.feedback.textContent="Screening failed: "+error.message;
-  }finally{ui.button.disabled=false;}
+  }finally{ui.button.disabled=loadState!=="ready";}
 });
 ui.pdf.addEventListener("click",async()=>{
   if(!lastResult)return;

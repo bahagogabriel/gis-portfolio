@@ -131,10 +131,12 @@ export function summarizeCount(count,kind,bufferAreaKm2){
   })};
 }
 /** Target area is geodesic circle approximation, not clipped political boundary area. */
-export async function screenBrowser({lon,lat,radiusKm,coverage,worldcoverImages,waterImage,regionName="Bayelsa"}){
+export async function screenBrowser({lon,lat,radiusKm,coverage,worldcoverImages,waterImage,waterImages,regionName="Bayelsa"}){
   validateLocation(lon,lat,radiusKm);
   if(!inPolygon([lon,lat],coverage))throw new Error("This point is outside the verified "+regionName+" screening area.");
-  if(!worldcoverImages.length || !waterImage)throw new Error("Mandatory environmental rasters unavailable.");
+  const actualWaterImages=waterImages?.length?waterImages:(waterImage?[waterImage]:[]);
+  if(!worldcoverImages.length || !actualWaterImages.length)
+    throw new Error("Mandatory environmental raster tiles unavailable.");
   const circle=circleGeometry(lon,lat,radiusKm);
   const outside=circle.geometry.coordinates[0].some(p=>!inPolygon(p,coverage));
   const bufferAreaKm2=Math.PI*radiusKm**2;
@@ -144,9 +146,15 @@ export async function screenBrowser({lon,lat,radiusKm,coverage,worldcoverImages,
     wcPixels+=result.validPixels;
     for(const [k,a] of Object.entries(result.areas))wcAreas[k]=(wcAreas[k]||0)+a;
   }
-  const waterCount=await countImage(waterImage,lon,lat,radiusKm,"jrc");
+  const waterAreas={};let waterPixels=0;
+  for(const image of actualWaterImages){
+    const data=await countImage(image,lon,lat,radiusKm,"jrc");
+    waterPixels+=data.validPixels;
+    for(const [code,area] of Object.entries(data.areas))
+      waterAreas[code]=(waterAreas[code]||0)+area;
+  }
   const wc=summarizeCount({areas:wcAreas,validPixels:wcPixels},"wc",bufferAreaKm2);
-  const jrc=summarizeCount(waterCount,"jrc",bufferAreaKm2);
+  const jrc=summarizeCount({areas:waterAreas,validPixels:waterPixels},"jrc",bufferAreaKm2);
   const warnings=[];
   if(outside) warnings.push("BUFFER_CROSSES_SUPPORTED_BOUNDARY: outside the verified source coverage is unknown.");
   if(wc.coverage.whole_buffer_coverage_pct_approx<98)warnings.push("LAND_COVER_INCOMPLETE");
