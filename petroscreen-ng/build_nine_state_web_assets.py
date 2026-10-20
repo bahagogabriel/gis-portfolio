@@ -74,14 +74,14 @@ def make_index(root,report):
    raise RuntimeError(f"Source pixels missing/duplicated during chunking: {input_path} ({counted} vs {source['inside_polygon_valid_pixel_count']})")
   output_valid+=counted
  if original_valid!=output_valid:raise RuntimeError("Chunk population mismatch")
- return items,total_bytes
+ return items,total_bytes,original_valid,output_valid
 
 def run():
  source=json.loads((ROOT/"acquisition_report.json").read_text())
  if source["status"]!="NINE_STATE_REGIONAL_SOURCE_ACQUISITION_QA_PASS" or len(source["states"])!=9:
   raise RuntimeError("Nine-state continuous source data have not been QA accepted")
  DEST.mkdir(parents=True,exist_ok=True)
- entries,bytes_total=make_index(ROOT,source)
+ entries,bytes_total,original_valid,output_valid=make_index(ROOT,source)
  for original,public,sha in [
   ("eligible_domain.geojson","coverage.geojson","official_boundary_sha256"),
   ("original_states.geojson","original_states.geojson","original_states_sha256")]:
