@@ -71,7 +71,8 @@ def main():
             sources.append({"file":f"regions/{key}/{name}","sha256":sha(dest),
                 "bytes":dest.stat().st_size,"kind":kind,
                 "historical_period":"2021" if kind=="worldcover" else "1984-2024"})
-        entries.append({"state":state,"slug":key,"source_files":sources,
+        verified_site=screen["cases"][0]["result"]["location_wgs84"]
+        entries.append({"state":state,"slug":key,"qa_example_lon_lat":[verified_site["longitude"],verified_site["latitude"]],"source_files":sources,
             "original_state_geodesic_area_km2":round(report["original_state_geodesic_area_km2"],3),
             "raster_domain_halo_m":5000,
             "source_qa":"passed_sha256_and_source_footprint",
