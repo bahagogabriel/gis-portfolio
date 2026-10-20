@@ -27,3 +27,13 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .interpretation{margin:14px 0 17px;padding:12px 13px;border:1px solid rgba(123,167,143,.35);border-radius:8px;color:#b5cdc0;background:rgba(34,74,58,.17);font-size:11px;line-height:1.55}
 .interpretation strong{display:block;color:#d0eee0;font-weight:700;font-size:12px;margin-bottom:7px}
 .interpretation p{margin:7px 0}
+
+/* Source-dated landscape classes for site reconnaissance, not risk ratings. */
+.receptors{margin:16px 0 14px;padding:10px 0;border-top:1px solid rgba(140,175,157,.25);border-bottom:1px solid rgba(140,175,157,.25)}
+.receptors h3{margin:5px 0 8px;color:#ddf0e8;font-size:14px}
+.receptors h3 small{font-weight:400;color:#779a8a;font-size:10px}
+.receptors .fine{margin:6px 0 11px;line-height:1.52}
+.receptor-item{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid rgba(142,178,154,.12);font-size:11px}
+.receptor-item:last-child{border-bottom:0}
+.receptor-item span{color:#bdcfc4}
+.receptor-item strong{font-size:10.5px;text-align:right;font-weight:600;color:#b2dcc0}
