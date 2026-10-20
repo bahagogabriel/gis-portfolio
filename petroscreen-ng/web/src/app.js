@@ -8,10 +8,12 @@ const $=id=>document.getElementById(id);
 const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   button:$("screen-btn"),feedback:$("form-feedback"),empty:$("empty-state"),
   results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf")};
-let lastResult=null, coverage=null, layers=null, site=null, mapReady=false;
+let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 const map=new maplibregl.Map({container:"map",
-  style:"https://tiles.openfreemap.org/styles/positron",
-  center:[6.02,4.83],zoom:8.35,attributionControl:true,
+  // Self-contained map style: essential geographic context must work without a tile provider.
+  style:{version:8,sources:{},layers:[{id:"background",type:"background",
+    paint:{"background-color":"#e6eee8"}}]},
+  center:[6.02,4.83],zoom:8.35,attributionControl:false,
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
 
@@ -19,17 +21,34 @@ const emptyGeo={type:"FeatureCollection",features:[]};
 map.on("load",()=>{
   mapReady=true;
   for(const [id,type,paint] of [
+    ["pilot-fill","fill",{"fill-color":"#a5cbb5","fill-opacity":0.12}],
     ["coverage-outline","line",{"line-color":"#276e55","line-width":2.7}],
     ["buffer","fill",{"fill-color":"#247a58","fill-opacity":0.16}],
     ["buffer-line","line",{"line-color":"#17704f","line-width":2,"line-dasharray":[2,1]}],
     ["selected-site","circle",{"circle-radius":7,"circle-color":"#123c2d",
                                "circle-stroke-color":"#fff","circle-stroke-width":3}]
   ]){
-    const source=id==="coverage-outline"?"pilot":id.startsWith("buffer")?"study":"site";
+    const source=id.startsWith("pilot")||id==="coverage-outline"?"pilot":id.startsWith("buffer")?"study":"site";
     if(!map.getSource(source))map.addSource(source,{type:"geojson",data:emptyGeo});
     map.addLayer({id,type,source,paint});
   }
   if(coverage)map.getSource("pilot").setData(coverage);
+  if(overview)addOverview();
+});
+function addOverview(){
+  if(!mapReady||!overview||map.getSource("landcover-overview"))return;
+  const [west,south,east,north]=overview.bounds_lon_lat;
+  map.addSource("landcover-overview",{type:"image",
+    url:"./data/"+overview.file,
+    coordinates:[[west,north],[east,north],[east,south],[west,south]]});
+  map.addLayer({id:"landcover-overview",type:"raster",source:"landcover-overview",
+    paint:{"raster-opacity":0.9}},"pilot-fill");
+  map.fitBounds([[west,south],[east,north]],{padding:45,maxZoom:9.5,duration:0});
+}
+map.on("idle",()=>{
+  if(map.getSource("landcover-overview")&&map.isSourceLoaded("landcover-overview")){
+    $("map").dataset.overviewReady="true";
+  }
 });
 map.on("click",e=>{
   const [lon,lat]=[e.lngLat.lng,e.lngLat.lat];
@@ -69,7 +88,10 @@ async function loadData(){
     const boundaryResponse=await fetch("./data/coverage.geojson");
     if(!boundaryResponse.ok)throw new Error("Boundary data could not be loaded.");
     coverage=await boundaryResponse.json();
+    overview=manifest.overview;
+    if(!overview||!overview.file)throw new Error("Missing local map overview.");
     if(mapReady)map.getSource("pilot").setData(coverage);
+    addOverview();
     const images=await Promise.all(manifest.worldcover.map(
       item=>loadRaster("./data/"+item.file,item.sha256)));
     const water=await loadRaster("./data/"+manifest.water.file,manifest.water.sha256);
