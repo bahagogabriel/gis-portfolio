@@ -13,3 +13,12 @@ form h2{display:flex;gap:10px;font-size:12px;color:#789186;margin:0;font-weight:
 dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow-y:auto;border-radius:12px;padding:28px;color:#1d3630;box-shadow:0 12px 70px #132a2666}dialog::backdrop{background:#08231ab8}dialog h2{margin-top:0}dialog p{font-size:13px;line-height:1.75}.close{float:right;border:0;background:#ecf1ed;padding:2px 13px;font-size:25px;border-radius:6px}
 @media(max-width:1100px){.workspace{grid-template-columns:300px 1fr}.results-panel{grid-column:1/-1;border-top:1px solid #ddd;min-height:320px}.workspace{height:auto}.control-panel{min-height:670px}.map-panel{min-height:670px}.results-panel{overflow:visible}.empty-state{margin:18px 0}}@media(max-width:650px){.topbar{padding:0 14px;height:62px}.top-right a{display:none}.status-pill{font-size:8px}.workspace{display:flex;flex-direction:column}.control-panel,.results-panel{padding:22px 17px}.map-panel{height:400px;min-height:400px;order:2}.control-panel{order:1;min-height:auto}.results-panel{order:3}.intro h1{font-size:27px}.map-tip{font-size:11px}.map-credit{max-width:75%}}
 @media print{.topbar,.control-panel,.map-panel,.foot-links,.download{display:none!important}.workspace{display:block;height:auto}.results-panel{border:0}.results-top{padding:0}.results-panel>*{break-inside:avoid}}
+
+/* Persistent readiness feedback: never silently disable the screening action. */
+.load-status{font-size:11px;line-height:1.55;margin:12px 0;padding:10px 12px;border-radius:8px;background:#eff4f1;color:#516b62;border:1px solid #dce9df;overflow-wrap:anywhere}
+.load-status[data-state="loading"]{color:#70542f;background:#fff5e7;border-color:#f0dbc0}
+.load-status[data-state="ready"]{color:#246343;background:#e9f6ec;border-color:#b7d8c1}
+.load-status[data-state="failed"]{color:#873d34;background:#fff0ed;border-color:#e9b9b1}
+.retry-data{width:100%;text-align:center;border-radius:8px;background:#fff;color:#14553a;border:1px solid #78ae89;padding:10px 13px;font-weight:700;font-size:12px;margin:0 0 12px}
+.retry-data[hidden]{display:none!important}
+.retry-data:focus-visible{outline:3px solid #85c8a0;outline-offset:2px}
