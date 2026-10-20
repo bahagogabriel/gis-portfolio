@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 import {fromArrayBuffer} from "geotiff";
 import {screenBrowser} from "../src/engine.js";
 
-const root=new URL("../../../artifacts_bayelsa/",import.meta.url);
+const root=new URL("../../artifacts_bayelsa/",import.meta.url);
 async function image(filename){
   const bytes=await readFile(new URL(filename,root));
   const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
