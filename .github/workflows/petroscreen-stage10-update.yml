@@ -68,8 +68,7 @@ jobs:
       - name: Generate independent WGS84 geodesic nearest-pixel reference for 9 states
         run: python petroscreen-ng/stage10_reference_proximity.py
       - name: Compare 108 mapped pixel distances at 1/3/5 km against independent Python
-        working-directory: petroscreen-ng/web
-        run: node test/stage10-real-proximity-parity.mjs
+        run: node petroscreen-ng/web/test/stage10-real-proximity-parity.mjs
       - name: Build new static report/UI code
         working-directory: petroscreen-ng/web
         run: npm run build
