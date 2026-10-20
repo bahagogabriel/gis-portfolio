@@ -1,0 +1,386 @@
+{
+  "schema_version": "3",
+  "stage": "research-preview",
+  "region": "Niger Delta nine-state research pilot",
+  "states": [
+    "Abia",
+    "Akwa Ibom",
+    "Bayelsa",
+    "Cross River",
+    "Delta",
+    "Edo",
+    "Imo",
+    "Ondo",
+    "Rivers"
+  ],
+  "state_sources": [
+    {
+      "state": "Abia",
+      "slug": "Abia",
+      "qa_example_lon_lat": [
+        7.488342304062886,
+        5.431819677835932
+      ],
+      "source_files": [
+        {
+          "file": "regions/Abia/wc_N03E006.tif",
+          "sha256": "65882b5a39bec8bc4c682a89eb10efd91c3e850cbfc870d73a01e4bbc2da5cca",
+          "bytes": 4802429,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Abia/wc_N06E006.tif",
+          "sha256": "3a37e96771d3e37818d67f9c59b378545356433b5e2939e13662493cf7720d85",
+          "bytes": 273156,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Abia/occurrence.tif",
+          "sha256": "ec144493f83ad0f69c1ebc1d0cf9ddd47ff51561f1dc29612ff2d3a7ad67b853",
+          "bytes": 126094,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 4796.363,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Akwa Ibom",
+      "slug": "Akwa_Ibom",
+      "qa_example_lon_lat": [
+        7.795178300039909,
+        4.9880607129316274
+      ],
+      "source_files": [
+        {
+          "file": "regions/Akwa_Ibom/wc_N03E006.tif",
+          "sha256": "a306fe2e1f0e5c94cdb1732917140cbb685e9ec1019d9a458cc0f425816a668a",
+          "bytes": 5850586,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Akwa_Ibom/occurrence.tif",
+          "sha256": "26bac178aba10af92a3ea4906dd4d39b856e3d47a30a7afc738ae5d9590181ec",
+          "bytes": 480602,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 6868.757,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Bayelsa",
+      "slug": "Bayelsa",
+      "qa_example_lon_lat": [
+        5.952575912237334,
+        4.819089326261462
+      ],
+      "source_files": [
+        {
+          "file": "regions/Bayelsa/wc_N03E003.tif",
+          "sha256": "c12590c469ff30bcc26d0a2c4d2fcfa64b037c12d3092487e869fd68ce90e424",
+          "bytes": 1377760,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Bayelsa/wc_N03E006.tif",
+          "sha256": "20d40c9f1220db443c43bb48384f4513d69e8f5750c7904786c8f7c1ecf7d4f5",
+          "bytes": 2556226,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Bayelsa/occurrence.tif",
+          "sha256": "c6dc15444ae9030350d23c5725fb979c9b3379214df59544a7ecb5ddda1de796",
+          "bytes": 1735085,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 9389.288,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Cross River",
+      "slug": "Cross_River",
+      "qa_example_lon_lat": [
+        8.403272998559185,
+        5.796904442436102
+      ],
+      "source_files": [
+        {
+          "file": "regions/Cross_River/wc_N03E006.tif",
+          "sha256": "e7765e503f439245f44b0cf125f3e5b4fa45737f1fe49b8e3b8b1e55c32fffc2",
+          "bytes": 4779537,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Cross_River/wc_N03E009.tif",
+          "sha256": "a857b9fb288edd628807b779b6358c2a8d3758e00ffc57ba8b6e1dc786daf0a5",
+          "bytes": 130874,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Cross_River/wc_N06E006.tif",
+          "sha256": "f12b5ba230a3a88064c424a64cc1c97165988bf303355ca7749a83bbec8e7f32",
+          "bytes": 7272128,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Cross_River/wc_N06E009.tif",
+          "sha256": "58a89481ea8c71ebab641b91f6ae8f979563f1d74ffa17d368a79fe960a13ca5",
+          "bytes": 1873065,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Cross_River/occurrence.tif",
+          "sha256": "a4f3c2a19d04bc83e58e8100fd871d8549bd2c7fa4fc1e6cc27a0d4bffb170dd",
+          "bytes": 786459,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 20996.107,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Delta",
+      "slug": "Delta",
+      "qa_example_lon_lat": [
+        5.496274631886157,
+        5.7565560341836886
+      ],
+      "source_files": [
+        {
+          "file": "regions/Delta/wc_N03E003.tif",
+          "sha256": "6707d9d6307e3f4afb8d824597aa6c89e6f02e1fdaae8abd48ad5015e4b84e08",
+          "bytes": 4978743,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Delta/wc_N03E006.tif",
+          "sha256": "392cde38fa4fa85215dfc6894fd855aadd6b7fe36823f2929f247b13164b9de7",
+          "bytes": 4307899,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Delta/wc_N06E003.tif",
+          "sha256": "8a5ead0a7ed01a0cba9019a1619af223c8e62eb9510ef90b3dbd4dbc41d6f407",
+          "bytes": 434071,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Delta/wc_N06E006.tif",
+          "sha256": "0ea0a94c7f1b693ad191bae462888d19b3236faff8b0f13e01f3fef257240f9f",
+          "bytes": 4048305,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Delta/occurrence.tif",
+          "sha256": "d1e15cb76e070eb1b34c3c57791e3b6d1ce0fa5e5b5d79f40111daaa7a8797f8",
+          "bytes": 2490088,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 16962.221,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Edo",
+      "slug": "Edo",
+      "qa_example_lon_lat": [
+        5.873487307898639,
+        6.6662252426508815
+      ],
+      "source_files": [
+        {
+          "file": "regions/Edo/wc_N03E003.tif",
+          "sha256": "18b1ad06ab323580c14a392d451fd0ce64ac3e64316d58a330fa0723446a7013",
+          "bytes": 785554,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Edo/wc_N03E006.tif",
+          "sha256": "3596c51ab0b84888c5882c5c3fddd7525f8085e2757fcc210f57db1e1cdb0137",
+          "bytes": 662337,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Edo/wc_N06E003.tif",
+          "sha256": "3ef91f9081f73e4e1af3353f5c71d53da7663dfed0a2f8fdfbc1ce92c7522695",
+          "bytes": 7154033,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Edo/wc_N06E006.tif",
+          "sha256": "61e58c73a96bd57c6bc5bc3932810f843ada0a86d34fb391b846887b253b4682",
+          "bytes": 11275537,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Edo/occurrence.tif",
+          "sha256": "488f6be091c846b3c9a8a505d3c803c62ac6d55ec03a244ad0f0a46325854ab4",
+          "bytes": 722773,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 19558.925,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Imo",
+      "slug": "Imo",
+      "qa_example_lon_lat": [
+        7.033205372712205,
+        5.565728902716728
+      ],
+      "source_files": [
+        {
+          "file": "regions/Imo/wc_N03E006.tif",
+          "sha256": "6b09c44847cedbc23a2356f925e8f191cb3879b52ca644f0c827b73bbae362b6",
+          "bytes": 5072523,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Imo/occurrence.tif",
+          "sha256": "b425968d470505ecc86363c9dca5f7b369ac767aaf14be41e376b67fc219ae71",
+          "bytes": 111996,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 5101.686,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Ondo",
+      "slug": "Ondo",
+      "qa_example_lon_lat": [
+        4.86059754205146,
+        6.818509598139485
+      ],
+      "source_files": [
+        {
+          "file": "regions/Ondo/wc_N03E003.tif",
+          "sha256": "1a1bea712e33b373be411cf115c2c488eb5c4a3a851c424997df8e0d6cfde715",
+          "bytes": 267302,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Ondo/wc_N06E003.tif",
+          "sha256": "79299ab59ab345247be9ebbfa919fd31948aca7ac51843470279e6faeb5e8499",
+          "bytes": 9317032,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Ondo/wc_N06E006.tif",
+          "sha256": "9c77f57b1491e8dd5ef0f6a8e0a257aa97fcf31708140c83b66757287105fbaf",
+          "bytes": 222618,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Ondo/occurrence.tif",
+          "sha256": "94b213c66a26891647d530d680973c1b7695557dd5b9138fd551c6557e65de57",
+          "bytes": 509463,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 15049.062,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    },
+    {
+      "state": "Rivers",
+      "slug": "Rivers",
+      "qa_example_lon_lat": [
+        6.8272132864451365,
+        5.000423278061902
+      ],
+      "source_files": [
+        {
+          "file": "regions/Rivers/wc_N03E006.tif",
+          "sha256": "5de0ae0dbd13361052da0673061b548ab122a6c06e95dfec5b49af24249bca03",
+          "bytes": 7380562,
+          "kind": "worldcover",
+          "historical_period": "2021"
+        },
+        {
+          "file": "regions/Rivers/occurrence.tif",
+          "sha256": "e1a4a933ad47f55d6630ba7c2440ce5e888ecadc862bb44647a9374de2426687",
+          "bytes": 1890903,
+          "kind": "water",
+          "historical_period": "1984-2024"
+        }
+      ],
+      "original_state_geodesic_area_km2": 10166.164,
+      "raster_domain_halo_m": 5000,
+      "source_qa": "passed_sha256_and_source_footprint",
+      "reference_engine_1_3_5km": "passed"
+    }
+  ],
+  "loaded_raster_policy": "Only the selected site's state files. Never add overlapping halos.",
+  "generated_utc": "2026-10-20T14:09:39.867529+00:00",
+  "boundary": {
+    "file": "coverage.geojson",
+    "sha256": "83562ad7cbd1622135aa2cb5837c8ce253a80c7c07b3d588bcbc079f190cf623",
+    "source": "geoBoundaries gbOpen Nigeria ADM1 2022 / GRID3 CC BY 4.0"
+  },
+  "original_states": {
+    "file": "original_states.geojson",
+    "sha256": "6ed74610afd154636a3deb7f0d966a37185f3ab84663505d9ed0cb63cf0db6c0"
+  },
+  "overview": {
+    "file": "landcover_overview.webp",
+    "sha256": "3a210d7e6eb80840b41258349936cc36ccbfb78233345aad9262ed46c6cff8ae",
+    "bounds_lon_lat": [
+      4.376120088871062,
+      4.270203986225056,
+      9.474411963941009,
+      7.750246048116651
+    ]
+  },
+  "license": "ESA WorldCover 2021 v200 CC BY 4.0; JRC GSW v1.5 Copernicus terms; geoBoundaries gbOpen CC BY 4.0",
+  "safety": "Research baseline only. No hazard, contamination, regulatory approval, petroleum incident likelihood, or field validation.",
+  "public_deployment_allowed": false,
+  "offshore_screening_allowed": false
+}

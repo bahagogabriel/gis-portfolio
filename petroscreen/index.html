@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0e242b">
+<title>PetroScreen NG — Preliminary Environmental Site Screening</title>
+<meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
+  <script type="module" crossorigin src="./assets/index--0ZyR1S9.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-vW0J-dpN.css">
+</head><body>
+<header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
+<span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
+<div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
+<main class="workspace">
+<aside class="control-panel">
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 0.6.1</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
+<form id="screen-form" aria-label="Select environmental screening location">
+<h2>01 <span>Define your location</span></h2>
+<p class="help">Select a point on the map or enter WGS84 decimal coordinates.</p>
+<div class="fields"><label>Longitude <input id="longitude" type="number" min="-180" max="180" step="any" required placeholder="e.g. 6.0000" inputmode="decimal"></label>
+<label>Latitude <input id="latitude" type="number" min="-90" max="90" step="any" required placeholder="e.g. 4.7000" inputmode="decimal"></label></div>
+<h2 class="section-title">02 <span>Screening distance</span></h2>
+<fieldset class="radius"><legend>Select study buffer</legend>
+<label><input type="radio" name="radius" value="1" checked><span>1 km</span></label>
+<label><input type="radio" name="radius" value="3"><span>3 km</span></label>
+<label><input type="radio" name="radius" value="5"><span>5 km</span></label></fieldset>
+<p class="load-status" id="data-status" data-state="loading" role="status" aria-live="polite">Preparing local satellite data…</p>
+<button class="retry-data" id="retry-data" type="button" hidden>Retry loading satellite data ↻</button>
+<button class="action" id="screen-btn" type="submit" disabled>Loading environmental data…</button>
+<p class="help" id="form-feedback" aria-live="polite">Select a location while the source rasters load.</p>
+</form>
+<section class="source-note"><h3>Source coverage</h3><div class="legend"><span class="legend-dot"></span> Verified study boundary</div>
+<p id="region-coverage-text">ESA WorldCover (2021) and JRC Global Surface Water (1984–2024) are available only for data-verified pilot regions. Expansion to other states remains pending.</p>
+<p class="fine">No user account or application screening backend. Site computations occur in your browser; ordinary hosting access logs may record your IP address and requested files, but the app does not intentionally transmit your chosen coordinates. The map uses a locally served derived ESA land-cover overview.</p></section>
+</aside>
+<section class="map-panel" aria-label="Interactive pilot-region screening map">
+<div id="map" aria-label="Map: click a site inside a verified pilot region to select it"></div>
+<div class="map-tip"><span class="pulse-dot"></span> Click inside the highlighted boundary to set a screening point</div>
+<div class="map-credit">© ESA WorldCover project 2021 · JRC/European Commission · geoBoundaries</div>
+</section>
+<aside class="results-panel" aria-label="Site screening findings">
+<div class="results-top"><span class="overline">ENVIRONMENTAL INTELLIGENCE</span><h2>Screening findings</h2>
+<p id="result-subtitle">Your site assessment appears here after analysis.</p></div>
+<div id="empty-state" class="empty-state"><div class="empty-icon">◎</div><h3>Ready to screen</h3><p>Choose a location inside the highlighted verified pilot region. The map and data are loaded locally in your browser.</p></div>
+<section id="results" hidden>
+<div class="metric-grid"><div><span>Buffer area</span><strong id="area-value">—</strong></div><div><span>Data coverage</span><strong id="coverage-value">—</strong></div></div>
+<h3>Mapped land cover <small>ESA 2021</small></h3>
+<div id="land-cover" class="bars"></div>
+<h3>Historical surface water <small>1984–2024</small></h3>
+<div id="water-summary" class="water-summary"></div>
+<div id="warnings" class="warnings"></div>
+<button type="button" class="download" id="download-pdf">Download screening PDF ↓</button>
+<p class="fine">Preliminary satellite-derived context only. Not an EIA, contamination assessment, spill prediction, or regulatory approval.</p>
+</section>
+<div class="foot-links"><a href="#methods-dialog" id="methods-link">Methods, limitations & sources ↗</a><span>© 2026 Samuel Bahago Gabriel</span></div>
+</aside>
+</main>
+<dialog id="methods-dialog"><article><button type="button" class="close" id="close-methods">×</button>
+<h2>Methods, sources and limitations</h2>
+<p><strong>Study area:</strong> WGS84 geographic site coordinate; selected 1, 3 or 5 km radius. Pixels are included if their centres fall within the study buffer. Pixel areas are weighted by latitude on the WGS84 ellipsoid. All site calculations execute in your browser.</p>
+<p><strong>Land cover:</strong> ESA WorldCover 2021 v200, 10 m nominal. Not a field-verified contemporary land-cover survey. Data © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. Dataset citation: Zanaga et al. (2022), <a href="https://doi.org/10.5281/zenodo.7254221" target="_blank" rel="noopener noreferrer">DOI:10.5281/zenodo.7254221</a>.</p>
+<p><strong>Water:</strong> JRC Global Surface Water v1.5 occurrence (1984–2024), 30 m nominal, available under the provider's Copernicus programme terms. Map attribution: <strong>Source: EC JRC/Google</strong>. Cite Pekel et al. (2016), <a href="https://doi.org/10.1038/nature20584" target="_blank" rel="noopener noreferrer">Nature DOI:10.1038/nature20584</a>. Observed water occurrence is not current water, flood probability or contamination; combined Landsat collections can have local positional offsets at or above 30 m. <a href="https://global-surface-water.appspot.com/download" target="_blank" rel="noopener noreferrer">Official source and release cautions</a>.</p>
+<p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigerian ADM1 Bayelsa polygon, derived from GRID3; CC BY 4.0. The valid site region is read from the checked data manifest. The two-state research preview supports Bayelsa and Rivers when those files are packaged. Buffers crossing the outer region boundary are flagged; crossing an internal state border does not create a data gap.</p>
+<p><strong>Important:</strong> Satellite classifications contain uncertainty. Data may omit channels or assets; no petroleum-asset information is acquired. Do not use for regulatory EIA, spill-risk estimates, ecological damage, legal findings or field-inspection substitutes.</p>
+<p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
+</body></html>
