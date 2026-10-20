@@ -57,6 +57,9 @@ try {
   assert.equal(await page.locator("#results").isVisible(),true);
   assert.ok((await page.locator("#land-cover .bar-item").count())>=2);
   assert.equal(await page.locator("#water-summary div").count(),3);
+  assert.match(await page.locator("#warnings").getAttribute("class"),/coverage-ok/);
+  // The map camera should finish zooming to the selected 1-km buffer.
+  await page.waitForTimeout(900);
   await page.screenshot({path:OUTPUT+"/petroscreen_desktop_screening.png",fullPage:true});
   const downloadPromise=page.waitForEvent("download",{timeout:60000});
   await page.locator("#download-pdf").click();
