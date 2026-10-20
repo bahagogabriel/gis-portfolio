@@ -15,6 +15,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let verifiedStates=[];
+const regionalCache=new Map();
 let detailRequestId=0;
 let loadState="loading",loadStage="Preparing local satellite data…",loadError=null;
 const map=new maplibregl.Map({container:"map",
@@ -146,7 +147,7 @@ async function loadData(){
     const response=await fetch("./data/manifest.json",{cache:"no-store"});
     if(!response.ok)throw new Error("No local data manifest (HTTP "+response.status+").");
     const manifest=await response.json();
-    if(!["Bayelsa","Bayelsa and Rivers"].includes(manifest.region) ||
+    if(!["Bayelsa","Bayelsa and Rivers","Niger Delta nine-state research pilot"].includes(manifest.region) ||
        manifest.stage!=="research-preview")
       throw new Error("Unexpected research-preview data manifest.");
     setLoadProgress("Loading the verified state boundaries…");
@@ -172,6 +173,14 @@ async function loadData(){
     if(!overview?.file)throw new Error("Regional map overview is missing.");
     if(mapReady)map.getSource("pilot").setData(coverage);
     addOverview();
+    if(manifest.state_sources){
+      if(manifest.states?.length!==9 || manifest.state_sources.length!==9)
+        throw new Error("Nine-state source index is incomplete.");
+      layers={manifest,stateGeometries:stateFeatures,worldcoverImages:[],waterImage:null};
+      setLoadState("ready","Ready to choose a site · nine verified state datasets load only when selected.");
+      ui.feedback.textContent="Select a site and run screening. Its state-specific data load automatically.";
+      return;
+    }
     const images=[];
     for(let i=0;i<manifest.worldcover.length;i++){
       const source=manifest.worldcover[i];
@@ -196,6 +205,39 @@ async function loadData(){
   }
 }
 ui.retry.addEventListener("click",()=>loadData());
+async function getStateData(stateName){
+  const manifest=layers?.manifest;
+  const entry=manifest?.state_sources?.find(s=>s.state===stateName);
+  if(!entry)throw new Error("No verified raster index for "+stateName);
+  if(regionalCache.has(stateName))return regionalCache.get(stateName);
+  const worldcover=[];
+  const files=entry.source_files.filter(s=>s.kind==="worldcover");
+  const water=entry.source_files.filter(s=>s.kind==="water");
+  if(!files.length || water.length!==1)
+    throw new Error("Incomplete mandatory state source files for "+stateName);
+  for(let i=0;i<files.length;i++){
+    const source=files[i];
+    setLoadProgress("Verifying "+stateName+" land-cover tile "+(i+1)+"/"+files.length+"…");
+    worldcover.push(await loadRaster("./data/"+source.file+"?sha256="+source.sha256,source.sha256));
+  }
+  setLoadProgress("Verifying "+stateName+" historical water…");
+  const source=water[0];
+  const waterImage=await loadRaster("./data/"+source.file+"?sha256="+source.sha256,source.sha256);
+  const dataset={worldcoverImages:worldcover,waterImage};
+  regionalCache.clear(); // cap memory to the most recently screened state
+  regionalCache.set(stateName,dataset);
+  return dataset;
+}
+function resolveSiteState(lon,lat){
+  const names=layers?.manifest?.states||[];
+  const matches=(layers?.stateGeometries||[]).filter(f=>inPolygon([lon,lat],f));
+  if(matches.length!==1)throw new Error(
+    "Site must lie unambiguously inside one verified state; boundary points need field verification.");
+  const values=Object.values(matches[0].properties||{}).filter(v=>typeof v==="string");
+  const name=names.find(n=>values.some(value=>value.toLowerCase()===n.toLowerCase()));
+  if(!name)throw new Error("Cannot verify the selected state's source boundary.");
+  return name;
+}
 function display(result){
   lastResult=result;
   ui.empty.hidden=true;ui.results.hidden=false;
@@ -265,10 +307,22 @@ ui.form.addEventListener("submit",async e=>{
   ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
   invalidatePrevious();
   try{
+    let stateName=null;
+    if(layers.manifest.state_sources){
+      if(!inPolygon([lon,lat],coverage))
+        throw new Error("Site is outside the verified nine-state screening area.");
+      stateName=resolveSiteState(lon,lat);
+      setLoadState("loading","Loading verified "+stateName+" environmental data…");
+      const selected=await getStateData(stateName);
+      layers.worldcoverImages=selected.worldcoverImages;
+      layers.waterImage=selected.waterImage;
+    }
     const result=await screenBrowser({lon,lat,radiusKm,coverage,
       worldcoverImages:layers.worldcoverImages,waterImage:layers.waterImage,
       regionName:layers.manifest.region});
-    if(layers.stateGeometries){
+    if(layers.manifest.state_sources){
+      result.site_state=stateName;
+    }else if(layers.stateGeometries){
       const names=layers.manifest.states;
       const matched=layers.stateGeometries.find(feature=>inPolygon([lon,lat],feature));
       if(!matched)throw new Error("Site not within an individual supported state boundary.");
@@ -281,7 +335,11 @@ ui.form.addEventListener("submit",async e=>{
   }catch(error){
     site=null;drawSite();
     ui.feedback.textContent="Screening failed: "+error.message;
-  }finally{ui.button.disabled=false;}
+  }finally{
+    if(loadState==="loading" && layers?.manifest?.state_sources)
+      setLoadState("ready","Ready to screen · state datasets are verified on demand.");
+    ui.button.disabled=loadState!=="ready";
+  }
 });
 ui.pdf.addEventListener("click",async()=>{
   if(!lastResult)return;
