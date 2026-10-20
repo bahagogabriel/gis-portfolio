@@ -1,0 +1,46 @@
+name: PetroScreen Stage 08 — nine-state streamed source union (research only)
+on:
+  pull_request:
+    paths:
+      - 'petroscreen-ng/acquire_nine_state_stream.py'
+      - 'petroscreen-ng/run_nine_state_reference_acceptance.py'
+      - 'petroscreen-ng/test_nine_state_stream.py'
+      - '.github/workflows/petroscreen-nine-state.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unified-nine-state-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned open geospatial stack
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2
+      - name: Regression-test bounded-memory 256-row source streaming with synthetic data
+        run: python -m unittest discover -s petroscreen-ng -p 'test_nine_state_stream.py' -v
+      - name: Clip original six ESA and one JRC public sources over 9-state union using bounded memory
+        run: python -u petroscreen-ng/acquire_nine_state_stream.py
+      - name: Verify nine state interiors, boundary crossings and source file SHA-256
+        run: python -u petroscreen-ng/run_nine_state_reference_acceptance.py
+      - name: Archive manifest, source coefficients and geodesic/engine QA (not deployment)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-nine-state-engineering-qa
+          path: |
+            petroscreen-ng/artifacts_nine_state/*.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Archive source rasters for reproducible development (not published)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-nine-state-source-crops
+          path: |
+            petroscreen-ng/artifacts_nine_state/*.tif
+          retention-days: 7
+          if-no-files-found: warn
