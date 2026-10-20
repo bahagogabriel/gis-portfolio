@@ -1,0 +1,87 @@
+name: PetroScreen Stage 03 browser parity and preview (research only)
+
+on:
+  pull_request:
+    paths:
+      - 'petroscreen-ng/**'
+      - '.github/workflows/petroscreen-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Python geospatial QA libraries
+        run: python -m pip install numpy==2.3.5 rasterio==1.4.3 shapely==2.1.2 pyproj==3.7.2 pillow==11.3.0
+      - name: Install browser build dependencies
+        working-directory: petroscreen-ng/web
+        run: npm install --no-audit --no-fund
+      - name: Browser mathematical contract tests
+        working-directory: petroscreen-ng/web
+        run: npm test
+      - name: Acquire versioned real Bayelsa source rasters
+        run: python petroscreen-ng/acquire_bayelsa.py
+      - name: Validate geodesic area, source coverage and SHA-256
+        run: python petroscreen-ng/validate_bayelsa.py
+      - name: Generate Python reference reports for all test scenarios
+        run: python petroscreen-ng/run_stage02_acceptance.py
+      - name: Numerical browser/Python parity on actual GeoTIFFs
+        working-directory: petroscreen-ng/web
+        run: node test/parity-real.mjs
+      - name: Assemble checksummed local web data bundle
+        run: python petroscreen-ng/build_web_assets.py
+      - name: Build standalone map application
+        working-directory: petroscreen-ng/web
+        run: npm run build
+      - name: Install Chromium for UI smoke verification
+        working-directory: petroscreen-ng/web
+        run: npx playwright install --with-deps chromium
+      - name: Run desktop/mobile and PDF download browser tests
+        run: node petroscreen-ng/web/test/gui-smoke.mjs
+      - name: Archive actual browser screenshots and PDF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage03-visual-and-pdf-qa
+          path: petroscreen-ng/artifacts_web/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Inspect output assets
+        run: |
+          test -s petroscreen-ng/web/dist/index.html
+          test -s petroscreen-ng/web/dist/data/manifest.json
+          test -s petroscreen-ng/web/dist/data/wc_west.tif
+          test -s petroscreen-ng/web/dist/data/wc_east.tif
+          test -s petroscreen-ng/web/dist/data/water_occurrence.tif
+          du -ah petroscreen-ng/web/dist | tail -25
+      - name: Archive stand-alone preview for local HTTP server, not deployment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage03-browser-preview
+          path: petroscreen-ng/web/dist/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Archive machine-readable methodology and parity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-stage03-qa-reports
+          path: |
+            petroscreen-ng/artifacts_bayelsa/acquisition_report.json
+            petroscreen-ng/artifacts_bayelsa/geodesic_area_qa.json
+            petroscreen-ng/artifacts_bayelsa/stage02_real_data_qa.json
+            petroscreen-ng/artifacts_bayelsa/stage03_python_oracle.json
+          retention-days: 14
+          if-no-files-found: warn

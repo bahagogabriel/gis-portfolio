@@ -68,6 +68,7 @@ def main():
         "seam":test_point(boundary,(5.9997,4.35,6.0003,5.34)),
     }
     results=[]
+    oracle=[]
     for scenario, point in scenarios.items():
         for radius in (1,3,5):
             result=screen(point.x,point.y,radius,DOMAIN,WC,WATER,MANIFEST)
@@ -108,6 +109,8 @@ def main():
                 if rel>.04:
                     raise AssertionError(f"Independent-area control disagreement {rel:.1%}")
             results.append(scenario_report)
+            oracle.append({"scenario":scenario,"radius_km":radius,"result":result})
+    (ROOT/"stage03_python_oracle.json").write_text(json.dumps({"cases":oracle},indent=2,allow_nan=False)+chr(10))
     output={"status":"PASS","scenarios":results,
         "cautions":[
           "No site findings are petroleum spill or exposure probabilities",
