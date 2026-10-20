@@ -46,6 +46,6 @@ def run(state):
 if __name__=="__main__":
     from regional_tile_inventory import TARGETS
     p=argparse.ArgumentParser()
-    p.add_argument("--state",required=True,choices=[x for x in TARGETS if x!="Bayelsa"])
+    p.add_argument("--state",required=True,choices=list(TARGETS))
     a=p.parse_args()
     run(a.state)
