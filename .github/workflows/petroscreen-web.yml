@@ -36,6 +36,8 @@ jobs:
         run: python petroscreen-ng/validate_bayelsa.py
       - name: Generate Python reference reports for all test scenarios
         run: python petroscreen-ng/run_stage02_acceptance.py
+      - name: Independently validate all radii and regional boundary crossings
+        run: python petroscreen-ng/run_stage04_edge_acceptance.py
       - name: Numerical browser/Python parity on actual GeoTIFFs
         working-directory: petroscreen-ng/web
         run: node test/parity-real.mjs
@@ -87,5 +89,6 @@ jobs:
             petroscreen-ng/artifacts_bayelsa/geodesic_area_qa.json
             petroscreen-ng/artifacts_bayelsa/stage02_real_data_qa.json
             petroscreen-ng/artifacts_bayelsa/stage03_python_oracle.json
+            petroscreen-ng/artifacts_bayelsa/stage04_edge_acceptance.json
           retention-days: 14
           if-no-files-found: warn
