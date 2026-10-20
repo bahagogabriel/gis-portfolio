@@ -36,7 +36,8 @@ def validate(report,feature,base_dir=DIR):
         total=sum(rec["valid_codes_histogram"].values())+rec["inside_polygon_nodata_count"]
         if inside!=total:raise ValueError(f"Histogram count mismatch in {path.name}")
         area_km2=inside*approximate_pixel_area(rec)/1e6
-        if abs(area_km2/geod_area-1)>.035:
+        # WorldCover clips are partial state tiles; only their sum can match the state.
+        if "WorldCover" not in path.name and abs(area_km2/geod_area-1)>.035:
             raise ValueError(f"Raster/geometry area mismatch in {path.name}: {area_km2} vs {geod_area}")
         if "WorldCover" in path.name:wc_total+=area_km2
         checks.append({"name":path.name,"sha256_check":"PASS",
