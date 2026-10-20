@@ -1,6 +1,8 @@
 """Stage 04 PDF acceptance: mapped figure, readable methodology and source dates."""
 from pathlib import Path
+import io
 import fitz
+from PIL import Image
 
 REPORT=Path("petroscreen-ng/artifacts_web/petroscreen_sample_report.pdf")
 
@@ -22,7 +24,24 @@ def main():
     first=doc[0].get_image_info(xrefs=True)
     if not any(item["width"]>=400 and item["height"]>=300 for item in first):
         raise SystemExit("The page has no suitably sized rendered site map")
-    print({"status":"PASS","pages":len(doc),
+    # A blank white WebGL screenshot can pass an image-count test; verify actual pixel variety.
+    xref=imgs[0][0]
+    raw=doc.extract_image(xref)["image"]
+    im=Image.open(io.BytesIO(raw)).convert("RGB").resize((90,50))
+    unique_colors=len(set(im.getdata()))
+    if unique_colors<30:
+        raise SystemExit(f"Map illustration looks blank/monochrome: {unique_colors} colors")
+    # Critical labels must not extend beyond A4 physical margins.
+    for page_number,page in enumerate(doc,1):
+        for line in page.get_text("dict")["blocks"]:
+            if line.get("type")!=0:continue
+            for sub in line["lines"]:
+                for span in sub["spans"]:
+                    x0,y0,x1,y1=span["bbox"]
+                    if x0 < 24 or x1 > page.rect.width-14:
+                        raise SystemExit(
+                          f"Text escapes safe page width on page {page_number}: {span['text']!r} at {span['bbox']}")
+    print({"status":"PASS","pages":len(doc),"map_unique_colors":unique_colors,
            "map_image_count":len(imgs),"bytes":REPORT.stat().st_size,
            "source_text_check":"PASS"})
 if __name__=="__main__":
