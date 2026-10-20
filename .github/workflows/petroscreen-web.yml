@@ -49,6 +49,10 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run desktop/mobile and PDF download browser tests
         run: node petroscreen-ng/web/test/gui-smoke.mjs
+      - name: Verify professional mapped PDF structure and credits
+        run: |
+          python -m pip install pymupdf==1.26.5
+          python petroscreen-ng/validate_report_pdf.py
       - name: Archive actual browser screenshots and PDF
         if: always()
         uses: actions/upload-artifact@v4
