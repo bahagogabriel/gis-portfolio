@@ -81,9 +81,17 @@ jobs:
             return ""
           import urllib.parse
           url=(j.get("site_url") if isinstance(j,dict) else None) or find_url(j)
+          if url is not None and not isinstance(url,str):
+            print("NETLIFY_URL_TYPE="+type(url).__name__)
+          if isinstance(url,str) and url:
+            if url.startswith("http://"):url="https://"+url[len("http://"):]
+            elif not url.startswith("https://"):url="https://"+url.lstrip("/")
           if not isinstance(url,str) or not url.startswith("https://"):
-            print("NETLIFY_DIAGNOSTIC: response_keys="+str(list(j.keys())))
-            raise RuntimeError("No HTTPS site_url from anonymous deployment")
+            print("NETLIFY_DIAGNOSTIC: response_keys="+str(list(j.keys()))+
+                  " site_url_type="+str(type(j.get("site_url")).__name__)+
+                  " site_url_length="+str(len(str(j.get("site_url") or ""))))
+            raise RuntimeError("Netlify did not return a usable site URL")
+          print("NETLIFY_SAFE_SITE_URL="+url)
           host=urllib.parse.urlsplit(url).hostname
           if not host or not (host.endswith(".netlify.app") or host.endswith(".netlify.live") or host.endswith(".netlify.com")):
             print("NETLIFY_DIAGNOSTIC_HOST="+str(host))
