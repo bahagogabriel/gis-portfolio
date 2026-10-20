@@ -54,6 +54,14 @@ try{
     reports.push({state:entry.state,site_lon_lat:[lon,lat]});
     assert.match(await page.locator("#interpretation").textContent(),/ESA WorldCover 2021/);
     assert.match(await page.locator("#interpretation").textContent(),/not a flood-risk/);
+    const receptorRows=page.locator("#receptor-summary .receptor-item");
+    assert.equal(await receptorRows.count(),4,"All four ESA landscape indicator classes required");
+    const text=await page.locator("#receptor-summary").textContent();
+    assert.match(text,/Mapped permanent water/);
+    assert.match(text,/Mapped herbaceous wetland/);
+    assert.match(text,/Mapped mangroves/);
+    assert.match(text,/Mapped built-up/);
+    assert.match(await page.locator(".receptors").textContent(),/not confirmed absent/i);
     if(entry.state==="Rivers" || entry.state==="Delta"){
       const pending=page.waitForEvent("download",{timeout:90000});
       await page.locator("#download-pdf").click();
