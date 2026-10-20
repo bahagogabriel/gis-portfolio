@@ -4,7 +4,7 @@
  */
 import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
-import {mkdir} from "node:fs/promises";
+import {mkdir,readFile} from "node:fs/promises";
 import {chromium} from "playwright";
 const ORIGIN="http://127.0.0.1:4175/";
 const server=spawn(process.execPath,["node_modules/vite/bin/vite.js","preview",
@@ -62,6 +62,45 @@ try{
     assert.match(text,/Mapped mangroves/);
     assert.match(text,/Mapped built-up/);
     assert.match(await page.locator(".receptors").textContent(),/not confirmed absent/i);
+    // Every state has a complete downloadable provenance record. The
+    // field verification defaults must never imply field observation.
+    const jsonPending=page.waitForEvent("download",{timeout:90000});
+    await page.locator("#download-data-json").click();
+    const jsonDownload=await jsonPending;
+    assert.equal(jsonDownload.suggestedFilename(),
+      "PetroScreenNG_"+entry.slug+"_ScreeningCase.json");
+    const jsonPath="petroscreen-ng/artifacts_nine_state/"+entry.slug+"_case.json";
+    await jsonDownload.saveAs(jsonPath);
+    const exported=JSON.parse(await readFile(jsonPath,"utf8"));
+    assert.equal(exported.site.state,entry.state);
+    assert.equal(exported.source_provenance.source_file_sha256.length,
+      entry.source_files.length);
+    assert.ok(exported.field_verification.checklist.every(c=>c.status==="not_checked"),
+      "Field statuses must reset between separate site screenings");
+    assert.equal(exported.measurements.mapped_landscape_proximity_2021.indicators.length,4);
+    if(entry.state==="Delta"){
+      await page.locator('[data-field-task="surface_water"]').selectOption("field_observed");
+      await page.locator("#field-observer").fill("Field Team");
+      await page.locator("#field-notes").fill("Needs tidal check");
+      const fieldPending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-field-csv").click();
+      const fieldDownload=await fieldPending;
+      assert.equal(fieldDownload.suggestedFilename(),
+        "PetroScreenNG_Delta_FieldChecklist.csv");
+      const checklistPath="petroscreen-ng/artifacts_nine_state/Delta_checklist.csv";
+      await fieldDownload.saveAs(checklistPath);
+      const fieldText=await readFile(checklistPath,"utf8");
+      assert.match(fieldText,/field_observed/);
+      assert.match(fieldText,/Field Team/);
+      const csvPending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-data-csv").click();
+      const csvDownload=await csvPending;
+      assert.equal(csvDownload.suggestedFilename(),
+        "PetroScreenNG_Delta_ScreeningData.csv");
+      const csvPath="petroscreen-ng/artifacts_nine_state/Delta_data.csv";
+      await csvDownload.saveAs(csvPath);
+      assert.match(await readFile(csvPath,"utf8"),/nearest_mapped_pixel_centre/);
+    }
     if(entry.state==="Rivers" || entry.state==="Delta"){
       const pending=page.waitForEvent("download",{timeout:90000});
       await page.locator("#download-pdf").click();
