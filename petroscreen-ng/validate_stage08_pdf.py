@@ -6,7 +6,7 @@ for name in ("Delta","Rivers"):
     p=ROOT/f"{name}_review.pdf"
     assert p.is_file(),f"Missing actual browser PDF: {p}"
     d=fitz.open(p)
-    assert len(d)==2, f"{name}: report should have two pages"
+    assert len(d)==3, f"{name}: report should have three pages"
     first=d[0].get_text()
     complete="\n".join(page.get_text() for page in d)
     assert "NIGER DELTA | RESEARCH PREVIEW" in first, f"{name}: truncated header"
@@ -14,6 +14,12 @@ for name in ("Delta","Rivers"):
     for token in ("1984-2024","Source: EC JRC/Google","GRID3",
                   "Not a regulatory EIA","WorldCover 2021"):
         assert token.casefold() in complete.casefold(),f"{name}: missing {token}"
+    last=d[2].get_text()
+    for token in ("SITE RECONNAISSANCE", "nearest mapped class", "field verification",
+                  "Mapped permanent water","Mapped herbaceous wetland","Mapped mangroves",
+                  "Mapped built-up","Not mapped"):
+        if token == "Not mapped" and token not in last:continue
+        assert token.casefold() in last.casefold(),f"{name}: missing context {token}"
     images=d[0].get_images(full=True)
     assert images,f"{name}: missing geospatial map"
     for i,page in enumerate(d,1):
@@ -29,5 +35,5 @@ for name in ("Delta","Rivers"):
            for l in b["lines"] for z in l["spans"]]
     badge=next(z for z in spans if "NIGER DELTA | RESEARCH PREVIEW" in z["text"])
     assert badge["bbox"][0]>d[0].rect.width*.45, f"{name}: title overlaps logo"
-    print(f"{name}: PASS pages=2 state-label=PASS header=PASS map=PASS source-credits=PASS")
+    print(f"{name}: PASS pages=3 state-label=PASS header=PASS map=PASS source-credits=PASS")
 print("STAGE08_PDF_ACCEPTANCE=PASS")
