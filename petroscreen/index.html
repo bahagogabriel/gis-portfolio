@@ -4,15 +4,15 @@
 <meta name="theme-color" content="#0e242b">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index--0ZyR1S9.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-vW0J-dpN.css">
+  <script type="module" crossorigin src="./assets/index-Dga7W9NJ.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BfGwTuYa.css">
 </head><body>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
 <span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 0.6.1</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 0.8</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -49,6 +49,7 @@
 <h3>Historical surface water <small>1984–2024</small></h3>
 <div id="water-summary" class="water-summary"></div>
 <div id="warnings" class="warnings"></div>
+<div id="interpretation" class="interpretation" aria-live="polite"></div>
 <button type="button" class="download" id="download-pdf">Download screening PDF ↓</button>
 <p class="fine">Preliminary satellite-derived context only. Not an EIA, contamination assessment, spill prediction, or regulatory approval.</p>
 </section>
@@ -60,7 +61,7 @@
 <p><strong>Study area:</strong> WGS84 geographic site coordinate; selected 1, 3 or 5 km radius. Pixels are included if their centres fall within the study buffer. Pixel areas are weighted by latitude on the WGS84 ellipsoid. All site calculations execute in your browser.</p>
 <p><strong>Land cover:</strong> ESA WorldCover 2021 v200, 10 m nominal. Not a field-verified contemporary land-cover survey. Data © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. Dataset citation: Zanaga et al. (2022), <a href="https://doi.org/10.5281/zenodo.7254221" target="_blank" rel="noopener noreferrer">DOI:10.5281/zenodo.7254221</a>.</p>
 <p><strong>Water:</strong> JRC Global Surface Water v1.5 occurrence (1984–2024), 30 m nominal, available under the provider's Copernicus programme terms. Map attribution: <strong>Source: EC JRC/Google</strong>. Cite Pekel et al. (2016), <a href="https://doi.org/10.1038/nature20584" target="_blank" rel="noopener noreferrer">Nature DOI:10.1038/nature20584</a>. Observed water occurrence is not current water, flood probability or contamination; combined Landsat collections can have local positional offsets at or above 30 m. <a href="https://global-surface-water.appspot.com/download" target="_blank" rel="noopener noreferrer">Official source and release cautions</a>.</p>
-<p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigerian ADM1 Bayelsa polygon, derived from GRID3; CC BY 4.0. The valid site region is read from the checked data manifest. The two-state research preview supports Bayelsa and Rivers when those files are packaged. Buffers crossing the outer region boundary are flagged; crossing an internal state border does not create a data gap.</p>
+<p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigeria ADM1 state polygons (original source GRID3; CC BY 4.0). The currently published research preview supports the nine NDDC states: Abia, Akwa Ibom, Bayelsa, Cross River, Delta, Edo, Imo, Ondo and Rivers. Each selected site uses its state's validated satellite-data halo; supported area is approximate administrative context, not a surveyed legal boundary. Screening outside these states is unavailable.</p>
 <p><strong>Important:</strong> Satellite classifications contain uncertainty. Data may omit channels or assets; no petroleum-asset information is acquired. Do not use for regulatory EIA, spill-risk estimates, ecological damage, legal findings or field-inspection substitutes.</p>
 <p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
 </body></html>
