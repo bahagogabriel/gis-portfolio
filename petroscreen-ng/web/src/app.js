@@ -3,6 +3,7 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
 import {renderSiteDetail} from "./site_detail.js";
+import {screeningNotes} from "./insights.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -272,6 +273,16 @@ function display(result){
   status.textContent=result.warnings.length?
     "Coverage caution: "+result.warnings.join(" | "):
     "Source coverage is sufficient for this preliminary buffer calculation.";
+  const notes=$("interpretation");
+  notes.replaceChildren();
+  const heading=document.createElement("strong");
+  heading.textContent="Desk-review findings and verification";
+  notes.append(heading);
+  for(const message of screeningNotes(result)){
+    const line=document.createElement("p");
+    line.textContent=message;
+    notes.append(line);
+  }
   drawSite(result.circle);
   const ring=result.circle.geometry.coordinates[0];
   const west=Math.min(...ring.map(p=>p[0])),east=Math.max(...ring.map(p=>p[0]));
