@@ -1,0 +1,31 @@
+name: PetroScreen data-source discovery (research only)
+
+on:
+  pull_request:
+    paths:
+      - 'petroscreen-ng/**'
+      - '.github/workflows/petroscreen-source-discovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test source audit contract (offline)
+        run: python -m unittest discover -s petroscreen-ng -p "test_*.py" -v
+      - name: Probe published data endpoints (informational, not download)
+        run: python petroscreen-ng/audit_sources.py
+      - name: Preserve report for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: petroscreen-source-probes
+          path: petroscreen-ng/source_probe_results.json
+          retention-days: 14
