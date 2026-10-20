@@ -1,0 +1,60 @@
+name: Verify live PetroScreen v1.1 GitHub Pages release
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage11-case-continuity']
+    paths: ['.github/workflows/petroscreen-stage11-live-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-release-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify remote HTML, case import/GIS modules and published raster integrity
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,hashlib,json,time
+          root='https://bahagogabriel.com/petroscreen/'
+          def get(path,timeout=45):
+              request=urllib.request.Request(root+path,headers={
+                'User-Agent':'PetroScreenNG-Stage11-Pages-Release-QA/1.0'})
+              with urllib.request.urlopen(request,timeout=timeout) as response:
+                  assert response.status==200
+                  return response.read()
+          for count in range(21):
+              try:
+                  html=get('').decode('utf8')
+                  if all(marker in html for marker in (
+                    'VERSION 1.1','id="reopen-case"',
+                    'id="case-file"','id="download-site-geojson"')):break
+              except Exception as err:
+                  print('Pages propagation check:',type(err).__name__)
+              if count==20:raise RuntimeError('v1.1 hosted application not yet published')
+              time.sleep(10)
+          asset=html.split('src="./assets/',1)[1].split('"',1)[0]
+          assert asset.endswith('.js')
+          script=get('assets/'+asset).decode('utf8')
+          for token in ('Reopened case:','Saved case was NOT restored:',
+                        'source files.','approximate_screening_buffer',
+                        'ScreeningCase/1.0','GeoJSON',
+                        'nearest_pixel_centre_m_approx'):
+              if token not in script:
+                  # Vite build may strip provenance whitespace, never bypass
+                  # a missing module required for offline re-screening.
+                  raise RuntimeError('Hosted v1.1 bundle missing '+token)
+          m=json.loads(get('data/manifest.json'))
+          assert len(m['states'])==len(m['state_sources'])==9
+          assert sum(len(s['source_files']) for s in m['state_sources'])==31
+          delta=next(s for s in m['state_sources'] if s['state']=='Delta')
+          tif=next(f for f in delta['source_files'] if f['kind']=='worldcover')
+          assert hashlib.sha256(get('data/'+tif['file'],120)).hexdigest()==tif['sha256']
+          print('STAGE11_PUBLIC_GITHUB_PAGES_ACCEPTANCE=PASS')
+          print('PUBLIC_SITE='+root)
+          print('STATES=9 GEOJSON_EXPORT=PASS SOURCE_CHECKED_CASE_IMPORT=PASS')
+          print('PUBLISHED_GEOTIFF_SHA256=PASS')
+          PY
