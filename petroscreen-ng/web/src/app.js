@@ -12,6 +12,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   button:$("screen-btn"),feedback:$("form-feedback"),empty:$("empty-state"),
   results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
+let verifiedStates=[];
 const map=new maplibregl.Map({container:"map",
   // Self-contained map style: essential geographic context must work without a tile provider.
   style:{version:8,sources:{},layers:[{id:"background",type:"background",
@@ -56,7 +57,7 @@ map.on("idle",()=>{
 map.on("click",e=>{
   const [lon,lat]=[e.lngLat.lng,e.lngLat.lat];
   if(!coverage || !inPolygon([lon,lat],coverage)){
-    ui.feedback.textContent="Choose a site inside the highlighted Bayelsa pilot boundary.";
+    ui.feedback.textContent="Choose a site inside the highlighted verified regional boundary.";
     return;
   }
   invalidatePrevious();
@@ -107,11 +108,27 @@ async function loadData(){
     const response=await fetch("./data/manifest.json");
     if(!response.ok)throw new Error("No verified local data bundle is available yet.");
     const manifest=await response.json();
-    if(manifest.region!=="Bayelsa" || manifest.stage!=="research-preview")
+    if(!["Bayelsa","Bayelsa and Rivers"].includes(manifest.region) ||
+       manifest.stage!=="research-preview")
       throw new Error("Unexpected data bundle manifest.");
     const boundaryResponse=await fetch("./data/coverage.geojson");
     if(!boundaryResponse.ok)throw new Error("Boundary data could not be loaded.");
     coverage=await boundaryResponse.json();
+    verifiedStates=manifest.states||["Bayelsa"];
+    const statesFile=manifest.original_states?.file;
+    if(statesFile){
+      const statesResponse=await fetch("./data/"+statesFile);
+      if(!statesResponse.ok)throw new Error("Original state boundary file missing.");
+      const statesGeojson=await statesResponse.json();
+      if(!Array.isArray(statesGeojson.features) || statesGeojson.features.length!==verifiedStates.length)
+        throw new Error("Original state boundary count does not match verified region.");
+      layers={...(layers||{}),stateGeometries:statesGeojson.features};
+    }
+    const badge=document.querySelector(".status-pill");
+    if(badge)badge.textContent="RESEARCH PREVIEW · "+manifest.region.toUpperCase();
+    const regionLegend=document.getElementById("region-coverage-text");
+    if(regionLegend)regionLegend.textContent="Current screened coverage: "+manifest.region+
+      ". Other Nigerian states remain outside the verified preview.";
     overview=manifest.overview;
     if(!overview||!overview.file)throw new Error("Missing local map overview.");
     if(mapReady)map.getSource("pilot").setData(coverage);
@@ -119,7 +136,7 @@ async function loadData(){
     const images=await Promise.all(manifest.worldcover.map(
       item=>loadRaster("./data/"+item.file,item.sha256)));
     const water=await loadRaster("./data/"+manifest.water.file,manifest.water.sha256);
-    layers={worldcoverImages:images,waterImage:water,manifest};
+    layers={...(layers||{}),worldcoverImages:images,waterImage:water,manifest};
     ui.button.disabled=false;
     ui.feedback.textContent="Verified satellite data loaded. Click the map or enter coordinates.";
   }catch(error){
@@ -130,7 +147,8 @@ async function loadData(){
 function display(result){
   lastResult=result;
   ui.empty.hidden=true;ui.results.hidden=false;
-  ui.subtitle.textContent=`Screening at ${fmt(site[1],5)}°N, ${fmt(site[0],5)}°E · ${result.radius_km} km radius`;
+  ui.subtitle.textContent=`Screening at ${fmt(site[1],5)}°N, ${fmt(site[0],5)}°E · ${result.radius_km} km radius`+
+    (result.site_state?" · "+result.site_state:"");
   $("area-value").textContent=fmt(result.buffer_area_km2_approx,3)+" km²";
   const c=Math.min(result.land_cover_2021.coverage.whole_buffer_coverage_pct_approx,
     result.surface_water_occurrence_1984_2024.coverage.whole_buffer_coverage_pct_approx);
@@ -176,7 +194,16 @@ ui.form.addEventListener("submit",async e=>{
   invalidatePrevious();
   try{
     const result=await screenBrowser({lon,lat,radiusKm,coverage,
-      worldcoverImages:layers.worldcoverImages,waterImage:layers.waterImage});
+      worldcoverImages:layers.worldcoverImages,waterImage:layers.waterImage,
+      regionName:layers.manifest.region});
+    if(layers.stateGeometries){
+      const names=layers.manifest.states;
+      const matched=layers.stateGeometries.find(feature=>inPolygon([lon,lat],feature));
+      if(!matched)throw new Error("Site not within an individual supported state boundary.");
+      const values=Object.values(matched.properties||{}).filter(v=>typeof v==="string");
+      result.site_state=names.find(name=>values.some(v=>v.toLowerCase()===name.toLowerCase()))||null;
+      if(!result.site_state)throw new Error("Site state attribution could not be verified.");
+    }else result.site_state="Bayelsa";
     site=[lon,lat];
     display(result);ui.feedback.textContent="Screening completed in your browser.";
   }catch(error){
