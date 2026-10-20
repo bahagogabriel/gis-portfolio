@@ -1,9 +1,12 @@
 import * as maplibregl from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {jsPDF} from "jspdf";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
+// MapLibre 6 uses an external ESM worker. Vite must bundle that worker explicitly.
+maplibregl.setWorkerUrl(workerUrl);
 const $=id=>document.getElementById(id);
 const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   button:$("screen-btn"),feedback:$("form-feedback"),empty:$("empty-state"),
