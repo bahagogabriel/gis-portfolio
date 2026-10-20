@@ -50,8 +50,8 @@ def source_boundary(name):
     return meta,hits[0],geom
 
 def process(state):
-    if state not in TARGETS or state=="Bayelsa":
-        raise ValueError("Choose one of eight *additional* NDDC states")
+    if state not in TARGETS:
+        raise ValueError("Choose one of the nine NDDC states")
     meta,feature,geom=source_boundary(state)
     halo=projected_buffer(geom,5000)
     wc,jrc=candidates(halo)
@@ -131,6 +131,6 @@ def process(state):
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
-    parser.add_argument("--state",choices=tuple(s for s in TARGETS if s!="Bayelsa"),default="Rivers")
+    parser.add_argument("--state",choices=tuple(TARGETS),default="Rivers")
     args=parser.parse_args()
     process(args.state)
