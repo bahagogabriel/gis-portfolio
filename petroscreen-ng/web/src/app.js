@@ -10,9 +10,11 @@ maplibregl.setWorkerUrl(workerUrl);
 const $=id=>document.getElementById(id);
 const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   button:$("screen-btn"),feedback:$("form-feedback"),empty:$("empty-state"),
-  results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf")};
+  results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf"),
+  dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let verifiedStates=[];
+let loadState="loading",loadStage="Preparing local satellite data…",loadError=null;
 const map=new maplibregl.Map({container:"map",
   // Self-contained map style: essential geographic context must work without a tile provider.
   style:{version:8,sources:{},layers:[{id:"background",type:"background",
@@ -63,7 +65,10 @@ map.on("click",e=>{
   invalidatePrevious();
   site=[lon,lat];ui.lon.value=lon.toFixed(6);ui.lat.value=lat.toFixed(6);
   drawSite();
-  ui.feedback.textContent="Site selected. Choose a radius and run screening.";
+  ui.feedback.textContent=loadState==="ready"?
+    "Site selected. Choose a radius and run screening.":
+    "Site selected. Screening will unlock once satellite data are ready.";
+  if(loadState==="loading")ui.dataStatus.textContent=loadStage;
 });
 function drawSite(circle=null) {
   if(!mapReady)return;
@@ -92,58 +97,98 @@ document.querySelectorAll('input[name="radius"]').forEach(input=>{
   });
 });
 const fmt=(v,d=2)=>Number(v).toLocaleString("en-NG",{maximumFractionDigits:d,minimumFractionDigits:d});
+function setLoadState(state,message){
+  loadState=state;
+  loadStage=message;
+  ui.dataStatus.dataset.state=state;
+  ui.dataStatus.textContent=message;
+  ui.button.disabled=state!=="ready";
+  ui.button.textContent=state==="ready"?"Run environmental screening ↗":
+    state==="failed"?"Screening unavailable — data error":
+    "Loading environmental data…";
+  ui.retry.hidden=state!=="failed";
+}
+function setLoadProgress(message){
+  if(loadState==="loading"){
+    loadStage=message;ui.dataStatus.textContent=message;
+  }
+}
 async function loadRaster(url,expectedHash){
-  const res=await fetch(url,{cache:"force-cache"});
-  if(!res.ok)throw new Error("Unable to load "+url+" (HTTP "+res.status+")");
-  const binary=await res.arrayBuffer();
-  if(expectedHash && crypto?.subtle){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),120000);
+  let res;
+  try{
+    res=await fetch(url,{cache:"force-cache",signal:controller.signal});
+    if(!res.ok)throw new Error("Unable to load "+url+" (HTTP "+res.status+")");
+    const binary=await res.arrayBuffer();
+    if(!globalThis.crypto?.subtle)throw new Error("Browser SHA-256 is unavailable for "+url);
     const digest=await crypto.subtle.digest("SHA-256",binary);
     const hash=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("");
-    if(hash!==expectedHash)throw new Error("A geospatial data file failed SHA-256 integrity verification.");
-  }
-  return (await fromArrayBuffer(binary)).getImage();
+    if(!expectedHash || hash!==expectedHash)throw new Error("Satellite file failed integrity verification: "+url);
+    return (await fromArrayBuffer(binary)).getImage();
+  }catch(e){
+    if(e.name==="AbortError")throw new Error("Timed out loading "+url+"; check the local server and retry.");
+    throw e;
+  }finally{clearTimeout(timeout);}
 }
 async function loadData(){
+  setLoadState("loading","Reading the verified Bayelsa–Rivers data manifest…");
+  ui.retry.hidden=true;
+  loadError=null;
   try{
-    const response=await fetch("./data/manifest.json");
-    if(!response.ok)throw new Error("No verified local data bundle is available yet.");
+    const response=await fetch("./data/manifest.json",{cache:"no-store"});
+    if(!response.ok)throw new Error("No local data manifest (HTTP "+response.status+").");
     const manifest=await response.json();
     if(!["Bayelsa","Bayelsa and Rivers"].includes(manifest.region) ||
        manifest.stage!=="research-preview")
-      throw new Error("Unexpected data bundle manifest.");
+      throw new Error("Unexpected research-preview data manifest.");
+    setLoadProgress("Loading the verified state boundaries…");
     const boundaryResponse=await fetch("./data/coverage.geojson");
-    if(!boundaryResponse.ok)throw new Error("Boundary data could not be loaded.");
+    if(!boundaryResponse.ok)throw new Error("Verified geographic boundary could not be loaded.");
     coverage=await boundaryResponse.json();
     verifiedStates=manifest.states||["Bayelsa"];
     const statesFile=manifest.original_states?.file;
-    if(statesFile){
-      const statesResponse=await fetch("./data/"+statesFile);
-      if(!statesResponse.ok)throw new Error("Original state boundary file missing.");
-      const statesGeojson=await statesResponse.json();
-      if(!Array.isArray(statesGeojson.features) || statesGeojson.features.length!==verifiedStates.length)
-        throw new Error("Original state boundary count does not match verified region.");
-      layers={...(layers||{}),stateGeometries:statesGeojson.features};
-    }
+    const stateFeatures=statesFile?await (async()=>{
+      const r=await fetch("./data/"+statesFile);
+      if(!r.ok)throw new Error("Original state boundaries not found (HTTP "+r.status+").");
+      const geo=await r.json();
+      if(!Array.isArray(geo.features)||geo.features.length!==verifiedStates.length)
+        throw new Error("State polygons do not match the regional manifest.");
+      return geo.features;
+    })():null;
     const badge=document.querySelector(".status-pill");
     if(badge)badge.textContent="RESEARCH PREVIEW · "+manifest.region.toUpperCase();
-    const regionLegend=document.getElementById("region-coverage-text");
+    const regionLegend=$("region-coverage-text");
     if(regionLegend)regionLegend.textContent="Current screened coverage: "+manifest.region+
       ". Other Nigerian states remain outside the verified preview.";
     overview=manifest.overview;
-    if(!overview||!overview.file)throw new Error("Missing local map overview.");
+    if(!overview?.file)throw new Error("Regional map overview is missing.");
     if(mapReady)map.getSource("pilot").setData(coverage);
     addOverview();
-    const images=await Promise.all(manifest.worldcover.map(
-      item=>loadRaster("./data/"+item.file,item.sha256)));
+    const images=[];
+    for(let i=0;i<manifest.worldcover.length;i++){
+      const source=manifest.worldcover[i];
+      setLoadProgress("Verifying land-cover raster "+(i+1)+"/"+manifest.worldcover.length+"…");
+      images.push(await loadRaster("./data/"+source.file,source.sha256));
+    }
+    setLoadProgress("Verifying historical surface-water data (final layer)…");
     const water=await loadRaster("./data/"+manifest.water.file,manifest.water.sha256);
-    layers={...(layers||{}),worldcoverImages:images,waterImage:water,manifest};
-    ui.button.disabled=false;
-    ui.feedback.textContent="Verified satellite data loaded. Click the map or enter coordinates.";
+    layers={stateGeometries:stateFeatures,worldcoverImages:images,waterImage:water,manifest};
+    setLoadState("ready","Ready to screen · "+images.length+" land-cover tiles and historical water verified.");
+    ui.feedback.textContent=site?
+      "Site selected. Choose a radius and run screening.":
+      "Environmental data ready. Click the map or enter coordinates.";
   }catch(error){
-    ui.button.disabled=true;
-    ui.feedback.textContent="Data could not be loaded: "+error.message;
+    layers=null;
+    loadError=error;
+    const message=error?.message||String(error);
+    setLoadState("failed","Data loading failed: "+message+" · Select Retry to reload the satellite layers.");
+    ui.feedback.textContent=site?
+      "Your selected site is preserved, but screening is unavailable until data load successfully.":
+      "The screening engine has not loaded. Use Retry after checking the local server.";
   }
 }
+ui.retry.addEventListener("click",()=>loadData());
 function display(result){
   lastResult=result;
   ui.empty.hidden=true;ui.results.hidden=false;
@@ -227,4 +272,4 @@ ui.pdf.addEventListener("click",async()=>{
 });
 $("methods-link").addEventListener("click",e=>{e.preventDefault();$("methods-dialog").showModal();});
 $("close-methods").addEventListener("click",()=>$("methods-dialog").close());
-ui.button.disabled=true;loadData();
+setLoadState("loading","Preparing local satellite data…");loadData();
