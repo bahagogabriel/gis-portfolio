@@ -22,8 +22,11 @@ import "./style.css";
 maplibregl.setWorkerUrl(workerUrl);
 const $=id=>document.getElementById(id);
 renderMapLegend($("map-legend-classes"),$("map-legend-status"),$("map-legend-native"));
-const setNativeLegend=state=>updateMapLegend(
-  $("map-legend-status"),$("map-legend-native"),state);
+const setNativeLegend=(state,displaySize=1024)=>updateMapLegend(
+  $("map-legend-status"),$("map-legend-native"),state,displaySize);
+const lightweightMap=$("lightweight-map");
+lightweightMap.checked=window.matchMedia("(max-width: 600px)").matches;
+
 const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   button:$("screen-btn"),feedback:$("form-feedback"),empty:$("empty-state"),
   results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf"),
@@ -307,6 +310,40 @@ for(const field of ["facility-type","project-stage","project-reference"]){
     if(lastResult){updatePetroleumPlan();renderEvidenceReview();}
   });
 }
+function refreshVisualDetail(result){
+  const request=++detailRequestId;
+  const displaySize=lightweightMap.checked?512:1024;
+  setNativeLegend("overview");
+  $("map").dataset.detailReady="pending";
+  Promise.resolve().then(()=>renderSiteDetail(layers.worldcoverImages,
+    result.location_wgs84.longitude,result.location_wgs84.latitude,result.radius_km,
+    {displaySize}))
+    .then(detail=>{
+      if(request!==detailRequestId || !mapReady || lastResult!==result)return;
+      if(map.getLayer("native-site-detail")){
+        map.removeLayer("native-site-detail");map.removeSource("native-site-detail");
+      }
+      map.addSource("native-site-detail",{type:"image",url:detail.url,
+        coordinates:detail.coordinates});
+      map.addLayer({id:"native-site-detail",type:"raster",source:"native-site-detail",
+        paint:{"raster-opacity":1,"raster-resampling":"nearest"}},"pilot-fill");
+      $("map").dataset.detailReady="true";
+      $("map").dataset.displaySize=String(detail.displaySizePx);
+      setNativeLegend("native",detail.displaySizePx);
+    })
+    .catch(error=>{
+      // Superseded async draws must NEVER revert a newer render to fallback.
+      if(request!==detailRequestId || lastResult!==result)return;
+      console.warn("Detailed site view unavailable; verified overview retained:",error.message);
+      $("map").dataset.detailReady="fallback";
+      setNativeLegend("fallback");
+    });
+}
+lightweightMap.addEventListener("change",()=>{
+  // Presentation-only rerender. Never rerun geospatial arithmetic, restore
+  // previous field records, download TIFFs, or change saved/CSV/PDF measurements.
+  if(lastResult)refreshVisualDetail(lastResult);
+});
 function display(result){
   lastResult=result;
   ui.empty.hidden=true;ui.results.hidden=false;
@@ -398,28 +435,7 @@ function display(result){
   });
   // Upgrade the visible background using the VERIFIED native 10m cells.
   // This layer does not participate in screening arithmetic or the PDF.
-  const request=++detailRequestId;
-  setNativeLegend("overview");
-  $("map").dataset.detailReady="pending";
-  Promise.resolve().then(()=>renderSiteDetail(layers.worldcoverImages,
-    result.location_wgs84.longitude,result.location_wgs84.latitude,result.radius_km))
-    .then(detail=>{
-      if(request!==detailRequestId || !mapReady || !lastResult)return;
-      if(map.getLayer("native-site-detail")){
-        map.removeLayer("native-site-detail");map.removeSource("native-site-detail");
-      }
-      map.addSource("native-site-detail",{type:"image",url:detail.url,
-        coordinates:detail.coordinates});
-      map.addLayer({id:"native-site-detail",type:"raster",source:"native-site-detail",
-        paint:{"raster-opacity":1,"raster-resampling":"nearest"}},"pilot-fill");
-      $("map").dataset.detailReady="true";
-      setNativeLegend("native");
-    })
-    .catch(error=>{
-      console.warn("Detailed site view unavailable; verified overview retained:",error.message);
-      $("map").dataset.detailReady="fallback";
-      setNativeLegend("fallback");
-    });
+  refreshVisualDetail(result);
 }
 ui.form.addEventListener("submit",async e=>{
   e.preventDefault();
