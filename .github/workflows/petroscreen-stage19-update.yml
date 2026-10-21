@@ -81,10 +81,10 @@ jobs:
       - name: Install Chromium for real source-backed site screening
         working-directory: petroscreen-ng/web
         run: npx playwright install --with-deps chromium
-      - name: Browser-test all nine states and download Delta/Rivers PDFs
-        run: node petroscreen-ng/web/test/nine-state-gui-smoke.mjs
       - name: Audit desktop/mobile UX, keyboard flow and WCAG 2.1 A/AA with axe-core
         run: node petroscreen-ng/web/test/stage19-ui-audit.mjs
+      - name: Browser-test all nine states and download Delta/Rivers PDFs
+        run: node petroscreen-ng/web/test/nine-state-gui-smoke.mjs
       - name: Inspect actual mapped PDFs and detect cutoff/state mistakes
         run: |
           python -m pip install pymupdf==1.26.5
