@@ -310,6 +310,42 @@ function resolveSiteState(lon,lat){
   if(!name)throw new Error("Cannot verify the selected state's source boundary.");
   return name;
 }
+/** Select only a manifest-provided QA example, NOT a synthetic petroleum site. */
+function chooseManifestExample(stateName="Delta"){
+  if(loadState!=="ready"||!layers?.manifest?.state_sources)
+    throw new Error("Verified pilot manifest is not ready yet.");
+  if(lastResult||pendingImportedCase||ui.form.getAttribute("aria-busy")==="true")
+    throw new Error("A screening or saved-case task is already open. Save that case before switching to a demonstration coordinate.");
+  const source=layers.manifest.state_sources.find(x=>x.state===stateName);
+  if(!source||!Array.isArray(source.qa_example_lon_lat)||source.qa_example_lon_lat.length!==2)
+    throw new Error("No verified published demonstration coordinate for "+stateName+".");
+  const [longitude,latitude]=source.qa_example_lon_lat;
+  if(!Number.isFinite(longitude)||!Number.isFinite(latitude)||
+      !inPolygon([longitude,latitude],coverage)||
+      resolveSiteState(longitude,latitude)!==stateName)
+    throw new Error("Published example failed its current nine-state boundary check.");
+  invalidatePrevious();
+  site=[longitude,latitude];
+  ui.lon.value=longitude.toFixed(6);
+  ui.lat.value=latitude.toFixed(6);
+  drawSite();
+  $("map-continue").hidden=false;
+  setMapGuide("Delta demonstration point selected. Choose a radius and run screening.");
+  ui.feedback.textContent="Delta example coordinates entered from the verified manifest. No analysis has run yet.";
+  map?.easeTo({center:site,zoom:10,duration:0});
+  return {state:stateName,longitude,latitude};
+}
+$("try-example").addEventListener("click",()=>{
+  try{
+    const example=chooseManifestExample();
+    $("example-status").textContent=example.state+" demonstration coordinates selected: "+
+      example.longitude.toFixed(6)+", "+example.latitude.toFixed(6)+
+      ". Choose 1, 3 or 5 km, then run site screening. This is not a mapped facility.";
+    $("screen-btn").focus({preventScroll:true});
+  }catch(error){
+    $("example-status").textContent="Example not selected: "+error.message;
+  }
+});
 function facilityContext(){
   return normalizeFacilityContext({facility_type:$("facility-type").value,
     project_stage:$("project-stage").value,
