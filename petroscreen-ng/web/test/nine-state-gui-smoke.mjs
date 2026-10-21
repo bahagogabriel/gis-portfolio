@@ -37,6 +37,9 @@ try{
   const reports=[];
   for(const entry of manifest.state_sources){
     const [lon,lat]=entry.qa_example_lon_lat;
+    await page.locator("#facility-type").selectOption("not_specified");
+    await page.locator("#project-stage").selectOption("not_specified");
+    await page.locator("#project-reference").fill("");
     await page.locator("#longitude").fill(String(lon));
     await page.locator("#latitude").fill(String(lat));
     await page.locator("#screen-btn").click();
@@ -78,7 +81,25 @@ try{
     assert.ok(exported.field_verification.checklist.every(c=>c.status==="not_checked"),
       "Field statuses must reset between separate site screenings");
     assert.equal(exported.measurements.mapped_landscape_proximity_2021.indicators.length,4);
+    assert.equal(exported.petroleum_scope.scope_status,"UNVERIFIED_DESKTOP_SCOPING_PROMPTS");
+    assert.equal(exported.petroleum_scope.mapped_asset_locations_used,false);
     if(entry.state==="Delta"){
+      await page.locator("#facility-type").selectOption("pipeline");
+      await page.locator("#project-stage").selectOption("planning");
+      await page.locator("#project-reference").fill("Test Corridor");
+      assert.match(await page.locator("#scope-summary").textContent(),/Pipeline \/ flowline/);
+      assert.match(await page.locator("#scope-tasks").textContent(),/Crossing and alignment survey/);
+      assert.match(await page.locator("#scope-tasks").textContent(),/WorldCover 2021/);
+      const planPending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-scope-csv").click();
+      const planDownload=await planPending;
+      assert.equal(planDownload.suggestedFilename(),"PetroScreenNG_Delta_PetroleumEvidencePlan.csv");
+      const planPath="petroscreen-ng/artifacts_nine_state/Delta_petroleum_scope.csv";
+      await planDownload.saveAs(planPath);
+      const planText=await readFile(planPath,"utf8");
+      assert.match(planText,/pipe_crossings/);
+      assert.match(planText,/Test Corridor/);
+      assert.match(planText,/not_reviewed/);
       await page.locator("#field-record summary").click();
       assert.equal(await page.locator("#field-record").getAttribute("open"),"");
       await page.locator('[data-field-task="surface_water"]').selectOption("field_observed");
@@ -140,6 +161,10 @@ try{
   assert.equal(await page.locator('[data-field-task="surface_water"]').inputValue(),"field_observed");
   assert.equal(await page.locator("#field-observer").inputValue(),"Field Team");
   assert.equal(await page.locator("#field-notes").inputValue(),"Needs tidal check");
+  assert.equal(await page.locator("#facility-type").inputValue(),"pipeline");
+  assert.equal(await page.locator("#project-stage").inputValue(),"planning");
+  assert.equal(await page.locator("#project-reference").inputValue(),"Test Corridor");
+  assert.match(await page.locator("#scope-tasks").textContent(),/Crossing and alignment survey/);
   assert.match(await page.locator("#result-subtitle").textContent(),/Delta/);
   // The imported metadata is not treated as a field verification certificate.
   assert.match(await page.locator("#case-import-status").textContent(),/unverified user entries/);
