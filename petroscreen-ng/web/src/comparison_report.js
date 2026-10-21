@@ -35,7 +35,7 @@ export function exportComparisonPdf(items,{download=true}={}){
       doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(...MUTED);
       const note="Side-by-side SOURCE-DATED satellite descriptions. Values are classified pixels and "+
         "historical water observations, not onsite surveys, petroleum assets, site safety, compliance or "+
-        "recommended alternative. "Not mapped" does not confirm a feature absent.";
+        "recommended alternative. An unmapped class is not confirmed absent.";
       const lines=doc.splitTextToSize(note,usable-3);
       doc.text(lines,M,y);y+=lines.length*4.1+5;
     }
