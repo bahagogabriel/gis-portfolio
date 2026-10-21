@@ -18,10 +18,10 @@ export function landCoverLegendRows(){
   });
 }
 /** Display/availability disclaimers are chosen only by a native image event. */
-export function nativeLegendStatus(state){
+export function nativeLegendStatus(state,displaySize=1024){
   switch(state){
     case "native":
-      return "Detailed ESA WorldCover 2021 display from nominal 10 m source pixels (resampled to 1024 px). Colors indicate classes, not risk.";
+      return "Detailed ESA WorldCover 2021 display from nominal 10 m source pixels (resampled to "+displaySize+" px). Colors indicate classes, not risk.";
     case "fallback":
       return "Native detail unavailable; showing a generalized regional overview. Color chips below do NOT apply to that overview.";
     default:
@@ -42,8 +42,8 @@ export function renderMapLegend(root,statusNode,labelsNode){
   statusNode.textContent=nativeLegendStatus("overview");
   labelsNode.hidden=true;
 }
-export function updateMapLegend(statusNode,labelsNode,state){
+export function updateMapLegend(statusNode,labelsNode,state,displaySize=1024){
   if(!statusNode||!labelsNode)throw Error("Map legend elements missing");
-  statusNode.textContent=nativeLegendStatus(state);
+  statusNode.textContent=nativeLegendStatus(state,displaySize);
   labelsNode.hidden=state!=="native";
 }
