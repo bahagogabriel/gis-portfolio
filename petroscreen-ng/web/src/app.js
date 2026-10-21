@@ -39,6 +39,7 @@ const map=new maplibregl.Map({container:"map",
   center:[6.02,4.83],zoom:8.35,attributionControl:false,
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
+window.addEventListener("resize",()=>map.resize());
 
 const emptyGeo={type:"FeatureCollection",features:[]};
 map.on("load",()=>{
@@ -77,11 +78,13 @@ map.on("click",e=>{
   const [lon,lat]=[e.lngLat.lng,e.lngLat.lat];
   if(!coverage || !inPolygon([lon,lat],coverage)){
     ui.feedback.textContent="Choose a site inside the highlighted verified regional boundary.";
+    $("map-tip-text").textContent="Outside supported states. Choose a point inside the highlighted boundary.";
     return;
   }
   invalidatePrevious();
   site=[lon,lat];ui.lon.value=lon.toFixed(6);ui.lat.value=lat.toFixed(6);
   drawSite();
+  $("map-tip-text").textContent="Site selected · Choose a radius and run environmental screening.";
   ui.feedback.textContent=loadState==="ready"?
     "Site selected. Choose a radius and run screening.":
     "Site selected. Screening will unlock once satellite data are ready.";
@@ -106,6 +109,8 @@ function invalidatePrevious(){
     for(const select of document.querySelectorAll("#field-checklist select"))select.value="not_checked";
   }
   ui.results.hidden=true;
+  $("view-findings").hidden=true;
+  $("map-tip-text").textContent="Click inside the highlighted boundary to set a site, or use coordinates";
   ui.empty.hidden=false;
   ui.subtitle.textContent="Your site assessment appears here after analysis.";
   detailRequestId++;
@@ -291,6 +296,12 @@ function display(result){
   ui.subtitle.textContent=`Screening at ${fmt(site[1],5)}°N, ${fmt(site[0],5)}°E · ${result.radius_km} km radius`+
     (result.site_state?" · "+result.site_state:"");
   $("area-value").textContent=fmt(result.buffer_area_km2_approx,3)+" km²";
+  $("view-findings").hidden=false;
+  $("view-findings").textContent="View "+(result.site_state||"site")+
+    " screening findings · "+result.radius_km+" km ↓";
+  $("map-tip-text").textContent=(result.site_state||"Selected site")+
+    " · "+result.radius_km+" km screened. ESA land cover is from 2021.";
+  $(".results-panel")?.scrollTo?.({top:0,behavior:"instant"});
   const c=Math.min(result.land_cover_2021.coverage.whole_buffer_coverage_pct_approx,
     result.surface_water_occurrence_1984_2024.coverage.whole_buffer_coverage_pct_approx);
   $("coverage-value").textContent=fmt(c,1)+"%";
@@ -395,6 +406,7 @@ ui.form.addEventListener("submit",async e=>{
   const lon=Number(ui.lon.value),lat=Number(ui.lat.value);
   const radiusKm=Number(document.querySelector("input[name=radius]:checked").value);
   ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
+  ui.form.setAttribute("aria-busy","true");
   const importToRestore=pendingImportedCase;
   pendingImportedCase=null;
   invalidatePrevious();
@@ -439,6 +451,7 @@ ui.form.addEventListener("submit",async e=>{
         $("facility-type").value=restored.facility_type;
         $("project-stage").value=restored.project_stage;
         $("project-reference").value=restored.project_reference;
+        $("facility-options").open=restored.facility_type!=="not_specified";
         updatePetroleumPlan(result);
       }
       renderEvidenceReview();
@@ -450,6 +463,7 @@ ui.form.addEventListener("submit",async e=>{
     if(importToRestore)$("case-import-status").textContent="Saved case was NOT restored: "+error.message;
     ui.feedback.textContent="Screening failed: "+error.message;
   }finally{
+    ui.form.removeAttribute("aria-busy");
     if(loadState==="loading" && layers?.manifest?.state_sources)
       setLoadState("ready","Ready to screen · state datasets are verified on demand.");
     ui.button.disabled=loadState!=="ready";
@@ -669,6 +683,11 @@ $("download-comparison-csv").addEventListener("click",()=>{
   }
 });
 updateComparisonButtons();
+$("view-findings").addEventListener("click",()=>{
+  if(!lastResult)return;
+  $("findings-title").scrollIntoView({block:"start",behavior:"instant"});
+  $("findings-title").focus({preventScroll:true});
+});
 for(const id of ["field-visit-date","field-observer","field-notes"]){
   $(id).addEventListener("input",renderEvidenceReview);
 }
