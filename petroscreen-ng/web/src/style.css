@@ -63,3 +63,17 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .reopen-case:hover,.reopen-case:focus-visible{background:rgba(51,112,79,.27);outline-offset:2px}
 .case-import p.fine{margin:9px 0;line-height:1.5}
 #case-import-status{font-size:11px;color:#b9d7c8;line-height:1.5;margin:8px 0}
+
+/* Optional petroleum scoping - advisory prompts, not risk badges or scores. */
+.facility-input{margin:14px 0;border-top:1px solid rgba(143,174,157,.28);padding-top:9px}
+.facility-input label{display:flex;flex-direction:column;gap:5px;margin:9px 0;color:#b8cfbd;font-size:11px}
+.facility-input select,.facility-input input{background:#242b29;color:#e4f3e9;border:1px solid #668172;border-radius:7px;padding:10px 11px;max-width:100%;font-size:12px}
+.petroleum-scope{border-top:1px solid rgba(143,175,158,.3);border-bottom:1px solid rgba(143,175,158,.3);margin:14px 0 18px;padding:13px 0}
+.petroleum-scope h3{font-size:14px;color:#d2eee0;margin:3px 0 9px}
+.petroleum-scope h3 small{font-size:10px;font-weight:400;color:#92b6a2}
+.scope-task{margin:0 0 8px;padding:9px 10px;border-radius:6px;background:rgba(43,86,60,.15);border-left:2px solid rgba(97,161,117,.65)}
+.scope-task strong{display:block;font-size:11px;color:#d6eadb}
+.scope-task p{font-size:10.5px;line-height:1.5;margin:5px 0;color:#c5d6ca}
+.scope-task small{font-size:9.5px;color:#93ad9c}
+.scope-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:10px}
+.scope-links a{color:#bce6c7;text-decoration:underline}
