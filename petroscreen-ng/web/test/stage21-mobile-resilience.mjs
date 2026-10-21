@@ -93,7 +93,8 @@ try{
   const status=await page.locator("#map-legend-status").textContent();
   assert.ok(status.includes("resampled to "+firstSize+" px"));
   assert.equal(external.length,0,"No network telemetry or third-party map tiles");
-  await page.locator("#map-legend summary").click();
+  await page.locator("#map-legend > summary").click();
+  await page.locator("#map-view-options > summary").click();
   await page.locator("#lightweight-map").setChecked(!slow);
   const secondSize=slow?1024:512;
   await waitDetail(page,secondSize);
