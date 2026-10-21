@@ -2,6 +2,7 @@ import * as maplibregl from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
+import {appendDeskReviewHandoff} from "./handoff_report.js";
 import {renderSiteDetail} from "./site_detail.js";
 import {renderMapLegend,updateMapLegend} from "./landcover_legend.js";
 import {screeningNotes} from "./insights.js";
@@ -934,6 +935,29 @@ $("download-case-bundle").addEventListener("click",async()=>{
     ui.feedback.textContent="Case package not completed: "+error.message;
   }finally{
     control.disabled=false;control.textContent="Download complete case package · ZIP ↓";
+  }
+});
+$("download-handoff-pdf").addEventListener("click",async()=>{
+  if(!lastResult)return;
+  const button=$("download-handoff-pdf");
+  button.disabled=true;button.textContent="Preparing mapped professional handoff…";
+  try{
+    const item=exportCase();
+    const pdf=await exportReportPdf({result:lastResult,
+      worldcoverImages:layers.worldcoverImages,
+      petroleumScope:buildPetroleumScope(lastResult,facilityContext()),
+      download:false});
+    const info=appendDeskReviewHandoff(pdf,item);
+    if(info.base_pdf_pages<3||info.total_pdf_pages<=info.base_pdf_pages)
+      throw new Error("Professional handoff is missing mapped or evidence pages.");
+    const slug=item.site.state.replace(/[^a-z0-9_-]/gi,"_");
+    pdf.save("PetroScreenNG_"+slug+"_Professional_DeskReview_Handoff.pdf");
+    ui.feedback.textContent="Professional desk-review handoff PDF downloaded. "+
+      "It contains user-entered statuses but no personal observer names or free-text field notes.";
+  }catch(error){
+    ui.feedback.textContent="Professional handoff could not be completed: "+error.message;
+  }finally{
+    button.disabled=false;button.textContent="Download professional desk-review handoff · PDF ↓";
   }
 });
 ui.pdf.addEventListener("click",async()=>{
