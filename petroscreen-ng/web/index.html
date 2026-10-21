@@ -10,7 +10,7 @@
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.1</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.2</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -22,6 +22,28 @@
 <label><input type="radio" name="radius" value="1" checked><span>1 km</span></label>
 <label><input type="radio" name="radius" value="3"><span>3 km</span></label>
 <label><input type="radio" name="radius" value="5"><span>5 km</span></label></fieldset>
+<div class="facility-input">
+<h2 class="section-title">03 <span>Petroleum activity (optional)</span></h2>
+<p class="help">Choose what you are investigating. This generates only a suggested evidence-gathering plan; it does not establish that any facility exists at this point.</p>
+<label>Facility or activity
+<select id="facility-type">
+<option value="not_specified">General environmental screening</option>
+<option value="well_pad">Well pad / drilling location</option>
+<option value="pipeline">Pipeline / flowline corridor point</option>
+<option value="processing">Flow station / processing facility</option>
+<option value="storage">Tank farm / petroleum storage</option>
+<option value="flare">Flare / associated-gas facility</option>
+</select></label>
+<label>Project stage
+<select id="project-stage">
+<option value="not_specified">Not specified</option>
+<option value="planning">Planning / site selection</option>
+<option value="operations">Existing operations</option>
+<option value="decommissioning">Decommissioning / restoration</option>
+</select></label>
+<label>Project reference (optional)
+<input id="project-reference" type="text" maxlength="80" autocomplete="off" placeholder="e.g. Site A, avoid confidential identifiers"></label>
+</div>
 <p class="load-status" id="data-status" data-state="loading" role="status" aria-live="polite">Preparing local satellite data…</p>
 <button class="retry-data" id="retry-data" type="button" hidden>Retry loading satellite data ↻</button>
 <button class="action" id="screen-btn" type="submit" disabled>Loading environmental data…</button>
@@ -54,6 +76,14 @@
 <p class="fine">“Not mapped” means not identified in the available 2021 pixels—not confirmed absent. Ground verification remains necessary.</p>
 </section>
 <div id="interpretation" class="interpretation" aria-live="polite"></div>
+<section id="petroleum-scope" class="petroleum-scope" aria-label="Petroleum site evidence scoping">
+<h3>Petroleum evidence plan <small>advisory · not a risk rating</small></h3>
+<p id="scope-summary" class="fine"></p>
+<div id="scope-tasks"></div>
+<p class="fine">Suggested checks are not a complete EIA, professional hazard study or official list of legal requirements. Verify current regulations and documentation with appropriately qualified personnel.</p>
+<div class="scope-links"><a href="https://www.nuprc.gov.ng/laws/regulations/gazetted" target="_blank" rel="noopener noreferrer">NUPRC regulations ↗</a>
+<a href="https://www.nuprc.gov.ng/laws/guidelines/hsec" target="_blank" rel="noopener noreferrer">NUPRC HSEC guidance ↗</a></div>
+</section>
 <details class="field-record" id="field-record">
 <summary>Field verification record <small>optional · local only</small></summary>
 <p class="fine">Satellite-derived indicators are NOT field observations. Complete these fields only after fieldwork. A status starts as “Not checked” and never changes automatically. Nothing entered here is uploaded; it is included only in files you download.</p>
@@ -72,6 +102,7 @@
 <button type="button" class="export-button" id="download-data-csv">Screening data · CSV</button>
 <button type="button" class="export-button" id="download-field-csv">Field checklist · CSV</button>
 <button type="button" class="export-button" id="download-site-geojson">Site &amp; buffer · GeoJSON</button>
+<button type="button" class="export-button" id="download-scope-csv">Petroleum evidence plan · CSV</button>
 </div>
 <div class="case-import">
 <button type="button" id="reopen-case" class="reopen-case">Reopen saved case · JSON</button>
@@ -93,6 +124,7 @@
 <p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigeria ADM1 state polygons (original source GRID3; CC BY 4.0). The currently published research preview supports the nine NDDC states: Abia, Akwa Ibom, Bayelsa, Cross River, Delta, Edo, Imo, Ondo and Rivers. Each selected site uses its state's validated satellite-data halo; supported area is approximate administrative context, not a surveyed legal boundary. Screening outside these states is unavailable.</p>
 <p><strong>Mapped context:</strong> the reconnaissance module scans ESA WorldCover 2021 pixels for mapped water (80), herbaceous wetland (90), mangroves (95) and built-up (50) within the selected buffer. Distances are approximate WGS84 point-to-pixel-centre measurements, not distances to feature edges, not present-day field measurements, and not statutory setbacks. The built-up class cannot distinguish occupied homes from industrial premises. “Not mapped” does not prove a feature absent, particularly when the source is incomplete or dated. No environmental sensitivity ranking is calculated.</p>
 <p><strong>Important:</strong> Satellite classifications contain uncertainty. Data may omit channels or assets; no petroleum-asset information is acquired. Do not use for regulatory EIA, spill-risk estimates, ecological damage, legal findings or field-inspection substitutes.</p>
+<p><strong>Petroleum activity planning:</strong> a user-selected facility/activity type creates an advisory evidence-gathering plan informed by user context and the existing ESA WorldCover 2021 mapped water, wetland, mangrove and built-up categories. PetroScreen has no verified petroleum well, pipeline, tank, flare or operator facility inventory. It cannot determine legal setbacks, pipeline crossings, contamination, emissions, environmental risk, official EIA scope or compliance. Facility choices are user declarations, not remote-sensing observations. The plan is not exhaustive. Consult the latest NUPRC regulations and HSEC guidance for applicability to the specific project.</p>
 <p><strong>GIS and case continuity:</strong> GeoJSON includes a WGS84 screening point and an approximate circular study polygon, suitable for import into desktop GIS, but not a cadastral or surveyed boundary. Previously saved JSON cases can be reopened locally: the application verifies their state-specific source hashes, recalculates the screening and compares measured outputs before restoring optional field notes. This is reproducibility checking, not cryptographic proof of authorship, legal source authenticity or confirmation of field observations.</p>
 <p><strong>Records and exports:</strong> JSON screening cases contain the complete numeric baseline, source SHA-256 hashes, selected coordinates and optional user-entered field verification statuses. CSVs contain tidy numeric results or a separately identified field-verification checklist. Field observations are never inferred from satellite evidence. These records are downloaded in the current browser and are not stored in an application account. Review site coordinates, staff names and notes before sharing files.</p>
 <p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
