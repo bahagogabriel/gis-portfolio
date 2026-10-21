@@ -24,7 +24,7 @@ test("overview is never falsely presented as the native color-matched class laye
  assert.match(overview,/Generalized regional overview/);
  assert.match(overview,/after a successful detailed site map/);
  const native=nativeLegendStatus("native");
- assert.match(native,/Native 10 m ESA WorldCover 2021/);
+ assert.match(native,/Detailed ESA WorldCover 2021/);
  assert.match(native,/not risk/);
  const fallback=nativeLegendStatus("fallback");
  assert.match(fallback,/Native detail unavailable/);
