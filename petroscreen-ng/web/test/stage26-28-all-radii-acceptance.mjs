@@ -57,6 +57,9 @@ try{
  const diag=await readFile(diagPath,"utf8");
  assert.match(diag,/Indexed state source TIFFs: 31/);
  assert.doesNotMatch(diag,/^(latitude|longitude|observer|field_notes)\\s*[:=]/im);
+ // Specialist CSV/JSON downloads live in the intentionally collapsed
+ // export disclosure, as verified by the original nine-state browser smoke.
+ await page.locator("#export-options").evaluate(el=>{el.open=true});
  let cases=0;
  for(const entry of manifest.state_sources){
   const [lon,lat]=entry.qa_example_lon_lat;
