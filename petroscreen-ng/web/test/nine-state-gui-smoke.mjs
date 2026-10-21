@@ -305,7 +305,7 @@ try{
   assert.equal(await clean.locator("#field-observer").inputValue(),"");
   // Free one candidate slot before testing a TWO-file atomic rejection.
   // With three existing candidates the correct capacity gate fires first.
-  await clean.getByRole("button",{name:"Remove C (Bayelsa)"}).click();
+  await clean.locator("#comparison-site-actions button").nth(2).click();
   assert.match(await clean.locator("#comparison-intro").textContent(),/2 screened sites/);
   const forgedRivers=JSON.parse(await readFile(
     "petroscreen-ng/artifacts_nine_state/Rivers_case.json","utf8"));
