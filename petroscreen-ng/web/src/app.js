@@ -22,8 +22,21 @@ import "./style.css";
 maplibregl.setWorkerUrl(workerUrl);
 const $=id=>document.getElementById(id);
 renderMapLegend($("map-legend-classes"),$("map-legend-status"),$("map-legend-native"));
-const setNativeLegend=(state,displaySize=1024)=>updateMapLegend(
-  $("map-legend-status"),$("map-legend-native"),state,displaySize);
+const setNativeLegend=(state,displaySize=1024)=>{
+  updateMapLegend($("map-legend-status"),$("map-legend-native"),state,displaySize);
+  $("map-color-unavailable").hidden=state==="native";
+};
+function setMapGuide(message,warning=false){
+  $("map-tip-text").textContent=message;
+  $("map-guide").dataset.state=warning?"warning":"hint";
+}
+function resetMapGuide(){
+  if($("map-guide").dataset.state==="warning"){
+    setMapGuide(site
+      ?"Location already selected. Run screening or choose a different point."
+      :"Click inside the outlined nine-state pilot area, or enter WGS84 coordinates.");
+  }
+}
 const lightweightMap=$("lightweight-map");
 lightweightMap.checked=window.matchMedia("(max-width: 600px)").matches;
 
@@ -47,6 +60,13 @@ const map=new maplibregl.Map({container:"map",
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
 window.addEventListener("resize",()=>map.resize());
+map.on("movestart",resetMapGuide);
+$("map-fit-pilot").addEventListener("click",()=>{
+  if(!mapReady||!overview?.bounds_lon_lat)return;
+  const [west,south,east,north]=overview.bounds_lon_lat;
+  map.fitBounds([[west,south],[east,north]],{padding:32,maxZoom:9.5,duration:0});
+  resetMapGuide();
+});
 $("jump-to-map").addEventListener("click",e=>{
   e.preventDefault();
   $("map").scrollIntoView({block:"center",behavior:"smooth"});
@@ -74,10 +94,12 @@ map.on("load",()=>{
   }
   if(coverage)map.getSource("pilot").setData(coverage);
   if(overview)addOverview();
+  $("map-fit-pilot").disabled=!overview?.bounds_lon_lat;
 });
 function addOverview(){
   if(!mapReady||!overview||map.getSource("landcover-overview"))return;
   const [west,south,east,north]=overview.bounds_lon_lat;
+  $("map-fit-pilot").disabled=false;
   map.addSource("landcover-overview",{type:"image",
     url:"./data/"+overview.file+"?sha256="+encodeURIComponent(overview.sha256),
     coordinates:[[west,north],[east,north],[east,south],[west,south]]});
@@ -93,14 +115,16 @@ map.on("idle",()=>{
 map.on("click",e=>{
   const [lon,lat]=[e.lngLat.lng,e.lngLat.lat];
   if(!coverage || !inPolygon([lon,lat],coverage)){
-    ui.feedback.textContent="Choose a site inside the highlighted verified regional boundary.";
-    $("map-tip-text").textContent="Outside supported states. Choose a point inside the highlighted boundary.";
+    const kept=lastResult?" Your previous screening remains valid.":
+      site?" Your selected location remains unchanged.":"";
+    ui.feedback.textContent="Map click outside verified nine-state coverage."+kept;
+    setMapGuide("Outside verified pilot area. Use Show full pilot area, or choose a point inside the outlined region."+kept,true);
     return;
   }
   invalidatePrevious();
   site=[lon,lat];ui.lon.value=lon.toFixed(6);ui.lat.value=lat.toFixed(6);
   drawSite();
-  $("map-tip-text").textContent="Site selected · Choose a radius and run environmental screening.";
+  setMapGuide("Site selected · Choose a radius and run environmental screening.");
   $("map-continue").hidden=false;
   ui.feedback.textContent=loadState==="ready"?
     "Site selected. Choose a radius and run screening.":
@@ -130,7 +154,7 @@ function invalidatePrevious(){
   ui.results.hidden=true;
   $("view-findings").hidden=true;
   $("map-continue").hidden=true;
-  $("map-tip-text").textContent="Click inside the highlighted boundary to set a site, or use coordinates";
+  setMapGuide("Click inside the outlined pilot area to set a site, or use WGS84 coordinates.");
   ui.empty.hidden=false;
   ui.subtitle.textContent="Your site assessment appears here after analysis.";
   detailRequestId++;
@@ -354,8 +378,8 @@ function display(result){
   $("map-continue").hidden=true;
   $("view-findings").textContent="View "+(result.site_state||"site")+
     " screening findings · "+result.radius_km+" km ↓";
-  $("map-tip-text").textContent=(result.site_state||"Selected site")+
-    " · "+result.radius_km+" km screened. ESA land cover is from 2021.";
+  setMapGuide((result.site_state||"Selected site")+
+    " · "+result.radius_km+" km screened. ESA land cover is from 2021.");
   document.querySelector(".results-panel")?.scrollTo({top:0,behavior:"instant"});
   const c=Math.min(result.land_cover_2021.coverage.whole_buffer_coverage_pct_approx,
     result.surface_water_occurrence_1984_2024.coverage.whole_buffer_coverage_pct_approx);
