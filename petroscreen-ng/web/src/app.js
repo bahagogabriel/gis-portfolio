@@ -10,6 +10,7 @@ import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv
 import {buildEvidenceReview,evidenceReviewCsv} from "./evidence_review.js";
 import {makeCaseBundle,downloadBundle} from "./case_bundle.js";
 import {verifyCasePackage} from "./case_verifier.js";
+import {captureCandidate,addCandidate,comparisonTable,comparisonCsv} from "./candidate_comparison.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -21,6 +22,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf"),
   dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
+let candidates=[];
 let verifiedStates=[];
 let pendingImportedCase=null;
 const regionalCache=new Map();
@@ -90,6 +92,7 @@ function drawSite(circle=null) {
 /** A changed or rejected location must never leave an old report presented as current. */
 function invalidatePrevious(){
   lastResult=null;
+  updateComparisonButtons();
   const form=$("field-record");
   if(form){
     form.open=false;
@@ -352,6 +355,7 @@ function display(result){
   }
   updatePetroleumPlan(result);
   renderEvidenceReview();
+  updateComparisonButtons();
   drawSite(result.circle);
   const ring=result.circle.geometry.coordinates[0];
   const west=Math.min(...ring.map(p=>p[0])),east=Math.max(...ring.map(p=>p[0]));
@@ -481,6 +485,98 @@ function renderEvidenceReview(){
     $("review-flags").replaceChildren();
   }
 }
+/** Keep the candidate evidence in volatile browser memory, never in a server,
+ * persistent store or saved field record. Comparing results is NOT re-scoring.
+ */
+function updateComparisonButtons(){
+  const add=$("add-candidate"),view=$("open-comparison");
+  if(!add||!view)return;
+  const already=lastResult&&candidates.some(x=>
+    Math.hypot(x.longitude-lastResult.location_wgs84.longitude,
+      x.latitude-lastResult.location_wgs84.latitude)<0.000001 &&
+      x.radius_km===lastResult.radius_km);
+  const different=lastResult&&candidates.length>0&&
+    candidates[0].radius_km!==lastResult.radius_km;
+  add.disabled=!lastResult||candidates.length>=4||Boolean(already||different);
+  view.textContent="View comparison ("+candidates.length+")";
+  view.disabled=candidates.length===0;
+  add.textContent=already?"Already added to comparison":
+    different?"Change radius or clear comparison":
+    candidates.length>=4?"Comparison full (4 sites)":
+      "Add current site to comparison";
+}
+function updateComparisonModal(){
+  const target=$("comparison-table-holder"),actions=$("comparison-site-actions");
+  target.replaceChildren();actions.replaceChildren();
+  $("download-comparison-csv").disabled=candidates.length<2;
+  $("comparison-intro").textContent=candidates.length+
+    " screened site"+(candidates.length===1?"":"s")+
+    (candidates.length?" · "+candidates[0].radius_km+" km shared radius.":" · Screen and add your first site.");
+  if(!candidates.length){
+    const note=document.createElement("p");
+    note.textContent="No sites in this comparison. Close this dialog and add a completed screening.";
+    target.append(note);return;
+  }
+  const table=document.createElement("table");table.className="comparison-data-table";
+  const head=document.createElement("thead"),header=document.createElement("tr");
+  for(const name of ["Mapped indicator","Unit",...candidates.map((_,i)=>
+      "Site "+String.fromCharCode(65+i))]){
+    const th=document.createElement("th");th.textContent=name;th.scope="col";header.append(th);
+  }
+  head.append(header);table.append(head);
+  const body=document.createElement("tbody");
+  for(const line of comparisonTable(candidates)){
+    const tr=document.createElement("tr");
+    const field=document.createElement("th");field.scope="row";field.textContent=line.label;
+    const unit=document.createElement("td");unit.textContent=line.unit;
+    tr.append(field,unit);
+    for(const value of line.values){
+      const cell=document.createElement("td");cell.textContent=value;tr.append(cell);
+    }
+    body.append(tr);
+  }
+  table.append(body);target.append(table);
+  candidates.forEach((item,i)=>{
+    const button=document.createElement("button");button.type="button";
+    button.textContent="Remove "+String.fromCharCode(65+i)+" ("+item.state+")";
+    button.setAttribute("aria-label","Remove comparison candidate "+String.fromCharCode(65+i)+", "+item.state);
+    button.addEventListener("click",()=>{
+      candidates=candidates.filter((_,j)=>j!==i);
+      updateComparisonButtons();updateComparisonModal();
+    });
+    actions.append(button);
+  });
+}
+$("add-candidate").addEventListener("click",()=>{
+  try{
+    if(!lastResult||loadState!=="ready")throw Error("Complete screening before adding a site.");
+    const item=captureCandidate(lastResult,layers.manifest);
+    candidates=addCandidate(candidates,item);
+    updateComparisonButtons();updateComparisonModal();
+    $("comparison-status").textContent="Added "+item.state+" site to comparison ("+
+      candidates.length+"/4). Choose a new point and screen at the same radius.";
+  }catch(error){
+    $("comparison-status").textContent="Comparison not changed: "+error.message;
+  }
+});
+$("open-comparison").addEventListener("click",()=>{
+  updateComparisonModal();$("comparison-dialog").showModal();
+});
+$("close-comparison").addEventListener("click",()=>$("comparison-dialog").close());
+$("clear-comparison").addEventListener("click",()=>{
+  candidates=[];updateComparisonButtons();updateComparisonModal();
+  $("comparison-status").textContent="Comparison cleared. No candidate data are stored.";
+});
+$("download-comparison-csv").addEventListener("click",()=>{
+  if(candidates.length<2)return;
+  try{
+    downloadText("PetroScreenNG_SiteComparison_"+candidates[0].radius_km+"km.csv",
+      comparisonCsv(candidates),"text/csv;charset=utf-8");
+  }catch(error){
+    $("comparison-intro").textContent="Comparison export unavailable: "+error.message;
+  }
+});
+updateComparisonButtons();
 for(const id of ["field-visit-date","field-observer","field-notes"]){
   $(id).addEventListener("input",renderEvidenceReview);
 }
