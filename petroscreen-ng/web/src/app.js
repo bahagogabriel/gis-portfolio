@@ -7,6 +7,7 @@ import {screeningNotes} from "./insights.js";
 import {parseCaseText,confirmRescreenedCase,caseGeoJSON} from "./case_continuity.js";
 import {buildPetroleumScope,normalizeFacilityContext,petroleumScopeCsv} from "./petroleum_scope.js";
 import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
+import {buildEvidenceReview,evidenceReviewCsv} from "./evidence_review.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -272,7 +273,7 @@ function updatePetroleumPlan(result=lastResult){
 }
 for(const field of ["facility-type","project-stage","project-reference"]){
   $(field).addEventListener(field==="project-reference"?"input":"change",()=>{
-    if(lastResult)updatePetroleumPlan();
+    if(lastResult){updatePetroleumPlan();renderEvidenceReview();}
   });
 }
 function display(result){
@@ -348,6 +349,7 @@ function display(result){
     notes.append(line);
   }
   updatePetroleumPlan(result);
+  renderEvidenceReview();
   drawSite(result.circle);
   const ring=result.circle.geometry.coordinates[0];
   const west=Math.min(...ring.map(p=>p[0])),east=Math.max(...ring.map(p=>p[0]));
@@ -427,6 +429,7 @@ ui.form.addEventListener("submit",async e=>{
         $("project-reference").value=restored.project_reference;
         updatePetroleumPlan(result);
       }
+      renderEvidenceReview();
       $("case-import-status").textContent="Reopened case: current source hashes and screening measurements agree. Saved field notes restored as unverified user entries.";
       ui.feedback.textContent="Saved case re-screened and matched against current source data.";
     }else ui.feedback.textContent="Screening completed in your browser.";
@@ -450,14 +453,42 @@ function currentFieldDraft(){
 }
 function exportCase(){
   if(!lastResult)throw new Error("Complete a screening first");
-  return createCaseFile({result:lastResult,manifest:layers.manifest,
+  const item=createCaseFile({result:lastResult,manifest:layers.manifest,
     fieldRecord:currentFieldDraft(),facilityContext:facilityContext()});
+  // Additive case property: the Stage 11 source-and-measurement re-screening
+  // remains authoritative. Review flags are not accepted as scientific evidence.
+  item.evidence_review=buildEvidenceReview(item);
+  return item;
 }
+function renderEvidenceReview(){
+  if(!lastResult)return;
+  try{
+    const summary=exportCase().evidence_review.review;
+    const f=summary.field_tasks;
+    $("review-summary").textContent=f.not_checked+" of "+f.total+
+      " field checks not checked · "+f.user_reported+" user-reported statuses · "+
+      f.follow_up+" follow-up flags. No environmental safety or compliance rating.";
+    const root=$("review-flags");root.replaceChildren();
+    for(const code of summary.unresolved_flags){
+      const item=document.createElement("li");
+      item.textContent=code.replaceAll("_"," ").toLowerCase();
+      root.append(item);
+    }
+  }catch(error){
+    $("review-summary").textContent="Evidence review unavailable: "+error.message;
+    $("review-flags").replaceChildren();
+  }
+}
+for(const id of ["field-visit-date","field-observer","field-notes"]){
+  $(id).addEventListener("input",renderEvidenceReview);
+}
+$("field-checklist").addEventListener("change",renderEvidenceReview);
 for(const [id,format] of [["download-data-json","json"],
                          ["download-data-csv","screening_csv"],
                          ["download-field-csv","field_csv"],
                          ["download-site-geojson","geojson"],
-                         ["download-scope-csv","scope_csv"]]){
+                         ["download-scope-csv","scope_csv"],
+                         ["download-evidence-csv","evidence_csv"]]){
   $(id).addEventListener("click",()=>{
     try{
       const item=exportCase();
@@ -472,6 +503,9 @@ for(const [id,format] of [["download-data-json","json"],
         downloadText("PetroScreenNG_"+slug+"_PetroleumEvidencePlan.csv",
           petroleumScopeCsv(item.petroleum_scope,item.site),
           "text/csv;charset=utf-8");
+      }else if(format==="evidence_csv"){
+        downloadText("PetroScreenNG_"+slug+"_EvidenceRegister.csv",
+          evidenceReviewCsv(item.evidence_review),"text/csv;charset=utf-8");
       }else if(format==="geojson"){
         downloadText("PetroScreenNG_"+slug+"_Site_Buffer.geojson",
           JSON.stringify(caseGeoJSON(lastResult),null,2)+"\n",
