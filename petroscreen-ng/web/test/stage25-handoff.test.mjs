@@ -52,6 +52,7 @@ test("append paginated handoff to original PDF without removing or changing base
  doc.addPage();doc.text("UNCHANGED ORIGINAL SCIENTIFIC BASE PAGE 3",18,50);
  const baseCount=doc.getNumberOfPages();
  const before=Array.from({length:baseCount},(_,i)=>doc.getPageInfo(i+1).pageNumber);
+ const baseByteLength=doc.output("arraybuffer").byteLength;
  const v=appendDeskReviewHandoff(doc,fixture());
  assert.equal(v.schema,HANDOFF_SCHEMA);
  assert.equal(v.base_pdf_pages,baseCount);
@@ -61,7 +62,7 @@ test("append paginated handoff to original PDF without removing or changing base
  assert.equal(v.no_field_authentication,true);
  assert.equal(v.no_new_scientific_measurements,true);
  const bytes=new Uint8Array(doc.output("arraybuffer"));
- assert.ok(bytes.length>15000);
+ assert.ok(bytes.length>baseByteLength+1000,"Appendix must increase actual PDF bytes");
  assert.equal(String.fromCharCode(...bytes.slice(0,5)),"%PDF-");
 });
 test("malformed source or missing mapped measurements rejected before any handoff",()=>{
