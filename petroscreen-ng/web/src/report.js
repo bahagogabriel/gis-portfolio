@@ -165,6 +165,52 @@ function drawReconnaissance(pdf,result){
     19,y,171,8.4,5);
   footer(pdf,3);
 }
+function drawPetroleumScope(pdf,plan){
+  if(!plan || plan.facility_type==="not_specified")return;
+  if(plan.scope_status!=="UNVERIFIED_DESKTOP_SCOPING_PROMPTS")
+    throw new Error("Unverified petroleum scope plan");
+  pdf.addPage();
+  let page=pdf.getNumberOfPages();
+  const heading=()=>{
+    header(pdf,"PETROLEUM | EVIDENCE SCOPING");
+    text(pdf,"Facility-specific evidence gathering",18,40,13,INK,"bold");
+    text(pdf,plan.facility_label+"  |  "+plan.stage_label,18,48,9,GREEN);
+  };
+  heading();
+  let y=59;
+  y=wrapped(pdf,
+    "USER-DECLARED facility type only. PetroScreen has not detected or authenticated any pipeline, well, tank, flare, emission or operator asset at this location. Prompts do NOT evaluate EIA compliance, contamination or environmental risk.",
+    18,y,174,8.4,4.8);
+  y+=9;y=section(pdf,"08  Suggested evidence and verification",y);
+  for(const item of plan.tasks){
+    if(y>252){
+      footer(pdf,page);
+      pdf.addPage();page=pdf.getNumberOfPages();heading();y=61;
+      y=section(pdf,"08  Suggested evidence and verification (continued)",y);
+    }
+    y=wrapped(pdf,item.title,19,y,171,8.5,4.7,INK);
+    y=wrapped(pdf,item.evidence_to_check,22,y,166,7.9,4.6,MUTED);
+    y+=4;
+  }
+  if(y>231){
+    footer(pdf,page);pdf.addPage();page=pdf.getNumberOfPages();heading();y=62;
+  }
+  y+=4;y=section(pdf,"09  Source checks and limitations",y);
+  y=wrapped(pdf,
+    "These are optional preliminary evidence prompts, not a complete statutory checklist. Confirm the applicable current NUPRC requirements with qualified staff:",
+    19,y,171,8.2,4.7);
+  y+=3;
+  y=wrapped(pdf,
+    "NUPRC current gazetted regulations: www.nuprc.gov.ng/laws/regulations/gazetted",
+    19,y,171,7.8,4.5);
+  y=wrapped(pdf,
+    "NUPRC current HSEC guidance: www.nuprc.gov.ng/laws/guidelines/hsec",
+    19,y,171,7.8,4.5);
+  y=wrapped(pdf,
+    "No surveyed distances to facilities, no validated current receptors, no operator asset inventory, no evidence of a regulatory approval or adverse environmental impact.",
+    19,y+3,171,8,4.6);
+  footer(pdf,page);
+}
 const COLORS={
   10:[65,123,91],20:[151,165,97],30:[198,192,124],40:[230,188,111],
   50:[217,128,104],60:[192,166,130],70:[228,235,230],80:[93,156,192],
@@ -260,7 +306,7 @@ async function nativeSiteMap(result,worldcoverImages){
   ctx.fillText("Mapped 2021 land cover  |  Source: ESA WorldCover v200  |  Pixel-centre study buffer",25,H-12);
   return canvas.toDataURL("image/png");
 }
-export async function exportReportPdf({result,worldcoverImages,download=true}){
+export async function exportReportPdf({result,worldcoverImages,petroleumScope=null,download=true}){
   if(!result)throw new Error("Complete the screening before requesting a report");
   const mapData=await nativeSiteMap(result,worldcoverImages);
   if(mapData.length<5000)throw new Error("Raster report map is unexpectedly empty");
@@ -268,6 +314,7 @@ export async function exportReportPdf({result,worldcoverImages,download=true}){
   drawCover(pdf,result,mapData);
   drawDetails(pdf,result);
   drawReconnaissance(pdf,result);
+  drawPetroleumScope(pdf,petroleumScope);
   const region=(result.coverage_region||"").includes("nine-state")?
     (result.site_state||"Unresolved_State").replace(/[^a-z0-9_-]/gi,"_"):
     /Rivers/i.test(result.coverage_region||"")?"Bayelsa_Rivers":"Bayelsa";
