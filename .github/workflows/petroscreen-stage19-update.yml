@@ -14,6 +14,11 @@ on:
       - 'petroscreen-ng/validate_stage18_comparison.py'
   workflow_dispatch:
 
+# Only the newest UI candidate is allowed to republish the preview branch.
+concurrency:
+  group: petroscreen-stage19-preview
+  cancel-in-progress: true
+
 permissions:
   contents: write
   actions: read
@@ -134,7 +139,16 @@ jobs:
           assert pathlib.Path('CNAME').read_text().strip()=='bahagogabriel.com'
           print('SAFE_ONLY_PETROSCREEN_CHANGED_AND_31_RASTERS_IDENTICAL=PASS')
           PY
-          git push origin HEAD:refs/heads/preview/petroscreen-stage19-live
+          # Block any superseded build from overwriting a newer UI release.
+          git fetch origin refs/heads/research/petroscreen-ng-stage19-ui-accessibility
+          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA" || {
+            echo 'ABORT: research branch advanced after this run; refuse stale preview' >&2
+            exit 1
+          }
+          # Preview is disposable and always generated from current main. Lease
+          # prevents overwriting unexpected third-party modifications.
+          git fetch origin refs/heads/preview/petroscreen-stage19-live:refs/remotes/origin/preview/petroscreen-stage19-live || true
+          git push --force-with-lease origin HEAD:refs/heads/preview/petroscreen-stage19-live
       - name: Verify Pages/Jekyll compatibility before PR
         uses: actions/jekyll-build-pages@v1
         with:
