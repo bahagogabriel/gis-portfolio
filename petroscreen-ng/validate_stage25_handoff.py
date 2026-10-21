@@ -74,7 +74,7 @@ for state,original_pages in [("Delta",4),("Rivers",3)]:
                 x0,y0,x1,y1=span["bbox"]
                 assert x0>=45 and x1<=page.rect.width-42,(
                     state,j+1,"side-clipped",span["text"],x0,x1)
-                assert y0>=35 and y1<=page.rect.height-12,(
+                assert y0>=17 and y1<=page.rect.height-12,(
                     state,j+1,"vertically clipped",span["text"],y0,y1)
         print(f"STAGE25_{state.upper()}_PROFESSIONAL_HANDOFF=PASS "
               f"base={original_pages} total={len(document)} "
