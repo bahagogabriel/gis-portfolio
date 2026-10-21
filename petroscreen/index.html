@@ -4,15 +4,15 @@
 <meta name="theme-color" content="#0e242b">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-DW5gYO_e.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-_JKojH8F.css">
+  <script type="module" crossorigin src="./assets/index-CVbJGCMI.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BgX-D3i_.css">
 </head><body>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
 <span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.4</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.5</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -54,6 +54,18 @@
 <section class="source-note"><h3>Source coverage</h3><div class="legend"><span class="legend-dot"></span> Verified study boundary</div>
 <p id="region-coverage-text">ESA WorldCover (2021) and JRC Global Surface Water (1984–2024) are available only for data-verified pilot regions. Expansion to other states remains pending.</p>
 <p class="fine">No user account or application screening backend. Site computations occur in your browser; ordinary hosting access logs may record your IP address and requested files, but the app does not intentionally transmit your chosen coordinates. The map uses a locally served derived ESA land-cover overview.</p></section>
+
+<section class="package-verifier" aria-label="Independently verify downloaded case package">
+<h3>Verify a saved ZIP <small>local integrity audit</small></h3>
+<p class="fine">Select a PetroScreen case ZIP from your computer. The verifier reads the archive locally; no ZIP, coordinates or notes are uploaded. It checks ZIP structure, CRC32, embedded SHA-256 file hashes and package metadata. This does not authenticate who created the files or confirm fieldwork.</p>
+<label class="verifier-file-label" for="verify-zip-file">Select case package ZIP</label>
+<input id="verify-zip-file" type="file" accept=".zip,application/zip,application/x-zip-compressed" aria-describedby="verify-package-status">
+<button type="button" class="verifier-action" id="verify-package-btn" disabled>Verify package integrity ↗</button>
+<p id="verify-package-status" class="fine" role="status" aria-live="polite">Select a ZIP to check its contents.</p>
+<div id="verify-package-details" class="verification-details" hidden></div>
+<button type="button" id="download-verification-receipt" class="verifier-receipt" hidden>Download verification receipt · JSON</button>
+<p class="fine">Important: a rewritten ZIP with recalculated unsigned checksums can also pass. Reproducibility and actual field evidence require independent assessment.</p>
+</section>
 </aside>
 <section class="map-panel" aria-label="Interactive pilot-region screening map">
 <div id="map" aria-label="Map: click a site inside a verified pilot region to select it"></div>
@@ -139,6 +151,7 @@
 <p><strong>GIS and case continuity:</strong> GeoJSON includes a WGS84 screening point and an approximate circular study polygon, suitable for import into desktop GIS, but not a cadastral or surveyed boundary. Previously saved JSON cases can be reopened locally: the application verifies their state-specific source hashes, recalculates the screening and compares measured outputs before restoring optional field notes. This is reproducibility checking, not cryptographic proof of authorship, legal source authenticity or confirmation of field observations.</p>
 <p><strong>Evidence review (Stage 13):</strong> Source-labelled records separate 2021 ESA mapping, historical 1984–2024 JRC observations, user-declared petroleum scope and optional user-reported field statuses. The register includes timestamps and source-file hashes; outstanding-evidence flags depend on documentation and coverage only. These flags are neither risk ratings, safety decisions nor proof of an inspection. Imported case measurements are always rerun before any user notes are restored.</p>
 <p><strong>Records and exports:</strong> JSON screening cases contain the complete numeric baseline, source SHA-256 hashes, selected coordinates and optional user-entered field verification statuses. CSVs contain tidy numeric results or a separately identified field-verification checklist. Field observations are never inferred from satellite evidence. These records are downloaded in the current browser and are not stored in an application account. Review site coordinates, staff names and notes before sharing files.</p>
+<p><strong>Local package verification (Stage 15):</strong> the new verifier reads a previously downloaded Stage 14 ZIP entirely in browser memory (maximum 50 MiB) and independently checks ZIP directory consistency, each ZIP CRC32 and manifest SHA-256 file hash, required component files, WGS84 site/GIS metadata and source hash references. If the current nine-state manifest is available it compares references to that index but does not download or revalidate the original raster content. The optional verification receipt contains package digests and validation outcomes, without copying site coordinates or field notes. The unsigned ZIP and receipt do not prove authorship, evidence authenticity, chain of custody, regulatory compliance or environmental safety.</p>
 <p><strong>Professional case package (Stage 14):</strong> the single ZIP is created locally without a new server or account. It contains README.txt, ScreeningCase.json, ScreeningData.csv, FieldChecklist.csv, EvidenceRegister.csv, Site_Buffer.geojson, Preliminary_Screening.pdf and, for user-selected petroleum activities, PetroleumEvidencePlan.csv. MANIFEST.json records SHA-256 hashes for each other file, the selected source raster hashes and limitations. The ZIP is not signed and cannot prove an observation, a person's identity or uninterrupted chain of custody. The separate exports remain available.</p>
 <p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
 </body></html>
