@@ -3,6 +3,7 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
 import {renderSiteDetail} from "./site_detail.js";
+import {renderMapLegend,updateMapLegend} from "./landcover_legend.js";
 import {screeningNotes} from "./insights.js";
 import {parseCaseText,confirmRescreenedCase,caseGeoJSON} from "./case_continuity.js";
 import {buildPetroleumScope,normalizeFacilityContext,petroleumScopeCsv} from "./petroleum_scope.js";
@@ -20,6 +21,9 @@ import "./style.css";
 // MapLibre 6 uses an external ESM worker. Vite must bundle that worker explicitly.
 maplibregl.setWorkerUrl(workerUrl);
 const $=id=>document.getElementById(id);
+renderMapLegend($("map-legend-classes"),$("map-legend-status"),$("map-legend-native"));
+const setNativeLegend=state=>updateMapLegend(
+  $("map-legend-status"),$("map-legend-native"),state);
 const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   button:$("screen-btn"),feedback:$("form-feedback"),empty:$("empty-state"),
   results:$("results"),subtitle:$("result-subtitle"),pdf:$("download-pdf"),
@@ -109,6 +113,8 @@ function drawSite(circle=null) {
 /** A changed or rejected location must never leave an old report presented as current. */
 function invalidatePrevious(){
   lastResult=null;
+  setNativeLegend("overview");
+  $("map").dataset.detailReady="pending";
   updateComparisonButtons();
   const form=$("field-record");
   if(form){
@@ -393,6 +399,8 @@ function display(result){
   // Upgrade the visible background using the VERIFIED native 10m cells.
   // This layer does not participate in screening arithmetic or the PDF.
   const request=++detailRequestId;
+  setNativeLegend("overview");
+  $("map").dataset.detailReady="pending";
   Promise.resolve().then(()=>renderSiteDetail(layers.worldcoverImages,
     result.location_wgs84.longitude,result.location_wgs84.latitude,result.radius_km))
     .then(detail=>{
@@ -405,10 +413,12 @@ function display(result){
       map.addLayer({id:"native-site-detail",type:"raster",source:"native-site-detail",
         paint:{"raster-opacity":1,"raster-resampling":"nearest"}},"pilot-fill");
       $("map").dataset.detailReady="true";
+      setNativeLegend("native");
     })
     .catch(error=>{
       console.warn("Detailed site view unavailable; verified overview retained:",error.message);
       $("map").dataset.detailReady="fallback";
+      setNativeLegend("fallback");
     });
 }
 ui.form.addEventListener("submit",async e=>{
