@@ -447,3 +447,46 @@ fieldset.radius{margin:10px 0 12px}
 /* Keep even the expanded quick key under one third of a desktop map. */
 .map-legend[open]{max-height:min(330px,calc(100% - 126px))}
 @media(max-width:480px){.map-legend[open]{max-height:calc(100% - 106px)}}
+
+
+/* Stage 23: progressive, source-dated onboarding and report literacy.
+   The guide is always optional; never preselects a petroleum facility. */
+.quick-start{margin:13px 0;border:1px solid #c9dfcf;border-radius:10px;
+  background:#f1f8f2;color:#214b38}
+.quick-start>summary{cursor:pointer;min-height:44px;padding:11px 12px;
+  color:#1c573b;font-size:13px;line-height:1.5;font-weight:800}
+.quick-start>summary:hover{background:#e6f2e9;border-radius:9px}
+.quick-start[open]>summary{border-bottom:1px solid #c8dfcd}
+.quick-start-content{padding:11px 13px 14px}
+.quick-start-content>p{font-size:12px;line-height:1.6;margin:0 0 11px;color:#365b44}
+.quick-start-content ol{padding-left:22px;margin:8px 0 12px}
+.quick-start-content li{font-size:12px;line-height:1.56;margin:0 0 9px;color:#2e513d}
+.quick-start-content li strong{color:#18462f}
+.try-example{display:block;width:100%;padding:12px 9px;min-height:44px;
+  font-size:12px;font-weight:800;line-height:1.4;background:#20593f;
+  color:#fff;border:0;border-radius:8px}
+.try-example:hover{background:#2d6d4b}
+.quick-start-content .quick-start-note{font-size:11.5px;line-height:1.5;
+  margin:9px 0 0;color:#3f5e48}
+#example-status{border-left:3px solid #4b8563;background:#e6f2e8;
+  padding:8px;margin-top:10px;overflow-wrap:anywhere}
+.findings-orientation{margin:16px 0 12px;padding:12px;
+  background:#edf6ef;border:1px solid #c6dec9;border-radius:9px}
+.findings-orientation strong{font-size:13px;line-height:1.5;color:#174d35}
+.findings-orientation p{font-size:12px;line-height:1.58;color:#3a5c47;margin:6px 0 0}
+.reading-guide{margin:10px 0 14px;border-radius:8px;border:1px solid #c6decf;
+  background:#f7faf8}
+.reading-guide>summary{cursor:pointer;padding:10px 12px;min-height:44px;
+  font-size:12.5px;font-weight:800;color:#215339;line-height:1.5}
+.reading-guide>summary:hover{background:#e8f5ec;border-radius:8px}
+.reading-guide[open]>summary{border-bottom:1px solid #c6decf}
+.reading-guide dl{margin:0;padding:10px 13px}
+.reading-guide dt{margin-top:10px;font-size:12px;line-height:1.5;
+  font-weight:800;color:#214e36}
+.reading-guide dt:first-child{margin-top:0}
+.reading-guide dd{margin:3px 0 0;font-size:11.8px;line-height:1.55;color:#415e4b}
+@media(max-width:480px){
+  .quick-start{margin:10px 0}
+  .quick-start-content{padding:10px 11px}
+  .reading-guide dd{font-size:11.8px}
+}
