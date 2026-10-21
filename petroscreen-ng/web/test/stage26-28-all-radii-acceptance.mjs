@@ -32,8 +32,9 @@ try{
  assert.equal(manifest.state_sources.length,9);
  const expectedFiles=manifest.state_sources.reduce((n,x)=>n+x.source_files.length,0);
  assert.equal(expectedFiles,31,"All original 31 state-owned TIFFs must be indexed");
- const page=await browser.newPage({viewport:{width:1440,height:900},
+ const context=await browser.newContext({viewport:{width:1440,height:900},
   acceptDownloads:true});
+ const page=await context.newPage();
  const errors=[],tiffs=[];
  page.on("pageerror",e=>errors.push(e.message));
  page.on("request",r=>{if(/\.tif(?:\?|$)/i.test(r.url()))tiffs.push(r.url());});
