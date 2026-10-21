@@ -6,10 +6,16 @@ export const WORLD_COVER_DISPLAY_COLORS=Object.freeze({10:[48,110,75],20:[154,16
   40:[224,190,103],50:[214,120,86],60:[202,167,128],
   70:[236,240,239],80:[103,164,197],90:[126,176,152],
   95:[39,142,111],100:[174,169,151]});
-export async function renderSiteDetail(images,longitude,latitude,radiusKm){
+export const DETAIL_DISPLAY_SIZES=Object.freeze([512,1024]);
+export function displayPixelBudget(size){
+  if(!DETAIL_DISPLAY_SIZES.includes(size))throw new Error("Unsupported visual display size");
+  return {width:size,height:size,rgbaBytes:size*size*4};
+}
+export async function renderSiteDetail(images,longitude,latitude,radiusKm,{displaySize=1024}={}){
   if(!images?.length || ![longitude,latitude,radiusKm].every(Number.isFinite))
     throw new Error("Expected verified geographic rasters and valid site");
-  const W=1024,H=1024,metres=radiusKm*1000*1.6;
+  const {width:W,height:H,rgbaBytes}=displayPixelBudget(displaySize);
+  const metres=radiusKm*1000*1.6;
   const lat=latitude*Math.PI/180;
   const mEast=111412.84*Math.cos(lat)-93.5*Math.cos(3*lat);
   const mNorth=111132.92-559.82*Math.cos(2*lat);
@@ -56,5 +62,5 @@ export async function renderSiteDetail(images,longitude,latitude,radiusKm){
   ctx.putImageData(view,0,0);
   return {url:canvas.toDataURL("image/png"),
     coordinates:[[west,north],[east,north],[east,south],[west,south]],
-    renderedPixels:visiblePixels};
+    renderedPixels:visiblePixels,displaySizePx:W,rgbaBytes};
 }
