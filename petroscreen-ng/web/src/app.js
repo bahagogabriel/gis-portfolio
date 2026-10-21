@@ -3,6 +3,7 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import {fromArrayBuffer} from "geotiff";
 import {exportReportPdf} from "./report.js";
 import {appendDeskReviewHandoff} from "./handoff_report.js";
+import {browserReadinessReport,readinessText} from "./browser_readiness.js";
 import {renderSiteDetail} from "./site_detail.js";
 import {renderMapLegend,updateMapLegend} from "./landcover_legend.js";
 import {screeningNotes} from "./insights.js";
@@ -279,6 +280,46 @@ async function loadData(){
   }
 }
 ui.retry.addEventListener("click",()=>loadData());
+/** Run strictly local capability checks with intentionally non-identifying data.
+ * A ready MANIFEST is not evidence that all TIFF files have been downloaded.
+ */
+let readinessSnapshot=null;
+function currentReadiness(){
+  let canvas2D=false;
+  try{canvas2D=!!document.createElement("canvas").getContext("2d");}catch{}
+  return browserReadinessReport({
+    secure_context:window.isSecureContext,
+    webcrypto_sha256:!!window.crypto?.subtle?.digest,
+    canvas_2d:canvas2D,
+    interactive_map_initialized:mapReady,
+    browser_download_supported:!!window.Blob && !!window.URL?.createObjectURL
+  },loadState,layers?.manifest,regionalCache.keys().next().value||null);
+}
+$("check-browser-readiness").addEventListener("click",()=>{
+  try{
+    readinessSnapshot=currentReadiness();
+    $("readiness-result").textContent=
+      (readinessSnapshot.blockers.length?
+        "Check identified "+readinessSnapshot.blockers.length+" browser/data issue(s). ":
+        "Limited browser capability checks passed. ")+
+      "Indexed states: "+readinessSnapshot.index.pilot_states_listed+
+      " · indexed TIFFs: "+readinessSnapshot.index.source_tiff_files_listed+
+      " · currently SHA-256-verified state: "+
+      (readinessSnapshot.index.currently_sha256_verified_state||"none")+". "+
+      readinessSnapshot.blockers.join(" ");
+    $("download-readiness-report").disabled=false;
+  }catch(error){
+    readinessSnapshot=null;
+    $("download-readiness-report").disabled=true;
+    $("readiness-result").textContent="Browser check unavailable: "+error.message;
+  }
+});
+$("download-readiness-report").addEventListener("click",()=>{
+  if(!readinessSnapshot)return;
+  downloadText("PetroScreenNG_v3_BrowserReadiness.txt",
+    readinessText(readinessSnapshot),"text/plain;charset=utf-8");
+});
+
 async function getStateData(stateName){
   const manifest=layers?.manifest;
   const entry=manifest?.state_sources?.find(s=>s.state===stateName);
