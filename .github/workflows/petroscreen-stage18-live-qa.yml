@@ -1,0 +1,93 @@
+name: Verify live PetroScreen v1.8 batch saved-case comparison and PDF on GitHub Pages
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage18-batch-comparison-pdf']
+    paths: ['.github/workflows/petroscreen-stage18-live-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-release-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Confirm public HTTPS frontend, facility plans and verified data
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,hashlib,json,time
+          root="https://bahagogabriel.com/petroscreen/"
+          def get(path,timeout=40):
+              req=urllib.request.Request(root+path,headers={
+                "User-Agent":"PetroScreenNG-v1.8-Official-Release-QA"
+              })
+              with urllib.request.urlopen(req,timeout=timeout) as response:
+                  assert response.status==200,response.status
+                  return response.read()
+          for trial in range(40):
+              try:
+                  html=get("").decode("utf-8")
+                  if all(token in html for token in (
+                      "VERSION 1.8",'id="facility-type"',
+                      'id="project-stage"','id="project-reference"',
+                      'id="petroleum-scope"','id="download-scope-csv"',
+                      'id="review-summary"','id="review-flags"',
+                      'id="download-evidence-csv"',
+                      'id="download-case-bundle"',
+                      'id="verify-zip-file"','id="verify-package-btn"',
+                      'id="download-verification-receipt"',
+                      'id="add-candidate"','id="open-comparison"',
+                      'id="comparison-dialog"','id="download-comparison-csv"',
+                      'id="open-saved-comparison"','id="comparison-case-file"',
+                      'id="comparison-import-status"',
+                      'id="download-comparison-pdf"',
+                      'multiple accept=".json,application/json"')):
+                      break
+              except Exception as exc:
+                  print("Pages propagation:",type(exc).__name__)
+              if trial==39:raise RuntimeError("Stage 18 public interface not found")
+              time.sleep(8)
+          anchor='src="./assets/'
+          assert anchor in html
+          script_path="assets/"+html.split(anchor,1)[1].split('"',1)[0]
+          assert script_path.endswith(".js")
+          javascript=get(script_path).decode("utf-8")
+          for token in ("Crossing and alignment survey","Flare operating records",
+                        "PetroleumEvidencePlan.csv","UNVERIFIED_DESKTOP_SCOPING_PROMPTS",
+                        "Not an environmental risk rank","PETROLEUM | EVIDENCE SCOPING",
+                        "PetroScreenNG/EvidenceRegister/1.0","EvidenceRegister.csv",
+                        "CURRENT_FIELD_AND_REGULATORY_REVIEW_NOT_ESTABLISHED",
+                        "PetroScreenNG/CaseBundle/1.0","CasePackage.zip",
+                        "MANIFEST.json","SHA-256 detects changed files",
+                        "PetroScreenNG/LocalVerificationReceipt/1.0",
+                        "ZIP entry CRC mismatch","matches_current_manifest",
+                        "authenticated_author_or_fieldwork",
+                        "PetroScreenNG_SiteComparison_",
+                        "Not mapped in 2021 source",
+                        "Source raster reference",
+                        "Comparison is limited to four screened sites",
+                        "Descriptive mapped baseline only",
+                        "current verified state boundary",
+                        "Saved case NOT added",
+                        "Re-screened",
+                        "Saved screening radius differs from the comparison",
+                        "Batch accepted: all ",
+                        "No candidates from this batch were added",
+                        "PetroScreenNG_SiteComparison_",
+                        "EVIDENCE-ONLY SITE COMPARISON"):
+              assert token in javascript,("Required published module not present",token)
+          manifest=json.loads(get("data/manifest.json"))
+          assert len(manifest["states"])==len(manifest["state_sources"])==9
+          assert sum(len(s["source_files"]) for s in manifest["state_sources"])==31
+          delta=next(s for s in manifest["state_sources"] if s["state"]=="Delta")
+          tif=next(s for s in delta["source_files"] if s["kind"]=="worldcover")
+          assert hashlib.sha256(get("data/"+tif["file"],120)).hexdigest()==tif["sha256"]
+          print("STAGE18_PUBLIC_SITE_ACCEPTANCE=PASS")
+          print("PUBLIC_SITE="+root)
+          print("FACILITY_CONTEXT_TYPES=6 VERIFIED_STATES=9 BATCH_SAVED_CASES_AND_COMPARISON_PDF=ACTIVE")
+          print("ASSET_INVENTORY_CLAIMS=NONE RISK_SCORING=NONE")
+          print("DELTA_SOURCE_GEOTIFF_SHA256=PASS")
+          PY
