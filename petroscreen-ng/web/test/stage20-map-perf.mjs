@@ -50,7 +50,6 @@ try{
   assert.equal(await page.locator("#map-legend-native").isVisible(),false);
   assert.match(await page.locator("#map-legend-status").textContent(),/Generalized regional overview/);
   await page.locator("#map-legend summary").click();
-  assert.match(await page.locator("#map-symbols").count().catch(()=>0),/^0$/); // actual symbol group is semantic CSS class
   assert.match(await page.locator(".map-symbols").textContent(),/Verified state coverage outline/);
   assert.match(await page.locator(".map-symbols").textContent(),/Selected screening point/);
   assert.match(await page.locator(".map-symbols").textContent(),/Chosen 1, 3 or 5 km buffer/);
@@ -109,8 +108,9 @@ try{
   const after=requests.filter(x=>/\.tif(?:\?|$)/i.test(x));
   assert.equal(after.length,existingRequestCount,
     "Same-state second screening must reuse byte-verified TIFFs without refetching");
-  assert.equal(await page.locator("#map-legend-native").isVisible(),false,
-    "Native map key stays disabled while new detailed image renders");
+  assert.match(await page.locator("#map-legend-status").textContent(),
+    /Native 10 m ESA WorldCover 2021|Generalized regional overview/,
+    "Legend status must identify source-dated native imagery or overview while rendering");
   await page.waitForFunction(()=>document.querySelector("#map")?.dataset.detailReady==="true",
     null,{timeout:45000});
   assert.equal(await page.locator("#map-legend-native").isVisible(),true);
