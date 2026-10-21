@@ -303,6 +303,10 @@ try{
   assert.match(await clean.locator("#comparison-intro").textContent(),/3 screened sites/);
   assert.equal(await clean.locator("#field-notes").inputValue(),"");
   assert.equal(await clean.locator("#field-observer").inputValue(),"");
+  // Free one candidate slot before testing a TWO-file atomic rejection.
+  // With three existing candidates the correct capacity gate fires first.
+  await clean.getByRole("button",{name:"Remove C (Bayelsa)"}).click();
+  assert.match(await clean.locator("#comparison-intro").textContent(),/2 screened sites/);
   const forgedRivers=JSON.parse(await readFile(
     "petroscreen-ng/artifacts_nine_state/Rivers_case.json","utf8"));
   forgedRivers.measurements.land_cover_2021.classes[0].area_km2_approx+=1;
@@ -318,7 +322,7 @@ try{
   },null,{timeout:120000});
   assert.match(await clean.locator("#comparison-import-status").textContent(),
     /No candidates from this batch were added/);
-  assert.match(await clean.locator("#comparison-intro").textContent(),/3 screened sites/);
+  assert.match(await clean.locator("#comparison-intro").textContent(),/2 screened sites/);
   assert.doesNotMatch(await clean.locator("#comparison-table-holder").textContent(),/Imo/);
   assert.equal(await clean.locator("#results").isVisible(),false);
   await clean.close();
