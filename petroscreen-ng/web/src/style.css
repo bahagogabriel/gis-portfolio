@@ -405,3 +405,41 @@ fieldset.radius{margin:10px 0 12px}
   .visual-detail-setting>label{font-size:12px}
   .visual-detail-setting .legend-explainer{font-size:11px}
 }
+
+
+/* Stage 22: concise map explanation by default; deeper controls remain reachable.
+ * Never substitute generalized overview colors for the mapped ESA source palette. */
+.map-legend{width:min(276px,calc(100% - 74px));background:#f8fcf9f2}
+.map-legend-content{padding:6px 11px 10px}
+.map-legend summary{min-height:44px}
+.map-legend .map-symbols{margin:7px 0 9px}
+.map-legend .map-symbols li{padding:2px 0;font-size:11px;line-height:1.35}
+.map-legend #map-legend-status{font-size:11px;margin:5px 0 9px;padding:7px 9px}
+.map-fit-pilot{display:block;width:100%;padding:9px 8px;min-height:42px;
+  border:1px solid #749c82;border-radius:7px;background:#e5f1e8;color:#1c543a;
+  font-size:11.5px;font-weight:800;text-align:center}
+.map-fit-pilot:disabled{opacity:.55;cursor:not-allowed}
+.map-fit-pilot:not(:disabled):hover{background:#d4eadb}
+.map-legend .legend-more{margin:0;border-top:1px solid #d1e2d5}
+.map-legend .legend-more>summary{padding:8px 3px;min-height:38px;
+  border-radius:0;background:transparent;font-size:11.5px;line-height:1.4;
+  font-weight:750;list-style-position:inside}
+.map-legend .legend-more>summary:hover{background:#e5f2e9}
+.map-legend .legend-more>summary small{font-size:10px;color:#3e6650;font-weight:500}
+.map-legend .legend-more[open]>summary{border-bottom:1px solid #d4e5d8}
+.map-legend .legend-more-content{padding:8px 3px 11px}
+.map-legend .legend-more-content .legend-explainer{font-size:11px;line-height:1.48}
+.map-legend .visual-detail-setting{border:0;margin:0}
+.map-legend #map-color-unavailable[hidden]{display:none!important}
+#map-guide[data-state="warning"]{color:#734312;background:#fff1d5;
+  border:1px solid #e5bd67;font-weight:700}
+#map-guide[data-state="warning"] .pulse-dot{background:#b87421}
+@media(max-width:820px){
+  .map-legend{width:min(252px,calc(100% - 76px))}
+  .map-legend #map-legend-status{font-size:11px}
+}
+@media(max-width:480px){
+  .map-legend{width:min(244px,calc(100% - 71px))}
+  .map-legend .legend-more>summary{min-height:39px}
+  .map-legend .map-symbols li{font-size:10.5px}
+}
