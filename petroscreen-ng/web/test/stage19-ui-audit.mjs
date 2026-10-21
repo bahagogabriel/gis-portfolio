@@ -58,7 +58,8 @@ try{
   browser=await chromium.launch({headless:true,args:[
     "--enable-webgl","--use-gl=angle","--use-angle=swiftshader","--disable-dev-shm-usage"]});
   await mkdir("petroscreen-ng/artifacts_stage19",{recursive:true});
-  const desktop=await browser.newPage({viewport:{width:1440,height:900}});
+  const desktopContext=await browser.newContext({viewport:{width:1440,height:900}});
+  const desktop=await desktopContext.newPage();
   await ready(desktop);
   assert.equal(await desktop.locator("#facility-options").getAttribute("open"),null);
   assert.equal(await desktop.locator("#secondary-tools").getAttribute("open"),null);
@@ -76,7 +77,8 @@ try{
   assert.equal(await desktop.locator("#verify-package-btn").isVisible(),true);
   await desktop.locator("#secondary-tools summary").click();
   for(const width of [1024,768,390,375]){
-    const page=await browser.newPage({viewport:{width,height:850}});
+    const context=await browser.newContext({viewport:{width,height:850}});
+    const page=await context.newPage();
     await ready(page);
     assert.equal(await page.locator("#secondary-tools").getAttribute("open"),null);
     assert.equal(await page.locator("#facility-options").getAttribute("open"),null);
@@ -119,8 +121,9 @@ try{
       await page.keyboard.press("Escape");
       assert.equal(await page.locator("#comparison-dialog").isVisible(),false);
     }
-    await page.close();
+    await context.close();
   }
+  await desktopContext.close();
   console.log("STAGE19_RESPONSIVE_KEYBOARD_A11Y_QA=PASS");
 }finally{
   await browser?.close();
