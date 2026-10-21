@@ -149,7 +149,7 @@ function setLoadState(state,message){
   ui.dataStatus.dataset.state=state;
   ui.dataStatus.textContent=message;
   ui.button.disabled=state!=="ready";
-  ui.button.textContent=state==="ready"?"Run environmental screening ↗":
+  ui.button.textContent=state==="ready"?"Run site screening ↗":
     state==="failed"?"Screening unavailable — data error":
     "Loading environmental data…";
   ui.retry.hidden=state!=="failed";
