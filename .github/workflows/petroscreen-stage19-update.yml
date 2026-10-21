@@ -9,6 +9,7 @@ on:
       - 'petroscreen-ng/web/src/**'
       - 'petroscreen-ng/web/test/**'
       - 'petroscreen-ng/web/index.html'
+      - 'petroscreen-ng/STAGE19_UX_AUDIT.md'
       - 'petroscreen-ng/validate_stage08_pdf.py'
       - 'petroscreen-ng/validate_stage14_bundle.py'
       - 'petroscreen-ng/validate_stage18_comparison.py'
@@ -38,6 +39,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Require screenshot-grounded human-review scope and limitations document
+        run: test -s petroscreen-ng/STAGE19_UX_AUDIT.md
       - name: Recover nine-state source rasters from the published GitHub tree
         run: |
           # Never depend on a short-lived CI artifact that expires after 7 days.
