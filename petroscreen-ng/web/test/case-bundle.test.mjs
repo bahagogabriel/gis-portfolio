@@ -83,7 +83,7 @@ test("petroleum bundle includes facility scope and four-page PDF; source hashes 
   assert.match(new TextDecoder().decode(parts.get("PetroleumEvidencePlan.csv")),/pipeline/);
   assert.equal(p.manifest.pdf_pages,4);
   assert.equal(p.manifest.source_file_sha256[0].sha256,"0".repeat(64));
-  assert.match(new TextDecoder().decode(parts.get("README.txt")),/cannot/);
+  assert.match(new TextDecoder().decode(parts.get("README.txt")),/not independently signed/);
 });
 test("mismatched site, missing real PDF and wrong page counts must abort",async()=>{
   const f=fixture(),pdf=f.pdf;
