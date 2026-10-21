@@ -12,6 +12,8 @@ import {makeCaseBundle,downloadBundle} from "./case_bundle.js";
 import {verifyCasePackage} from "./case_verifier.js";
 import {captureCandidate,addCandidate,comparisonTable,comparisonCsv} from "./candidate_comparison.js";
 import {recheckSavedComparison} from "./saved_case_comparison.js";
+import {recheckSavedComparisonBatch} from "./batch_saved_comparison.js";
+import {exportComparisonPdf} from "./comparison_report.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -501,7 +503,7 @@ function updateComparisonButtons(){
       x.radius_km===lastResult.radius_km);
   const different=lastResult&&candidates.length>0&&
     candidates[0].radius_km!==lastResult.radius_km;
-  add.disabled=!lastResult||candidates.length>=4||Boolean(already||different);
+  add.disabled=comparisonImportBusy||!lastResult||candidates.length>=4||Boolean(already||different);
   view.textContent="View comparison ("+candidates.length+")";
   view.disabled=candidates.length===0;
   add.textContent=already?"Already added to comparison":
@@ -513,6 +515,7 @@ function updateComparisonModal(){
   const target=$("comparison-table-holder"),actions=$("comparison-site-actions");
   target.replaceChildren();actions.replaceChildren();
   $("download-comparison-csv").disabled=candidates.length<2;
+  $("download-comparison-pdf").disabled=candidates.length<2;
   $("comparison-intro").textContent=candidates.length+
     " screened site"+(candidates.length===1?"":"s")+
     (candidates.length?" · "+candidates[0].radius_km+" km shared radius.":" · Screen and add your first site.");
@@ -544,7 +547,9 @@ function updateComparisonModal(){
     const button=document.createElement("button");button.type="button";
     button.textContent="Remove "+String.fromCharCode(65+i)+" ("+item.state+")";
     button.setAttribute("aria-label","Remove comparison candidate "+String.fromCharCode(65+i)+", "+item.state);
+    button.disabled=comparisonImportBusy;
     button.addEventListener("click",()=>{
+      if(comparisonImportBusy)return;
       candidates=candidates.filter((_,j)=>j!==i);
       updateComparisonButtons();updateComparisonModal();
     });
@@ -553,6 +558,7 @@ function updateComparisonModal(){
 }
 $("add-candidate").addEventListener("click",()=>{
   try{
+    if(comparisonImportBusy)throw Error("Wait for the saved-case batch to finish.");
     if(!lastResult||loadState!=="ready")throw Error("Complete screening before adding a site.");
     const item=captureCandidate(lastResult,layers.manifest);
     candidates=addCandidate(candidates,item);
@@ -573,47 +579,85 @@ $("open-saved-comparison").addEventListener("click",()=>{
 });
 $("close-comparison").addEventListener("click",()=>$("comparison-dialog").close());
 $("comparison-case-file").addEventListener("change",async()=>{
-  const input=$("comparison-case-file"),file=input.files?.[0];
-  input.value=""; // Allow same file to be retried after a failed import.
-  if(!file||comparisonImportBusy)return;
+  const input=$("comparison-case-file"),files=Array.from(input.files||[]);
+  input.value=""; // Allow the same batch to be retried after a failure.
+  if(!files.length||comparisonImportBusy)return;
   const status=$("comparison-import-status");
   try{
     if(loadState!=="ready"||!layers?.manifest?.state_sources||!layers?.stateGeometries)
       throw new Error("Wait for the verified nine-state data manifest and state boundaries.");
-    if(file.size>2*1024*1024)
-      throw new Error("Saved case exceeds the 2 MB import limit.");
+    if(files.length>4||files.length+candidates.length>4)
+      throw new Error("Choose at most four cases including existing comparison sites.");
+    if(files.some(f=>f.size>2*1024*1024||f.size===0))
+      throw new Error("Every saved JSON file must be nonempty and no larger than 2 MB.");
     comparisonImportBusy=true;
-    input.disabled=true;
-    ui.button.disabled=true;
+    input.disabled=true;ui.button.disabled=true;
+    updateComparisonButtons();updateComparisonModal();
     status.dataset.state="working";
-    status.textContent="Checking saved case source hashes and state boundary; re-screening current ESA/JRC pixels…";
-    const fresh=await recheckSavedComparison({
-      text:await file.text(),manifest:layers.manifest,candidates:[...candidates],
-      coverage,stateFeatures:layers.stateGeometries,
-      loadRasters:getStateData,screen:screenBrowser
-    });
-    // A user can remove or clear existing candidates while the asynchronous
-    // raster check runs: re-evaluate the current list before admitting it.
-    candidates=addCandidate(candidates,fresh);
-    updateComparisonButtons();
-    updateComparisonModal();
+    status.textContent="Prechecking "+files.length+" case file(s) before source-raster re-screening…";
+    const sourceList=await Promise.all(files.map(f=>f.text()));
+    const original=candidates;
+    const verified=files.length===1
+      ?[await recheckSavedComparison({
+        text:sourceList[0],manifest:layers.manifest,candidates:[...candidates],
+        coverage,stateFeatures:layers.stateGeometries,
+        loadRasters:getStateData,screen:screenBrowser
+      })]
+      :await recheckSavedComparisonBatch({
+        texts:sourceList,manifest:layers.manifest,candidates:[...candidates],
+        coverage,stateFeatures:layers.stateGeometries,
+        loadRasters:getStateData,screen:screenBrowser,
+        onProgress:({completed,total,state})=>{
+          status.textContent=completed===total
+            ? "Every saved case passed independent re-screening; preparing the comparison…"
+            : "Independently re-screening "+state+" case "+(completed+1)+
+              " of "+total+" with current SHA-256-verified source TIFFs…";
+        }
+      });
+    if(candidates!==original)
+      throw Error("Comparison changed during verification. Please retry; nothing was imported.");
+    const freshList=files.length===1?addCandidate(candidates,verified[0]):verified;
+    // COMMIT ONLY HERE: every file passed; never leave partial batch additions.
+    candidates=freshList;
+    updateComparisonButtons();updateComparisonModal();
     status.dataset.state="passed";
-    status.textContent="Re-screened "+fresh.state+" "+fresh.radius_km+
-      " km case against currently verified source rasters; original saved measurements match. "+
-      "Added as site "+String.fromCharCode(64+candidates.length)+
-      ". Field notes and declared facility context were NOT imported.";
+    if(files.length===1){
+      const fresh=verified[0];
+      status.textContent="Re-screened "+fresh.state+" "+fresh.radius_km+
+        " km case against currently verified source rasters; original saved measurements match. "+
+        "Added as site "+String.fromCharCode(64+candidates.length)+
+        ". Field notes and declared facility context were NOT imported.";
+    }else{
+      status.textContent="Batch accepted: all "+files.length+
+        " saved cases independently re-screened against current verified raster data. "+
+        "Every original measurement matched; "+files.length+
+        " sites added atomically. Field notes and facility context were NOT imported.";
+    }
   }catch(error){
     status.dataset.state="failed";
-    status.textContent="Saved case NOT added: "+error.message;
+    status.textContent="Saved case NOT added: "+error.message+
+      " Existing comparison unchanged.";
   }finally{
     comparisonImportBusy=false;
     input.disabled=false;
     ui.button.disabled=loadState!=="ready";
+    updateComparisonButtons();updateComparisonModal();
   }
 });
 $("clear-comparison").addEventListener("click",()=>{
+  if(comparisonImportBusy)return;
   candidates=[];updateComparisonButtons();updateComparisonModal();
   $("comparison-status").textContent="Comparison cleared. No candidate data are stored.";
+});
+$("download-comparison-pdf").addEventListener("click",()=>{
+  if(candidates.length<2)return;
+  const button=$("download-comparison-pdf");
+  button.disabled=true;
+  try{
+    exportComparisonPdf(candidates);
+  }catch(error){
+    $("comparison-intro").textContent="Comparison PDF not completed: "+error.message;
+  }finally{button.disabled=false;}
 });
 $("download-comparison-csv").addEventListener("click",()=>{
   if(candidates.length<2)return;
