@@ -5,6 +5,7 @@ on:
     branches: ['research/petroscreen-ng-stage23-first-run-guidance']
     paths:
       - '.github/workflows/petroscreen-stage23-update.yml'
+      - '.github/workflows/petroscreen-stage23-live-qa.yml'
       - '.github/workflows/petroscreen-stage22-live-qa.yml'
       - 'petroscreen-ng/stage10_reference_proximity.py'
       - 'petroscreen-ng/web/src/**'
