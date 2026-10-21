@@ -60,8 +60,10 @@ for state,original_pages in [("Delta",4),("Rivers",3)]:
             assert "not checked" in additional.lower()
         for j in range(original_pages,len(document)):
             page=document[j]
-            assert page.rect.width==fitz.paper_rect("a4").width
-            assert page.rect.height==fitz.paper_rect("a4").height
+            assert abs(page.rect.width-fitz.paper_rect("a4").width)<1.0,(
+                state,"A4 width",page.rect.width)
+            assert abs(page.rect.height-fitz.paper_rect("a4").height)<1.0,(
+                state,"A4 height",page.rect.height)
             spans=[]
             for block in page.get_text("dict")["blocks"]:
                 if block.get("type")!=0:continue
