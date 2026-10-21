@@ -4,7 +4,7 @@
  */
 import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
-import {mkdir,readFile} from "node:fs/promises";
+import {mkdir,readFile,writeFile} from "node:fs/promises";
 import {chromium} from "playwright";
 const ORIGIN="http://127.0.0.1:4175/";
 const server=spawn(process.execPath,["node_modules/vite/bin/vite.js","preview",
@@ -177,6 +177,47 @@ try{
 
     }
   }
+  // Stage 15 uses a dedicated independent ZIP reader: no screening is
+  // needed to inspect files, and the user's ZIP must never go to the server.
+  await page.locator("#verify-zip-file").setInputFiles(
+    "petroscreen-ng/artifacts_nine_state/Delta_case_bundle.zip");
+  await page.locator("#verify-package-btn").click();
+  await page.waitForFunction(()=>{
+    const t=document.querySelector("#verify-package-status")?.textContent||"";
+    return /verification FAILED|integrity checks PASSED/.test(t);
+  },null,{timeout:60000});
+  assert.match(await page.locator("#verify-package-status").textContent(),/integrity checks PASSED/);
+  assert.match(await page.locator("#verify-package-details").textContent(),
+    /match the currently published state manifest/);
+  const receiptPending=page.waitForEvent("download",{timeout:90000});
+  await page.locator("#download-verification-receipt").click();
+  const receiptDownload=await receiptPending;
+  assert.equal(receiptDownload.suggestedFilename(),"PetroScreenNG_VerificationReceipt.json");
+  const receiptPath="petroscreen-ng/artifacts_nine_state/Delta_verification_receipt.json";
+  await receiptDownload.saveAs(receiptPath);
+  const receipt=JSON.parse(await readFile(receiptPath,"utf8"));
+  assert.equal(receipt.schema,"PetroScreenNG/LocalVerificationReceipt/1.0");
+  assert.equal(receipt.source_reference_status,"matches_current_manifest");
+  assert.equal(receipt.authenticated_author_or_fieldwork,false);
+  assert.equal(receipt.scientific_validation,"not_performed");
+  assert.match(receipt.archive_sha256,/^[0-9a-f]{64}$/);
+  assert.equal(JSON.stringify(receipt).includes("Needs tidal check"),false);
+  // Corruption test checks that the browser rejects altered PDF bytes even
+  // when the original valid ZIP has already passed independent audit.
+  const corrupted=Buffer.from(await readFile(
+    "petroscreen-ng/artifacts_nine_state/Delta_case_bundle.zip"));
+  const pdfOffset=corrupted.indexOf(Buffer.from("%PDF-"));
+  assert.ok(pdfOffset>=0,"real generated PDF bytes must be inside ZIP");
+  corrupted[pdfOffset+50]^=1;
+  const tamperedPath="petroscreen-ng/artifacts_nine_state/Delta_tampered_test_only.zip";
+  await writeFile(tamperedPath,corrupted);
+  await page.locator("#verify-zip-file").setInputFiles(tamperedPath);
+  await page.locator("#verify-package-btn").click();
+  await page.waitForFunction(()=>/verification FAILED/.test(
+    document.querySelector("#verify-package-status")?.textContent||""),
+    null,{timeout:60000});
+  assert.match(await page.locator("#verify-package-status").textContent(),/CRC mismatch/);
+  assert.equal(await page.locator("#download-verification-receipt").isVisible(),false);
   // Reopen a saved Delta field record after switching to other regions.
   // The app must rerun current ESA/JRC calculations before restoring notes.
   await page.locator("#case-file").setInputFiles(
