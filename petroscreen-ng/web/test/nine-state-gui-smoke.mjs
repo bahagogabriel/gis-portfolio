@@ -174,9 +174,43 @@ try{
         entry.state+"_case_bundle.zip");
       assert.match(await page.locator("#form-feedback").textContent(),
         /Complete ZIP case package downloaded locally/);
+      // Stage16: only independently screened, same-radius sites enter comparison.
+      assert.equal(await page.locator("#add-candidate").isEnabled(),true);
+      await page.locator("#add-candidate").click();
+      assert.match(await page.locator("#comparison-status").textContent(),
+        new RegExp("Added "+entry.state+" site to comparison"));
+      assert.equal(await page.locator("#add-candidate").isEnabled(),false);
+      assert.match(await page.locator("#add-candidate").textContent(),/Already added/);
 
     }
   }
+  // Stage16 compares live, source-verified sites without field observations,
+  // project names, subjective scores, or mixed buffer radii.
+  assert.match(await page.locator("#open-comparison").textContent(),/\(2\)/);
+  await page.locator("#open-comparison").click();
+  assert.equal(await page.locator("#comparison-dialog").isVisible(),true);
+  assert.equal(await page.locator(".comparison-data-table thead th").count(),4);
+  const tableBody=await page.locator(".comparison-data-table tbody").textContent();
+  assert.match(tableBody,/ESA WorldCover 2021/);
+  assert.match(tableBody,/JRC GSW 1984-2024/);
+  assert.match(tableBody,/Source raster reference/);
+  assert.match(tableBody,/Delta/);
+  assert.match(tableBody,/Rivers/);
+  assert.doesNotMatch(tableBody,/Test Corridor|Field Team|Needs tidal check/);
+  const comparePending=page.waitForEvent("download",{timeout:90000});
+  await page.locator("#download-comparison-csv").click();
+  const compareDownload=await comparePending;
+  assert.equal(compareDownload.suggestedFilename(),"PetroScreenNG_SiteComparison_1km.csv");
+  const comparePath="petroscreen-ng/artifacts_nine_state/Stage16_TwoSites.csv";
+  await compareDownload.saveAs(comparePath);
+  const compareCsv=await readFile(comparePath,"utf8");
+  assert.match(compareCsv,/Candidate A/);
+  assert.match(compareCsv,/Delta/);
+  assert.match(compareCsv,/Rivers/);
+  assert.match(compareCsv,/Source raster reference/);
+  assert.doesNotMatch(compareCsv,/Needs tidal check|Field Team|Test Corridor/);
+  assert.doesNotMatch(compareCsv,/risk_score|overall suitability score/i);
+  await page.locator("#close-comparison").click();
   // Stage 15 uses a dedicated independent ZIP reader: no screening is
   // needed to inspect files, and the user's ZIP must never go to the server.
   await page.locator("#verify-zip-file").setInputFiles(
@@ -261,9 +295,19 @@ try{
       assert.match(await page.locator("#review-summary").textContent(),/field checks not checked/);
       assert.match(await page.locator("#result-subtitle").textContent(),
         new RegExp(radius+" km radius"));
+      assert.equal(await page.locator("#add-candidate").isEnabled(),false,
+        "Changed radius must be rejected while 1 km candidates remain");
+      assert.match(await page.locator("#add-candidate").textContent(),/Change radius/);
     }
   }
 
+  // Clear comparison without modifying the last screening, source rasters or notes.
+  await page.locator("#open-comparison").click();
+  assert.equal(await page.locator("#clear-comparison").isEnabled(),true);
+  await page.locator("#clear-comparison").click();
+  assert.equal(await page.locator("#download-comparison-csv").isEnabled(),false);
+  await page.locator("#close-comparison").click();
+  assert.match(await page.locator("#open-comparison").textContent(),/\(0\)/);
   // No raster should be requested without its version checksum query.
   const rasters=requestUrls.filter(x=>/\.tif(?:\?|$)/.test(x));
   assert.ok(rasters.length>=19,"Missing real per-state raster requests");
