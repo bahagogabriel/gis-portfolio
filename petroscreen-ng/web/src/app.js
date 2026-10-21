@@ -9,6 +9,7 @@ import {buildPetroleumScope,normalizeFacilityContext,petroleumScopeCsv} from "./
 import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
 import {buildEvidenceReview,evidenceReviewCsv} from "./evidence_review.js";
 import {makeCaseBundle,downloadBundle} from "./case_bundle.js";
+import {verifyCasePackage} from "./case_verifier.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -584,6 +585,68 @@ ui.pdf.addEventListener("click",async()=>{
     ui.pdf.disabled=false;
     ui.pdf.textContent="Download screening PDF ↓";
   }
+});
+// Stage 15: package verification is independent from screening and saved-case reopening.
+let pendingVerificationZip=null,verifiedReceipt=null;
+const verifyInput=$("verify-zip-file"),verifyButton=$("verify-package-btn");
+const verifyStatus=$("verify-package-status"),verifyDetails=$("verify-package-details");
+const receiptButton=$("download-verification-receipt");
+function resetVerification(){
+  verifiedReceipt=null;verifyDetails.hidden=true;verifyDetails.replaceChildren();
+  receiptButton.hidden=true;verifyButton.disabled=!pendingVerificationZip;
+}
+verifyInput.addEventListener("change",()=>{
+  pendingVerificationZip=verifyInput.files?.[0]||null;
+  resetVerification();
+  verifyStatus.textContent=pendingVerificationZip?
+    "Ready to check the selected ZIP locally.": "Select a case package ZIP.";
+});
+verifyButton.addEventListener("click",async()=>{
+  if(!pendingVerificationZip)return;
+  const chosen=pendingVerificationZip;
+  verifyButton.disabled=true;
+  verifyStatus.dataset.state="working";
+  verifyStatus.textContent="Checking ZIP structure, CRC32 and SHA-256 locally…";
+  resetVerification();
+  try{
+    if(chosen.size>50*1024*1024 || chosen.size<22)
+      throw new Error("Invalid ZIP size; maximum supported package is 50 MiB.");
+    const result=await verifyCasePackage(await chosen.arrayBuffer(),{
+      sourceManifest:layers?.manifest||null});
+    if(chosen!==pendingVerificationZip)return; // a different ZIP was selected
+    verifiedReceipt=result.receipt;
+    const status=result.summary.source_reference_status;
+    verifyStatus.dataset.state=status==="matches_current_manifest"?"passed":"caution";
+    verifyStatus.textContent="ZIP integrity checks PASSED: "+
+      result.summary.sha256_files+" enclosed files match their SHA-256 manifest.";
+    const rows=[
+      "Archive SHA-256: "+result.receipt.archive_sha256,
+      "ZIP entries: "+result.summary.entry_count+
+        " · Declared PDF pages: "+result.summary.pdf_pages_declared,
+      status==="matches_current_manifest"
+        ?"Recorded source SHA-256 references match the currently published state manifest (source rasters NOT rechecked)."
+        :status==="differs_from_current_manifest"
+        ?"CAUTION: Recorded source hashes differ from the current published state manifest. This archive may come from another release."
+        :"Source hashes were NOT compared to the currently published manifest.",
+      "Integrity only. This is NOT evidence of authorship, true site conditions, fieldwork, or compliance."
+    ];
+    verifyDetails.replaceChildren();
+    for(const line of rows){
+      const p=document.createElement("p");p.textContent=line;verifyDetails.append(p);
+    }
+    verifyDetails.hidden=false;receiptButton.hidden=false;
+  }catch(error){
+    if(chosen!==pendingVerificationZip)return;
+    verifyStatus.dataset.state="failed";
+    verifyStatus.textContent="ZIP verification FAILED: "+error.message;
+  }finally{
+    verifyButton.disabled=!pendingVerificationZip;
+  }
+});
+receiptButton.addEventListener("click",()=>{
+  if(!verifiedReceipt)return;
+  downloadText("PetroScreenNG_VerificationReceipt.json",
+    JSON.stringify(verifiedReceipt,null,2)+"\n","application/json;charset=utf-8");
 });
 $("methods-link").addEventListener("click",e=>{e.preventDefault();$("methods-dialog").showModal();});
 $("close-methods").addEventListener("click",()=>$("methods-dialog").close());
