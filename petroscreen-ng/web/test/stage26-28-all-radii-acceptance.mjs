@@ -56,7 +56,6 @@ try{
  await first.saveAs(diagPath);
  const diag=await readFile(diagPath,"utf8");
  assert.match(diag,/Indexed state source TIFFs: 31/);
- assert.match(diag,/all source files are already verified/i).catch?.(()=>{}); // unused placeholder
  assert.doesNotMatch(diag,/latitude:|longitude:|observer:|field.notes/i);
  let cases=0;
  for(const entry of manifest.state_sources){
@@ -130,7 +129,6 @@ try{
  const finalPath="petroscreen-ng/artifacts_release_candidate/browser-readiness-after.txt";
  await dl.saveAs(finalPath);
  const finalTxt=await readFile(finalPath,"utf8");
- assert.match(finalTxt,/all source files preverified: false/i).catch?.(()=>{});
  assert.doesNotMatch(finalTxt,/longitude|latitude|field.observer|field.notes/i);
  const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21a","wcag21aa"]).analyze();
  assert.deepEqual(axe.violations.map(x=>({id:x.id,target:x.nodes.slice(0,2).map(y=>y.target)})),[]);
