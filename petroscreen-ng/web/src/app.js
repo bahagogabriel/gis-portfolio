@@ -40,6 +40,15 @@ const map=new maplibregl.Map({container:"map",
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
 window.addEventListener("resize",()=>map.resize());
+$("jump-to-map").addEventListener("click",e=>{
+  e.preventDefault();
+  $("map").scrollIntoView({block:"center",behavior:"smooth"});
+  map.resize();
+});
+$("map-continue").addEventListener("click",()=>{
+  document.querySelector("fieldset.radius").scrollIntoView({block:"center",behavior:"smooth"});
+  ui.button.focus({preventScroll:true});
+});
 
 const emptyGeo={type:"FeatureCollection",features:[]};
 map.on("load",()=>{
@@ -85,6 +94,7 @@ map.on("click",e=>{
   site=[lon,lat];ui.lon.value=lon.toFixed(6);ui.lat.value=lat.toFixed(6);
   drawSite();
   $("map-tip-text").textContent="Site selected · Choose a radius and run environmental screening.";
+  $("map-continue").hidden=false;
   ui.feedback.textContent=loadState==="ready"?
     "Site selected. Choose a radius and run screening.":
     "Site selected. Screening will unlock once satellite data are ready.";
@@ -110,6 +120,7 @@ function invalidatePrevious(){
   }
   ui.results.hidden=true;
   $("view-findings").hidden=true;
+  $("map-continue").hidden=true;
   $("map-tip-text").textContent="Click inside the highlighted boundary to set a site, or use coordinates";
   ui.empty.hidden=false;
   ui.subtitle.textContent="Your site assessment appears here after analysis.";
@@ -297,6 +308,7 @@ function display(result){
     (result.site_state?" · "+result.site_state:"");
   $("area-value").textContent=fmt(result.buffer_area_km2_approx,3)+" km²";
   $("view-findings").hidden=false;
+  $("map-continue").hidden=true;
   $("view-findings").textContent="View "+(result.site_state||"site")+
     " screening findings · "+result.radius_km+" km ↓";
   $("map-tip-text").textContent=(result.site_state||"Selected site")+
