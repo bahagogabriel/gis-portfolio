@@ -9,6 +9,7 @@ import {parseCaseText,confirmRescreenedCase,caseGeoJSON} from "./case_continuity
 import {buildPetroleumScope,normalizeFacilityContext,petroleumScopeCsv} from "./petroleum_scope.js";
 import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
 import {buildEvidenceReview,evidenceReviewCsv} from "./evidence_review.js";
+import {buildEvidenceActions,evidenceActionsCsv} from "./evidence_actions.js";
 import {makeCaseBundle,downloadBundle} from "./case_bundle.js";
 import {verifyCasePackage} from "./case_verifier.js";
 import {captureCandidate,addCandidate,comparisonTable,comparisonCsv} from "./candidate_comparison.js";
@@ -598,11 +599,70 @@ function renderEvidenceReview(){
       item.textContent=code.replaceAll("_"," ").toLowerCase();
       root.append(item);
     }
+    renderEvidenceActions();
   }catch(error){
     $("review-summary").textContent="Evidence review unavailable: "+error.message;
     $("review-flags").replaceChildren();
+    $("action-summary").textContent="Evidence requests unavailable: "+error.message;
+    $("action-list").replaceChildren();
+    $("download-actions-csv").disabled=true;
   }
 }
+const actionCategoryLabels={
+  source_coverage:"Source coverage to review",
+  field_verification:"Field observations to verify",
+  petroleum_scoping_prompt:"Project evidence to request",
+  professional_review:"Qualified review to arrange"
+};
+/** Plain-language requests from the SAME current provenance-checked case.
+ * This renders suggestions only; not independent field verification.
+ */
+function renderEvidenceActions(){
+  if(!lastResult)return;
+  const plan=buildEvidenceActions(exportCase());
+  const count=plan.summary;
+  $("action-summary").textContent=
+    count.field_not_checked+" field checks not checked · "+
+    count.field_user_reported+" user-reported field statuses · "+
+    count.field_follow_up+" user-requested follow-ups · "+
+    count.scope_tasks_not_reviewed+" unreviewed project prompts · "+
+    count.source_coverage_cautions+" source-coverage cautions. "+
+    "No field evidence is authenticated here.";
+  const root=$("action-list");root.replaceChildren();
+  for(const [category,label] of Object.entries(actionCategoryLabels)){
+    const selected=plan.actions.filter(a=>a.category===category);
+    if(!selected.length)continue;
+    const group=document.createElement("section");group.className="action-group";
+    const heading=document.createElement("h4");
+    heading.textContent=label+" ("+selected.length+")";
+    group.append(heading);
+    for(const entry of selected){
+      const item=document.createElement("div");item.className="action-item";
+      const title=document.createElement("strong");title.textContent=entry.title;
+      const state=document.createElement("span");state.className="action-review-status";
+      state.textContent=entry.review_status.replaceAll("_"," ");
+      const prompt=document.createElement("p");prompt.textContent=entry.evidence_to_request;
+      const basis=document.createElement("small");basis.textContent=
+        "Why listed: "+entry.mapped_or_declared_basis;
+      item.append(title,state,prompt,basis);group.append(item);
+    }
+    root.append(group);
+  }
+  $("download-actions-csv").disabled=false;
+}
+$("download-actions-csv").addEventListener("click",()=>{
+  try{
+    const casefile=exportCase();
+    const plan=buildEvidenceActions(casefile);
+    const slug=casefile.site.state.replace(/[^A-Za-z0-9_-]/g,"_");
+    downloadText("PetroScreenNG_"+slug+"_EvidenceToCollect.csv",
+      evidenceActionsCsv(plan),"text/csv;charset=utf-8");
+    ui.feedback.textContent="Evidence-to-collect CSV downloaded locally. "+
+      "Review site coordinates and user-entered field statuses before sharing.";
+  }catch(error){
+    ui.feedback.textContent="Evidence checklist download not completed: "+error.message;
+  }
+});
 /** Keep the candidate evidence in volatile browser memory, never in a server,
  * persistent store or saved field record. Comparing results is NOT re-scoring.
  */
