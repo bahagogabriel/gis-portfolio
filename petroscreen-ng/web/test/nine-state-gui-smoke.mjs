@@ -171,6 +171,17 @@ try{
       assert.equal(dl.suggestedFilename(),
         "PetroScreenNG_"+entry.state+"_Preliminary_Screening.pdf");
       await dl.saveAs("petroscreen-ng/artifacts_nine_state/"+entry.state+"_review.pdf");
+      // Stage 25: additive human-readable PDF starts with IDENTICAL mapped
+      // screening pages. Never modify the original PDF or ZIP file schema.
+      const handoffPending=page.waitForEvent("download",{timeout:120000});
+      await page.locator("#download-handoff-pdf").click();
+      const handoffDl=await handoffPending;
+      assert.equal(handoffDl.suggestedFilename(),
+        "PetroScreenNG_"+entry.state+"_Professional_DeskReview_Handoff.pdf");
+      await handoffDl.saveAs("petroscreen-ng/artifacts_nine_state/"+
+        entry.state+"_professional_handoff.pdf");
+      assert.match(await page.locator("#form-feedback").textContent(),
+        /Professional desk-review handoff PDF downloaded/);
       // Stage 14 end-to-end: ZIP contains the same real mapped PDF, JSON,
       // GIS context, CSV registers and unsigned integrity manifest.
       const packagePending=page.waitForEvent("download",{timeout:90000});
