@@ -5,8 +5,8 @@
 <meta name="color-scheme" content="light">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-5vtfXnjJ.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DKyhR4kI.css">
+  <script type="module" crossorigin src="./assets/index-OkdQjeVX.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DiBOWVr_.css">
 </head><body>
 <a class="skip-link" href="#screen-form">Skip to screening controls</a>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
@@ -14,7 +14,7 @@
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 2.5</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 3.0</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Explore mapped land cover and historical water around a site. Preliminary desk evidence—not a field survey or risk score.</p>
 <ol class="how-it-works" aria-label="Three steps to screen a site"><li>Choose a location</li><li>Select 1, 3 or 5 km</li><li>Run screening</li></ol></section>
 <form id="screen-form" aria-label="Select environmental screening location">
@@ -81,6 +81,14 @@
 <details class="secondary-tools" id="secondary-tools">
 <summary>More tools · ZIP verification &amp; data coverage</summary>
 <div class="secondary-tools-inner">
+<section class="readiness-tool" aria-label="Private browser readiness and technical support">
+<h3>Check browser readiness <small>local diagnostics, no personal data</small></h3>
+<p class="fine">Trouble loading data or downloading a report? Run an on-device browser check. It checks HTTPS/WebCrypto, mapping, report graphics and downloads. It does not inspect coordinates, observer names, notes or identity.</p>
+<button type="button" id="check-browser-readiness" class="readiness-action">Check this browser ↗</button>
+<p id="readiness-result" role="status" aria-live="polite" class="fine">No browser check run yet.</p>
+<button type="button" id="download-readiness-report" class="readiness-action" disabled>Download privacy-safe support report · TXT ↓</button>
+<p class="fine">“Data ready” means the nine-state index loaded. Full TIFFs are downloaded and SHA-256-verified only when you screen a site in a selected state. This check does not guarantee mobile speed, offline data availability, field accuracy or regulatory approval.</p>
+</section>
 <section class="source-note"><h3>Source coverage</h3><div class="legend"><span class="legend-dot"></span> Verified study boundary</div>
 <p id="region-coverage-text">ESA WorldCover (2021) and JRC Global Surface Water (1984–2024) are available only for data-verified pilot regions. Expansion to other states remains pending.</p>
 <p class="fine">No user account or application screening backend. Site computations occur in your browser; ordinary hosting access logs may record your IP address and requested files, but the app does not intentionally transmit your chosen coordinates. The map uses a locally served derived ESA land-cover overview.</p></section>
@@ -276,6 +284,7 @@
 <p><strong>Land cover:</strong> ESA WorldCover 2021 v200, 10 m nominal. Not a field-verified contemporary land-cover survey. Data © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. Dataset citation: Zanaga et al. (2022), <a href="https://doi.org/10.5281/zenodo.7254221" target="_blank" rel="noopener noreferrer">DOI:10.5281/zenodo.7254221</a>.</p>
 <p><strong>Water:</strong> JRC Global Surface Water v1.5 occurrence (1984–2024), 30 m nominal, available under the provider's Copernicus programme terms. Map attribution: <strong>Source: EC JRC/Google</strong>. Cite Pekel et al. (2016), <a href="https://doi.org/10.1038/nature20584" target="_blank" rel="noopener noreferrer">Nature DOI:10.1038/nature20584</a>. Observed water occurrence is not current water, flood probability or contamination; combined Landsat collections can have local positional offsets at or above 30 m. <a href="https://global-surface-water.appspot.com/download" target="_blank" rel="noopener noreferrer">Official source and release cautions</a>.</p>
 <p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigeria ADM1 state polygons (original source GRID3; CC BY 4.0). The currently published research preview supports the nine NDDC states: Abia, Akwa Ibom, Bayelsa, Cross River, Delta, Edo, Imo, Ondo and Rivers. Each selected site uses its state's validated satellite-data halo; supported area is approximate administrative context, not a surveyed legal boundary. Screening outside these states is unavailable.</p>
+<p><strong>Stage 26–28 consolidated v3.0 research-preview release:</strong> Adds optional privacy-minimized browser troubleshooting and a support report without collecting site coordinates, observer names, notes or a device identity. The nine-state original state TIFFs are indexed at first load and individually downloaded/SHA-256-verified on screening; having a data-ready manifest never proves that all TIFFs are already on the device. Expanded 9-state × 3-radius real-browser acceptance verifies each screening against its current source manifest and checks saved-case provenance, alongside original full scientific, PDF, ZIP and accessibility tests. v3.0 freezes the validated nine-state browser-based research-preview scope for a professional pilot—not a nationwide petroleum asset registry, an EIA, field validation or regulatory approval. Future actual-device and domain-user acceptance remain explicit external dependencies.</p>
 <p><strong>Stage 25 printable professional desk-review handoff:</strong> A separate self-contained PDF retains the original mapped screening pages and appends a printable source-dated handoff. It summarizes the verified WGS84 site, ESA 2021 and JRC 1984-2024 data coverage, user-reported/unverified field checks, existing scoping requests and SHA-256 source references. It omits observer names and free-text notes. Original PDF, original case ZIP, raster data, geodesic computations and report page counts remain unchanged. It is NOT an EIA, risk rank or authenticated regulatory record.</p>
 <p><strong>Stage 24 evidence-to-collect checklist:</strong> A source-dated, non-ranked fieldwork planning register is derived from the existing SHA-256-referenced screening case, current 2021 land-cover and 1984–2024 water source coverage, seven field-verification questions, and existing user-declared petroleum scoping prompts. The checklist identifies evidence to request or independently confirm, transparently repeats user-reported (unauthenticated) field statuses, and flags missing source coverage or study-boundary cautions. It includes a standing professional review prompt, but is not a regulatory checklist, risk score, required order of operations, validated asset inventory, verified field report, or assertion of legal compliance. No changes are made to the original source rasters, case schema, calculated environmental measurements or existing exports.</p>
 <p><strong>Stage 23 guided first-use and results literacy:</strong> Visitors can open a short task-based walkthrough and, without entering coordinates manually, select a manifest-supplied Delta QA demonstration point. The example is a test coordinate only—not a verified facility, petroleum incident, or recommended location—and never auto-runs a screening. Selecting an example is refused while an existing accepted screening is open, avoiding accidental loss of the case and user-entered notes. The findings now explain the meaning and limitations of radius, approximate buffer area, minimum source coverage, land-cover shares, historical water occurrence and nearest mapped pixel centres. These explanations add no environmental scores, maps, field evidence or new raster calculations.</p>
