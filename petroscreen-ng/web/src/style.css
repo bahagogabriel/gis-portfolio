@@ -443,3 +443,7 @@ fieldset.radius{margin:10px 0 12px}
   .map-legend .legend-more>summary{min-height:39px}
   .map-legend .map-symbols li{font-size:10.5px}
 }
+
+/* Keep even the expanded quick key under one third of a desktop map. */
+.map-legend[open]{max-height:min(330px,calc(100% - 126px))}
+@media(max-width:480px){.map-legend[open]{max-height:calc(100% - 106px)}}
