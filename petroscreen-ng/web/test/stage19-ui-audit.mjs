@@ -110,9 +110,8 @@ try{
       assert.equal(await page.locator("#download-data-json").isVisible(),true);
       assert.equal(await page.locator("#reopen-case").isVisible(),true);
       await page.locator("#export-options summary").click();
-      await page.locator("#open-comparison").click();
-      assert.equal(await page.locator("#comparison-dialog").isVisible(),false,
-        "Comparison only appears once a candidate is added");
+      assert.equal(await page.locator("#open-comparison").isEnabled(),false,
+        "Comparison opens only after a candidate has been added");
       await page.locator("#add-candidate").click();
       await page.locator("#open-comparison").click();
       assert.equal(await page.locator("#comparison-dialog").isVisible(),true);
