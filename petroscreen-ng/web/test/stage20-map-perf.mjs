@@ -49,7 +49,7 @@ try{
   assert.equal(await page.locator("#map-legend").getAttribute("open"),null);
   assert.equal(await page.locator("#map-legend-native").isVisible(),false);
   assert.match(await page.locator("#map-legend-status").textContent(),/Generalized regional overview/);
-  await page.locator("#map-legend summary").click();
+  await page.locator("#map-legend > summary").click();
   assert.match(await page.locator(".map-symbols").textContent(),/Verified nine-state pilot boundary/);
   assert.match(await page.locator(".map-symbols").textContent(),/Selected screening point/);
   assert.match(await page.locator(".map-symbols").textContent(),/Chosen 1, 3 or 5 km buffer/);
@@ -75,6 +75,9 @@ try{
     null,{timeout:45000});
   assert.equal(await page.locator("#map").getAttribute("data-detail-ready"),"true",
     "Real native ESA display must be available for legend acceptance");
+  assert.equal(await page.locator("#map-legend-native").isVisible(),false,
+    "Detailed colors remain collapsed until explicitly requested");
+  await page.locator("#map-color-options > summary").click();
   assert.equal(await page.locator("#map-legend-native").isVisible(),true);
   assert.match(await page.locator("#map-legend-status").textContent(),/Detailed ESA WorldCover 2021/);
   const chips=await page.locator(".legend-class-swatch").evaluateAll(els=>
