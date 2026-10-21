@@ -8,6 +8,7 @@ import {parseCaseText,confirmRescreenedCase,caseGeoJSON} from "./case_continuity
 import {buildPetroleumScope,normalizeFacilityContext,petroleumScopeCsv} from "./petroleum_scope.js";
 import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
 import {buildEvidenceReview,evidenceReviewCsv} from "./evidence_review.js";
+import {makeCaseBundle,downloadBundle} from "./case_bundle.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -545,6 +546,28 @@ $("case-file").addEventListener("change",async()=>{
     pendingImportedCase=null;
     $("case-import-status").textContent="Saved case not loaded: "+error.message;
     ui.feedback.textContent="Saved case import rejected: "+error.message;
+  }
+});
+$("download-case-bundle").addEventListener("click",async()=>{
+  if(!lastResult)return;
+  const control=$("download-case-bundle");
+  control.disabled=true;control.textContent="Preparing mapped PDF and case package…";
+  try{
+    // Use the identical accepted PDF renderer as the standalone download.
+    // Only the output destination differs: bytes instead of saving a second PDF.
+    const item=exportCase();
+    const report=await exportReportPdf({result:lastResult,
+      worldcoverImages:layers.worldcoverImages,
+      petroleumScope:buildPetroleumScope(lastResult,facilityContext()),
+      download:false});
+    const bundle=await makeCaseBundle({casefile:item,result:lastResult,
+      pdfBytes:report.output("arraybuffer"),pdfPageCount:report.getNumberOfPages()});
+    downloadBundle(bundle);
+    ui.feedback.textContent="Complete ZIP case package downloaded locally. Review its coordinates and notes before sharing.";
+  }catch(error){
+    ui.feedback.textContent="Case package not completed: "+error.message;
+  }finally{
+    control.disabled=false;control.textContent="Download complete case package · ZIP ↓";
   }
 });
 ui.pdf.addEventListener("click",async()=>{
