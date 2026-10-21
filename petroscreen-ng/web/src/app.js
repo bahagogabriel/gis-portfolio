@@ -604,10 +604,10 @@ verifyInput.addEventListener("change",()=>{
 verifyButton.addEventListener("click",async()=>{
   if(!pendingVerificationZip)return;
   const chosen=pendingVerificationZip;
+  resetVerification();
   verifyButton.disabled=true;
   verifyStatus.dataset.state="working";
   verifyStatus.textContent="Checking ZIP structure, CRC32 and SHA-256 locally…";
-  resetVerification();
   try{
     if(chosen.size>50*1024*1024 || chosen.size<22)
       throw new Error("Invalid ZIP size; maximum supported package is 50 MiB.");
