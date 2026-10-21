@@ -72,7 +72,8 @@ test("coverage and study-boundary flags produce requests, never invented risks",
  assert.deepEqual(p.actions.filter(x=>x.category==="source_coverage").map(x=>x.id),
   ["source_esa_coverage","source_jrc_coverage","source_boundary"]);
  assert.match(p.actions[0].mapped_or_declared_basis,/71%/);
- assert.ok(!JSON.stringify(p).includes("risk_score"));
+ assert.equal(p.summary.no_action_priority_or_risk_score,true);
+ assert.ok(p.actions.every(x=>!("risk_score" in x)&&!("priority" in x)&&!("site_rank" in x)));
 });
 test("project context remains an unreviewed request; no asset inventory inference",()=>{
  const c=fixture();
