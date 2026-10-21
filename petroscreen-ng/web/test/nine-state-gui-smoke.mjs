@@ -34,6 +34,11 @@ try{
   await page.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
     null,{timeout:90000});
   assert.match(await page.locator("#data-status").textContent(),/nine verified state datasets/i);
+  // Stage19 progressive disclosure: old actions remain fully functional when
+  // user opens the relevant accessible details groups.
+  for(const id of ["facility-options","export-options","secondary-tools"])
+    await page.locator("#"+id).evaluate(el=>{el.open=true;});
+  assert.equal(await page.locator("#view-findings").isVisible(),false);
   const reports=[];
   for(const entry of manifest.state_sources){
     const [lon,lat]=entry.qa_example_lon_lat;
@@ -51,6 +56,9 @@ try{
     assert.match(notice,/Screening completed/,entry.state+": "+notice);
     assert.match(await page.locator("#result-subtitle").textContent(),new RegExp(entry.state));
     assert.equal(await page.locator("#results").isVisible(),true);
+    assert.equal(await page.locator("#view-findings").isVisible(),true);
+    assert.match(await page.locator("#view-findings").textContent(),new RegExp(entry.state));
+    assert.match(await page.locator("#map-tip-text").textContent(),/ESA land cover is from 2021/);
     await page.waitForFunction(()=>["true","fallback"].includes(
       document.querySelector("#map")?.dataset.detailReady),null,{timeout:40000});
     assert.equal(await page.locator("#map").getAttribute("data-detail-ready"),"true");
