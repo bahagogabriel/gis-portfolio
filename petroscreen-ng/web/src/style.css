@@ -531,3 +531,19 @@ fieldset.radius{margin:10px 0 12px}
 .handoff-download .fine{color:#3a5e46!important;font-size:12px!important;
  line-height:1.57!important;margin:8px 0}
 .handoff-download #download-handoff-pdf{margin:12px 0 8px;min-height:48px}
+
+
+/* v3.0 release readiness — optional locally generated, no-site-data diagnostics. */
+.readiness-tool{margin:12px 0;padding:12px;border-radius:9px;
+ background:#eaf5ed;border:1px solid #b9d5c1;color:#25533b}
+.readiness-tool h3{margin:0 0 9px;font-size:14px;line-height:1.5;color:#20553b}
+.readiness-tool h3 small{font-size:11px;color:#4a6a54;font-weight:600}
+.readiness-tool .fine{font-size:12px!important;line-height:1.55!important;
+ color:#3b5c46!important;overflow-wrap:anywhere}
+.readiness-action{display:block;min-height:44px;width:100%;padding:9px 11px;
+ background:#225a40;color:#fff;border-radius:8px;border:1px solid #1d5038;
+ font-size:12px;font-weight:800;line-height:1.5;margin:8px 0}
+.readiness-action:hover:not(:disabled){background:#327452}
+.readiness-action:disabled{opacity:.55}
+#readiness-result{border-left:3px solid #5e966d;background:#f5faf6;
+ padding:9px 10px;margin:8px 0}
