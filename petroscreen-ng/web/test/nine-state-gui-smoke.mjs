@@ -211,6 +211,77 @@ try{
   assert.doesNotMatch(compareCsv,/Needs tidal check|Field Team|Test Corridor/);
   assert.doesNotMatch(compareCsv,/risk_score|overall suitability score/i);
   await page.locator("#close-comparison").click();
+  // Stage 17: import from previously saved JSON files, without adopting
+  // stored measurements or private field records into comparison.
+  const originalSubtitle=await page.locator("#result-subtitle").textContent();
+  const originalLongitude=await page.locator("#longitude").inputValue();
+  await page.locator("#open-saved-comparison").click();
+  assert.equal(await page.locator("#comparison-dialog").isVisible(),true);
+  await page.locator("#comparison-case-file").setInputFiles(
+    "petroscreen-ng/artifacts_nine_state/Abia_case.json");
+  await page.waitForFunction(()=>{
+    const t=document.querySelector("#comparison-import-status")?.textContent||"";
+    return /Re-screened|Saved case NOT added/.test(t);
+  },null,{timeout:120000});
+  assert.match(await page.locator("#comparison-import-status").textContent(),
+    /Re-screened Abia 1 km case/);
+  assert.match(await page.locator("#comparison-import-status").textContent(),
+    /Field notes and declared facility context were NOT imported/);
+  assert.match(await page.locator("#comparison-intro").textContent(),/3 screened sites/);
+  assert.match(await page.locator("#comparison-table-holder").textContent(),/Abia/);
+  assert.equal(await page.locator("#result-subtitle").textContent(),originalSubtitle);
+  assert.equal(await page.locator("#longitude").inputValue(),originalLongitude);
+  // Forged saved numeric records must fail full independent re-screen comparison.
+  const forgedCase=JSON.parse(await readFile(
+    "petroscreen-ng/artifacts_nine_state/Bayelsa_case.json","utf8"));
+  forgedCase.measurements.land_cover_2021.classes[0].area_km2_approx+=2;
+  const forgedPath="petroscreen-ng/artifacts_nine_state/Stage17_forged_numeric_case.json";
+  await writeFile(forgedPath,JSON.stringify(forgedCase));
+  await page.locator("#comparison-case-file").setInputFiles(forgedPath);
+  await page.waitForFunction(()=>/Saved case NOT added/.test(
+    document.querySelector("#comparison-import-status")?.textContent||""),
+    null,{timeout:120000});
+  assert.match(await page.locator("#comparison-import-status").textContent(),
+    /Mapped land-cover measurement differs/);
+  assert.match(await page.locator("#comparison-intro").textContent(),/3 screened sites/);
+  // A genuine matching case passes the same current raster checks.
+  await page.locator("#comparison-case-file").setInputFiles(
+    "petroscreen-ng/artifacts_nine_state/Bayelsa_case.json");
+  await page.waitForFunction(()=>/Re-screened Bayelsa|Saved case NOT added/.test(
+    document.querySelector("#comparison-import-status")?.textContent||""),
+    null,{timeout:120000});
+  assert.match(await page.locator("#comparison-import-status").textContent(),
+    /Re-screened Bayelsa 1 km case/);
+  assert.match(await page.locator("#comparison-intro").textContent(),/4 screened sites/);
+  await page.locator("#comparison-case-file").setInputFiles(
+    "petroscreen-ng/artifacts_nine_state/Akwa_Ibom_case.json");
+  await page.waitForFunction(()=>/Saved case NOT added/.test(
+    document.querySelector("#comparison-import-status")?.textContent||""),
+    null,{timeout:20000});
+  assert.match(await page.locator("#comparison-import-status").textContent(),/at most four/);
+  assert.match(await page.locator("#comparison-intro").textContent(),/4 screened sites/);
+  await page.locator("#close-comparison").click();
+  assert.equal(await page.locator("#result-subtitle").textContent(),originalSubtitle);
+  // Fresh tab import: user needs no prior location, screening or restored notes.
+  const clean=await browser.newPage({viewport:{width:1230,height:850}});
+  await clean.goto(ORIGIN,{waitUntil:"domcontentloaded"});
+  await clean.waitForFunction(()=>document.querySelector("#data-status")?.dataset.state==="ready",
+    null,{timeout:90000});
+  assert.equal(await clean.locator("#results").isVisible(),false);
+  await clean.locator("#open-saved-comparison").click();
+  await clean.locator("#comparison-case-file").setInputFiles(
+    "petroscreen-ng/artifacts_nine_state/Delta_reviewed_case.json");
+  await clean.waitForFunction(()=>/Re-screened|Saved case NOT added/.test(
+    document.querySelector("#comparison-import-status")?.textContent||""),
+    null,{timeout:120000});
+  assert.match(await clean.locator("#comparison-import-status").textContent(),
+    /Re-screened Delta 1 km case/);
+  assert.match(await clean.locator("#comparison-intro").textContent(),/1 screened site/);
+  assert.equal(await clean.locator("#results").isVisible(),false);
+  assert.equal(await clean.locator("#field-notes").inputValue(),"");
+  assert.equal(await clean.locator("#field-observer").inputValue(),"");
+  assert.equal(await clean.locator("#project-reference").inputValue(),"");
+  await clean.close();
   // Stage 15 uses a dedicated independent ZIP reader: no screening is
   // needed to inspect files, and the user's ZIP must never go to the server.
   await page.locator("#verify-zip-file").setInputFiles(
