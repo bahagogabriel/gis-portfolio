@@ -83,6 +83,10 @@ try{
     assert.equal(exported.measurements.mapped_landscape_proximity_2021.indicators.length,4);
     assert.equal(exported.petroleum_scope.scope_status,"UNVERIFIED_DESKTOP_SCOPING_PROMPTS");
     assert.equal(exported.petroleum_scope.mapped_asset_locations_used,false);
+    assert.equal(exported.evidence_review.review.field_tasks.not_checked,7);
+    assert.equal(exported.evidence_review.review.no_field_authentication,true);
+    assert.match(await page.locator("#review-summary").textContent(),/7 of 7 field checks not checked/);
+    assert.match(await page.locator("#review-flags").textContent(),/current field and regulatory review not established/);
     if(entry.state==="Delta"){
       await page.locator("#facility-type").selectOption("pipeline");
       await page.locator("#project-stage").selectOption("planning");
@@ -105,6 +109,20 @@ try{
       await page.locator('[data-field-task="surface_water"]').selectOption("field_observed");
       await page.locator("#field-observer").fill("Field Team");
       await page.locator("#field-notes").fill("Needs tidal check");
+      assert.match(await page.locator("#review-summary").textContent(),
+        /6 of 7 field checks not checked/);
+      const evidencePending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-evidence-csv").click();
+      const evidenceDownload=await evidencePending;
+      assert.equal(evidenceDownload.suggestedFilename(),
+        "PetroScreenNG_Delta_EvidenceRegister.csv");
+      const evidencePath="petroscreen-ng/artifacts_nine_state/Delta_evidence_register.csv";
+      await evidenceDownload.saveAs(evidencePath);
+      const evidenceText=await readFile(evidencePath,"utf8");
+      assert.match(evidenceText,/historical_1984_2024/);
+      assert.match(evidenceText,/user_reported_field_record/);
+      assert.match(evidenceText,/field_observed/);
+      assert.match(evidenceText,/not_reviewed/);
       const fieldPending=page.waitForEvent("download",{timeout:90000});
       await page.locator("#download-field-csv").click();
       const fieldDownload=await fieldPending;
@@ -168,6 +186,30 @@ try{
   assert.match(await page.locator("#result-subtitle").textContent(),/Delta/);
   // The imported metadata is not treated as a field verification certificate.
   assert.match(await page.locator("#case-import-status").textContent(),/unverified user entries/);
+  assert.match(await page.locator("#review-summary").textContent(),/6 of 7 field checks not checked/);
+  // Additional real browser-source coverage checks for 3 km and 5 km at
+  // two contrasting Niger Delta test sites; 9-state 1 km already completed.
+  for(const state of ["Delta","Rivers"]){
+    const entry=manifest.state_sources.find(s=>s.state===state);
+    await page.locator("#longitude").fill(String(entry.qa_example_lon_lat[0]));
+    await page.locator("#latitude").fill(String(entry.qa_example_lon_lat[1]));
+    for(const radius of [3,5]){
+      await page.locator('input[name="radius"][value="'+radius+'"]').check();
+      await page.locator("#screen-btn").click();
+      await page.waitForFunction(()=>{
+        const t=document.querySelector("#form-feedback")?.textContent||"";
+        return /Screening completed|Screening failed/.test(t);
+      },null,{timeout:120000});
+      assert.match(await page.locator("#form-feedback").textContent(),/Screening completed/,
+        state+" real "+radius+" km QA");
+      const cov=parseFloat(await page.locator("#coverage-value").textContent());
+      assert.ok(Number.isFinite(cov)&&cov>=0&&cov<=100,
+        "Rasters must not report impossible valid coverage");
+      assert.match(await page.locator("#review-summary").textContent(),/field checks not checked/);
+      assert.match(await page.locator("#result-subtitle").textContent(),
+        new RegExp(radius+" km radius"));
+    }
+  }
 
   // No raster should be requested without its version checksum query.
   const rasters=requestUrls.filter(x=>/\.tif(?:\?|$)/.test(x));
