@@ -77,3 +77,13 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .scope-task small{font-size:9.5px;color:#93ad9c}
 .scope-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:10px}
 .scope-links a{color:#bce6c7;text-decoration:underline}
+
+
+/* Stage 13 evidence provenance: distinguish documentation gaps from environmental risk. */
+.evidence-review{margin:14px 0;padding:14px;border-radius:9px;background:#e8f0ea;color:#163c38;border:1px solid #c5d8ce}
+.evidence-review h3{margin:0 0 8px;color:#174b3f}
+.evidence-review h3 small{display:inline-block;font-size:10px;font-weight:500;color:#47685e}
+.evidence-review .fine{color:#36554d}
+.review-flags{margin:8px 0 12px;padding-left:19px;font-size:11px;line-height:1.5}
+.review-flags li{margin:3px 0;overflow-wrap:anywhere}
+@media(max-width:680px){.evidence-review{padding:11px}.review-flags{font-size:12px}}
