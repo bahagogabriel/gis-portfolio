@@ -149,3 +149,20 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
   .comparison-table-holder{max-height:58vh}
   .comparison-data-table th,.comparison-data-table td{padding:8px 7px}
 }
+
+
+/* Stage 17: visible comparison entry before a screening, and import status. */
+.saved-compare-entry{margin-top:13px;padding:13px;border:1px solid #83aa98;border-radius:10px;background:#e9f4ea;color:#204a3a}
+.saved-compare-entry h3{margin:0 0 7px;font-size:14px}
+.saved-compare-entry h3 small{font-size:10px;font-weight:500}
+.saved-compare-entry .fine{font-size:11px;line-height:1.55;color:#3a6552}
+.saved-compare-entry button{display:block;width:100%;padding:11px;margin-top:10px;border:0;border-radius:7px;color:white;background:#276044;font-size:12px;font-weight:700}
+.saved-case-import{padding:11px 13px;margin:12px 0;background:#edf6ef;border-radius:8px;border:1px solid #c4dccb;color:#224936}
+.saved-case-import h3{font-size:14px;margin:0 0 6px}
+.saved-case-import h3 small{font-size:11px;color:#3e755a;font-weight:500}
+.saved-case-import label{display:block;font-size:12px;font-weight:600;margin:7px 0 5px}
+#comparison-case-file{font-size:12px;display:block;max-width:100%;width:100%;padding:7px;background:white;border:1px solid #c2d6c7;border-radius:6px}
+#comparison-import-status{font-size:12px;line-height:1.55;overflow-wrap:anywhere;margin:10px 0 0}
+#comparison-import-status[data-state="passed"]{color:#14603b;font-weight:700}
+#comparison-import-status[data-state="failed"]{color:#973030;font-weight:700}
+#comparison-import-status[data-state="working"]{color:#36637c}
