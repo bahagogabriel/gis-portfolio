@@ -521,3 +521,13 @@ fieldset.radius{margin:10px 0 12px}
  color:#fff;font-size:12px;font-weight:800;line-height:1.5}
 .action-download:hover:not(:disabled){background:#2e7150}
 .action-download:disabled{opacity:.55}
+
+
+/* Stage25: professional handoff remains distinct from authoritative case ZIP/PDF. */
+.handoff-download{margin:18px 0 14px;padding:13px 12px;border:1px solid #b8d4c2;
+ background:#eaf5ed;border-radius:10px;color:#225037}
+.handoff-download h3{font-size:15px;color:#1f5338;line-height:1.5;margin:0 0 8px}
+.handoff-download h3 small{font-size:11px;color:#426b52;font-weight:600}
+.handoff-download .fine{color:#3a5e46!important;font-size:12px!important;
+ line-height:1.57!important;margin:8px 0}
+.handoff-download #download-handoff-pdf{margin:12px 0 8px;min-height:48px}
