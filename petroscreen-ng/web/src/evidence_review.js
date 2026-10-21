@@ -48,7 +48,7 @@ export function buildEvidenceReview(casefile){
     else if(item.status==="requires_follow_up")counts.follow_up++;
     else counts.user_reported++;
     entries.push(record("field_"+item.id,item.title,"user_reported_field_record",item.status,
-      field.observer?"User-entered field record / named observer":"User-entered field record / anonymous",
+      field.observer?"User-entered field record / "+field.observer:"User-entered field record / anonymous",
       "Visit date: "+(field.visit_date||"not supplied")+
         "; status selected by user"+(field.notes?"; general notes present":"; general notes absent"),
       "User reporting is unverified by PetroScreen; status is never inferred from satellite pixels"));
