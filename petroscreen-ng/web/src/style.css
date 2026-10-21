@@ -490,3 +490,34 @@ fieldset.radius{margin:10px 0 12px}
   .quick-start-content{padding:10px 11px}
   .reading-guide dd{font-size:11.8px}
 }
+
+
+/* Stage24: accessible, source-limited evidence-request panel. No rank/score. */
+.evidence-actions{margin:18px 0;padding:14px 12px;border-radius:10px;
+ border:1px solid #c2d9c9;background:#eff7f1;color:#264d38}
+.evidence-actions h3{font-size:15px;color:#225239;line-height:1.45;margin:0 0 8px}
+.evidence-actions h3 small{font-size:11px;font-weight:600;color:#486854}
+.evidence-actions .fine{font-size:12px!important;color:#3d604a!important;line-height:1.57}
+#action-summary{font-weight:750;border-left:3px solid #458763;padding:7px 8px;
+ background:#e2f1e6;color:#25533a!important}
+.action-list-toggle{margin:13px 0;border:1px solid #c5dbc9;border-radius:9px;background:#fff}
+.action-list-toggle>summary{padding:10px 12px;min-height:44px;cursor:pointer;
+ font-size:12px;font-weight:800;line-height:1.5;color:#23543b}
+.action-list-toggle>summary:hover{background:#e7f4eb}
+.action-list-toggle[open]>summary{border-bottom:1px solid #d3e2d6}
+.action-list{padding:8px 12px}
+.action-group{margin:7px 0 18px}
+.action-group h4{font-size:12px;color:#22543c;line-height:1.5;margin:5px 0 10px}
+.action-item{padding:10px 0;border-bottom:1px solid #dae8dd}
+.action-item:last-child{border:0}
+.action-item strong{display:block;font-size:12px;line-height:1.5;color:#1f4933}
+.action-review-status{display:inline-block;margin:4px 0;padding:3px 7px;
+ border-radius:20px;background:#eaf3eb;border:1px solid #c2d9c8;
+ color:#345942;font-size:10.5px;font-weight:750;text-transform:none}
+.action-item p{font-size:11.6px;line-height:1.55;color:#355640;margin:4px 0}
+.action-item small{font-size:10.6px;line-height:1.5;color:#516c59;display:block}
+.action-download{display:block;width:100%;min-height:44px;padding:12px 9px;
+ background:#215a40;border:1px solid #205039;border-radius:8px;
+ color:#fff;font-size:12px;font-weight:800;line-height:1.5}
+.action-download:hover:not(:disabled){background:#2e7150}
+.action-download:disabled{opacity:.55}
