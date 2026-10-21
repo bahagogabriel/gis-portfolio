@@ -5,8 +5,8 @@
 <meta name="color-scheme" content="light">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-DWfgruH6.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-C9pEO8Rp.css">
+  <script type="module" crossorigin src="./assets/index-Bi9m1Njv.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-B-wYHgOQ.css">
 </head><body>
 <a class="skip-link" href="#screen-form">Skip to screening controls</a>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
@@ -14,7 +14,7 @@
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 2.2</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 2.3</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Explore mapped land cover and historical water around a site. Preliminary desk evidence—not a field survey or risk score.</p>
 <ol class="how-it-works" aria-label="Three steps to screen a site"><li>Choose a location</li><li>Select 1, 3 or 5 km</li><li>Run screening</li></ol></section>
 <form id="screen-form" aria-label="Select environmental screening location">
@@ -57,6 +57,21 @@
 <button class="action" id="screen-btn" type="submit" disabled>Loading environmental data…</button>
 <p class="help" id="form-feedback" aria-live="polite">Select a location while the source rasters load.</p>
 </form>
+<details class="quick-start" id="quick-start">
+<summary>New here? Follow a quick walkthrough</summary>
+<div class="quick-start-content">
+<p>PetroScreen describes mapped evidence around a point. It does not identify petroleum facilities, assess contamination, rank site safety or replace field investigations.</p>
+<ol>
+<li><strong>Choose a site.</strong> Click inside the outlined nine-state pilot area or enter WGS84 longitude and latitude. Locations outside the verified boundary cannot be screened.</li>
+<li><strong>Choose a radius.</strong> The 1, 3 or 5 km setting defines a circle around your point; it is not a legal setback distance.</li>
+<li><strong>Run screening.</strong> The browser downloads and checks state-specific satellite raster files. ESA land cover is dated 2021; JRC surface-water occurrence summarizes 1984–2024.</li>
+<li><strong>Review then export.</strong> Read source coverage and limitations, then use the PDF or ZIP for a preliminary desk-review record. A verification receipt checks file integrity, not field authenticity.</li>
+</ol>
+<button type="button" id="try-example" class="try-example" aria-describedby="example-info">Use a verified Delta demonstration point ↗</button>
+<p class="quick-start-note" id="example-info">This example is a test coordinate from the published data manifest, not a known facility, recommended location, current survey or petroleum incident. It fills coordinates only; you still choose a radius and run screening.</p>
+<p class="quick-start-note" id="example-status" role="status" aria-live="polite">Available after the nine-state data manifest is ready.</p>
+</div>
+</details>
 <button type="button" class="result-jump" id="view-findings" hidden>Screening complete · View findings ↓</button>
 <section class="saved-compare-entry" aria-label="Compare saved screening case files">
 <h3>Compare saved cases <small>Stage 17 · independently re-screened</small></h3>
@@ -132,6 +147,18 @@
 <p id="result-subtitle">Your site assessment appears here after analysis.</p></div>
 <div id="empty-state" class="empty-state"><div class="empty-icon" aria-hidden="true">◎</div><h3>Your screening results appear here</h3><p>Choose a location on the map or enter coordinates, select a study radius, and run screening. The mapped findings and downloadable reports will appear here.</p></div>
 <section id="results" hidden>
+<div class="findings-orientation"><strong>Read as source-dated mapped evidence—not a site safety verdict.</strong>
+<p>ESA WorldCover maps 2021 land-cover classes. JRC historical water summarizes 1984–2024 observations. Neither confirms present-day conditions, petroleum impacts or compliance.</p></div>
+<details id="reading-guide" class="reading-guide">
+<summary>How to read the numbers in this screening</summary>
+<dl>
+<dt>Screening radius and buffer area</dt><dd>The 1, 3 or 5 km circle around your WGS84 point and its approximate area. It is not a regulated setback.</dd>
+<dt>Data coverage</dt><dd>The lower of valid ESA and JRC coverage percentages for the study circle, not scientific confidence or site safety. Check any coverage cautions below.</dd>
+<dt>Mapped land-cover percentages</dt><dd>Shares of <strong>valid classified ESA 2021 pixels</strong> within the circle, not shares of all land if coverage is incomplete. Classes and boundaries may differ from current field conditions.</dd>
+<dt>Historical water occurrence</dt><dd>Mapped areas in km² at the shown JRC occurrence thresholds over 1984–2024. The thresholds describe frequency of historical water observations, not flood probability, depth or current water.</dd>
+<dt>Nearest mapped class</dt><dd>Approximate distance to a 2021 class pixel centre within your buffer. “Not mapped” does not confirm the feature is absent.</dd>
+</dl>
+</details>
 <div class="metric-grid"><div><span>Buffer area</span><strong id="area-value">—</strong></div><div><span>Data coverage</span><strong id="coverage-value">—</strong></div></div>
 
 <h3>Mapped land cover <small>ESA 2021</small></h3>
@@ -232,6 +259,7 @@
 <p><strong>Land cover:</strong> ESA WorldCover 2021 v200, 10 m nominal. Not a field-verified contemporary land-cover survey. Data © ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. Dataset citation: Zanaga et al. (2022), <a href="https://doi.org/10.5281/zenodo.7254221" target="_blank" rel="noopener noreferrer">DOI:10.5281/zenodo.7254221</a>.</p>
 <p><strong>Water:</strong> JRC Global Surface Water v1.5 occurrence (1984–2024), 30 m nominal, available under the provider's Copernicus programme terms. Map attribution: <strong>Source: EC JRC/Google</strong>. Cite Pekel et al. (2016), <a href="https://doi.org/10.1038/nature20584" target="_blank" rel="noopener noreferrer">Nature DOI:10.1038/nature20584</a>. Observed water occurrence is not current water, flood probability or contamination; combined Landsat collections can have local positional offsets at or above 30 m. <a href="https://global-surface-water.appspot.com/download" target="_blank" rel="noopener noreferrer">Official source and release cautions</a>.</p>
 <p><strong>Geographic coverage:</strong> geoBoundaries gbOpen 2022 Nigeria ADM1 state polygons (original source GRID3; CC BY 4.0). The currently published research preview supports the nine NDDC states: Abia, Akwa Ibom, Bayelsa, Cross River, Delta, Edo, Imo, Ondo and Rivers. Each selected site uses its state's validated satellite-data halo; supported area is approximate administrative context, not a surveyed legal boundary. Screening outside these states is unavailable.</p>
+<p><strong>Stage 23 guided first-use and results literacy:</strong> Visitors can open a short task-based walkthrough and, without entering coordinates manually, select a manifest-supplied Delta QA demonstration point. The example is a test coordinate only—not a verified facility, petroleum incident, or recommended location—and never auto-runs a screening. Selecting an example is refused while an existing accepted screening is open, avoiding accidental loss of the case and user-entered notes. The findings now explain the meaning and limitations of radius, approximate buffer area, minimum source coverage, land-cover shares, historical water occurrence and nearest mapped pixel centres. These explanations add no environmental scores, maps, field evidence or new raster calculations.</p>
 <p><strong>Stage 22 map-interaction refinement:</strong> The map key now opens as a concise navigational legend, with progressive disclosure for 2021 ESA class swatches, 512/1024-pixel display quality and source-dating limitations. Class swatches are shown only for a genuinely rendered detailed image, never the generalized regional overview or a failed render. The Show full pilot area button restores the verified overview extent without modifying selected coordinates, computed results, source-file hashes or user field notes. An outside-coverage click gives corrective guidance but preserves any previously accepted site; the warning clears when the user deliberately moves the map or selects a valid location. All source TIFFs, calculations, report exports and source-date cautions are unchanged.</p>
 <p><strong>Stage 21 lower-memory display and recoverability:</strong> On a narrow mobile viewport, PetroScreen defaults to a 512×512 mapped-visual display rather than 1024×1024, reducing the raw RGBA canvas buffer from 4 MiB to 1 MiB while preserving the full TIFF-byte verification, original independent geodesic calculations, scientific case data and exported reports. Users can change a labelled checkbox in the map legend to request full detail at any time without re-screening or redownloading the state rasters. This changes image display resampling only: source ESA raster pixels are still read and the 512 px view can visually omit fine features. Neither option changes actual download sizes, makes offline raster acquisition possible or produces new scientific evidence. Browser tests simulate narrow screens and constrained CPU/network; they cannot substitute for real Android hardware or TalkBack/NVDA evaluation.</p>
 <p><strong>Stage 20 map legend and visual performance:</strong> Native post-screening map colors use the exact existing in-memory 10 m ESA WorldCover 2021 display palette. The accessible map key lists all 11 ESA codes and explains the selected site, dashed buffer and verified boundary. The overview shown before a detailed screening is a separate generalized derived raster and is deliberately NOT assigned native color-chip meanings. If native map rendering fails the key warns that its swatches cannot interpret the overview. Map colors carry no contamination, petroleum-asset, hazard, compliance, present-day land-cover or ecological-risk claim. Source TIFFs and screening math remain unchanged. The site native overlay is generated after screening without an external basemap provider.</p>
