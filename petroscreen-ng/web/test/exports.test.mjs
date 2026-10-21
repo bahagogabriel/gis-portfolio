@@ -22,6 +22,10 @@ const screening={
       nearest_pixel_centre_m_approx:420.4,area_km2_approx:0.3},
     {code:90,label:"Mapped herbaceous wetland",status:"not_mapped_in_available_pixels",
       nearest_pixel_centre_m_approx:null,area_km2_approx:0},
+    {code:95,label:"Mapped mangroves",status:"not_mapped_in_available_pixels",
+      nearest_pixel_centre_m_approx:null,area_km2_approx:0},
+    {code:50,label:"Mapped built-up",status:"not_mapped_in_available_pixels",
+      nearest_pixel_centre_m_approx:null,area_km2_approx:0},
   ]}
 };
 test("structured case includes verified sources and all unchecked default field tasks",()=>{
