@@ -87,3 +87,23 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .review-flags{margin:8px 0 12px;padding-left:19px;font-size:11px;line-height:1.5}
 .review-flags li{margin:3px 0;overflow-wrap:anywhere}
 @media(max-width:680px){.evidence-review{padding:11px}.review-flags{font-size:12px}}
+
+
+/* Stage 15: browser-local, read-only ZIP audit. Keep controls usable on mobile. */
+.package-verifier{margin-top:16px;padding:14px;border:1px solid #a9c9b4;border-radius:10px;background:#eef5ee;color:#163d36}
+.package-verifier h3{font-size:15px;margin:0 0 8px;color:#164235}
+.package-verifier h3 small{font-weight:500;font-size:10px}
+.package-verifier .fine{font-size:11px;color:#36594b;line-height:1.5}
+.verifier-file-label{display:block;font-size:12px;font-weight:600;margin:11px 0 5px}
+#verify-zip-file{display:block;max-width:100%;width:100%;font-size:11px;padding:7px;border:1px solid #b7d0bc;border-radius:6px;background:white}
+.verifier-action,.verifier-receipt{display:block;width:100%;margin:10px 0 6px;padding:10px;border:0;border-radius:7px;background:#285941;color:white;font-weight:600;font-size:12px}
+.verifier-action:disabled{opacity:.52;cursor:not-allowed}
+.verifier-receipt{background:#38566b}
+#verify-package-status{overflow-wrap:anywhere;padding:8px 0;margin:7px 0}
+#verify-package-status[data-state="passed"]{color:#145535;font-weight:700}
+#verify-package-status[data-state="failed"]{color:#9b2a2a;font-weight:700}
+#verify-package-status[data-state="caution"]{color:#795014;font-weight:700}
+.verification-details{padding:9px;background:#fff;border-radius:7px;border:1px solid #d2e3d6;overflow-wrap:anywhere}
+.verification-details p{font-size:11px;margin:0 0 8px;line-height:1.5}
+.verification-details p:last-child{margin-bottom:0}
+@media(max-width:680px){.package-verifier{padding:12px}#verify-zip-file{font-size:12px}}
