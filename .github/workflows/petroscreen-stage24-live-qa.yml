@@ -114,8 +114,8 @@ jobs:
                         "Delta demonstration point selected.",
                         "No field evidence is authenticated here.",
                         "EvidenceToCollect.csv",
-                        "user_reported_unverified_field_observed",
-                        "What evidence should be checked next?"):
+                        "user_reported_unverified_",
+                        "PetroScreenNG/EvidenceActions/1.0"):
               assert token in javascript,("Required published module not present",token)
           manifest=json.loads(get("data/manifest.json"))
           assert len(manifest["states"])==len(manifest["state_sources"])==9
