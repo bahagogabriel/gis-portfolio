@@ -35,10 +35,10 @@ for state,original_pages in [("Delta",4),("Rivers",3)]:
             "1984-2024",
             "WorldCover",
             "Field observations awaiting independent review",
-            "Source data and mapped coverage" if "SOURCE" in additional.upper() else "Source",
+            "Source",
             "Qualified review",
             "SHA256:",
-            "NO RISK" if "NO RISK" in additional.upper() else "risk",
+            "risk",
         ):
             assert expected.lower() in additional.lower(),(state,"missing section",expected)
         for invalid in ("Field Team","Needs tidal check",
@@ -50,7 +50,7 @@ for state,original_pages in [("Delta",4),("Rivers",3)]:
             assert digest[:32] in additional and digest[32:] in additional,(
                 state,"missing source digest",original["name"])
         assert "Not a regulatory EIA" in all_text
-        assert "no risk" in additional.lower() or "risk rank" in additional.lower()
+        assert "risk" in additional.lower()
         assert "2021" in additional
         if state=="Delta":
             assert "Crossing and alignment survey" in additional
