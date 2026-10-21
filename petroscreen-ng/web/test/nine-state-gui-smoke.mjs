@@ -210,6 +210,14 @@ try{
   assert.match(compareCsv,/Source raster reference/);
   assert.doesNotMatch(compareCsv,/Needs tidal check|Field Team|Test Corridor/);
   assert.doesNotMatch(compareCsv,/risk_score|overall suitability score/i);
+  // Stage18: a professional report uses the EXACT same comparison values.
+  const comparisonPdfPending=page.waitForEvent("download",{timeout:90000});
+  await page.locator("#download-comparison-pdf").click();
+  const comparisonPdfDownload=await comparisonPdfPending;
+  assert.equal(comparisonPdfDownload.suggestedFilename(),
+    "PetroScreenNG_SiteComparison_1km.pdf");
+  await comparisonPdfDownload.saveAs(
+    "petroscreen-ng/artifacts_nine_state/Stage18_TwoSites.pdf");
   await page.locator("#close-comparison").click();
   // Stage 17: import from previously saved JSON files, without adopting
   // stored measurements or private field records into comparison.
@@ -281,6 +289,38 @@ try{
   assert.equal(await clean.locator("#field-notes").inputValue(),"");
   assert.equal(await clean.locator("#field-observer").inputValue(),"");
   assert.equal(await clean.locator("#project-reference").inputValue(),"");
+  // One batch picker action adds two more old cases atomically after current
+  // SHA-verified raster re-screening; sensitive field notes stay untouched.
+  await clean.locator("#comparison-case-file").setInputFiles([
+    "petroscreen-ng/artifacts_nine_state/Abia_case.json",
+    "petroscreen-ng/artifacts_nine_state/Bayelsa_case.json"]);
+  await clean.waitForFunction(()=>{
+    const status=document.querySelector("#comparison-import-status");
+    return status?.dataset.state==="passed"||status?.dataset.state==="failed";
+  },null,{timeout:120000});
+  assert.match(await clean.locator("#comparison-import-status").textContent(),
+    /Batch accepted: all 2 saved cases independently re-screened/);
+  assert.match(await clean.locator("#comparison-intro").textContent(),/3 screened sites/);
+  assert.equal(await clean.locator("#field-notes").inputValue(),"");
+  assert.equal(await clean.locator("#field-observer").inputValue(),"");
+  const forgedRivers=JSON.parse(await readFile(
+    "petroscreen-ng/artifacts_nine_state/Rivers_case.json","utf8"));
+  forgedRivers.measurements.land_cover_2021.classes[0].area_km2_approx+=1;
+  const failedPath="petroscreen-ng/artifacts_nine_state/Stage18_Forged_Rivers.json";
+  await writeFile(failedPath,JSON.stringify(forgedRivers));
+  await clean.locator("#comparison-case-file").setInputFiles([
+    "petroscreen-ng/artifacts_nine_state/Imo_case.json",
+    failedPath
+  ]);
+  await clean.waitForFunction(()=>{
+    const status=document.querySelector("#comparison-import-status");
+    return status?.dataset.state==="failed";
+  },null,{timeout:120000});
+  assert.match(await clean.locator("#comparison-import-status").textContent(),
+    /No candidates from this batch were added/);
+  assert.match(await clean.locator("#comparison-intro").textContent(),/3 screened sites/);
+  assert.doesNotMatch(await clean.locator("#comparison-table-holder").textContent(),/Imo/);
+  assert.equal(await clean.locator("#results").isVisible(),false);
   await clean.close();
   // Stage 15 uses a dedicated independent ZIP reader: no screening is
   // needed to inspect files, and the user's ZIP must never go to the server.
