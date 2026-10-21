@@ -24,7 +24,7 @@ export function handoffModel(casefile){
  const water=casefile.measurements.historical_surface_water_1984_2024;
  if(!Array.isArray(land.classes)||!Array.isArray(water.threshold_areas))
    throw Error("Source case measurements incomplete");
- return {schema:HANDOFF_SCHEMA,case:casefile,plan,
+ return {schema:HANDOFF_SCHEMA,plan,
    site:{...site},
    documented:{
     land_cover_year:2021,water_period:"1984-2024",
