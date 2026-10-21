@@ -2,10 +2,10 @@
  * Visual display ONLY. Calculations still use the independent, unchanged
  * screening engine. Downsamples native 10 m cells to a 1000px map overlay.
  */
-const COLORS={10:[48,110,75],20:[154,167,96],30:[196,191,121],
+export const WORLD_COVER_DISPLAY_COLORS=Object.freeze({10:[48,110,75],20:[154,167,96],30:[196,191,121],
   40:[224,190,103],50:[214,120,86],60:[202,167,128],
   70:[236,240,239],80:[103,164,197],90:[126,176,152],
-  95:[39,142,111],100:[174,169,151]};
+  95:[39,142,111],100:[174,169,151]});
 export async function renderSiteDetail(images,longitude,latitude,radiusKm){
   if(!images?.length || ![longitude,latitude,radiusKm].every(Number.isFinite))
     throw new Error("Expected verified geographic rasters and valid site");
@@ -43,7 +43,7 @@ export async function renderSiteDetail(images,longitude,latitude,radiusKm){
         const sampleLon=west+(px+.5)*(east-west)/W;
         const sx=Math.floor((sampleLon-(ox+x0*dx))/dx);
         if(sx<0||sx>=rw)continue;
-        const color=COLORS[values[sy*rw+sx]];
+        const color=WORLD_COVER_DISPLAY_COLORS[values[sy*rw+sx]];
         if(!color)continue;
         const q=(py*W+px)*4;
         view.data[q]=color[0];view.data[q+1]=color[1];
