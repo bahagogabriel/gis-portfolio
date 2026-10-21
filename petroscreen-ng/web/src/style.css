@@ -99,6 +99,7 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .verifier-action,.verifier-receipt{display:block;width:100%;margin:10px 0 6px;padding:10px;border:0;border-radius:7px;background:#285941;color:white;font-weight:600;font-size:12px}
 .verifier-action:disabled{opacity:.52;cursor:not-allowed}
 .verifier-receipt{background:#38566b}
+.verifier-receipt[hidden],.verification-details[hidden]{display:none}
 #verify-package-status{overflow-wrap:anywhere;padding:8px 0;margin:7px 0}
 #verify-package-status[data-state="passed"]{color:#145535;font-weight:700}
 #verify-package-status[data-state="failed"]{color:#9b2a2a;font-weight:700}
