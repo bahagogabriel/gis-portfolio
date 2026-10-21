@@ -11,6 +11,7 @@ import {buildEvidenceReview,evidenceReviewCsv} from "./evidence_review.js";
 import {makeCaseBundle,downloadBundle} from "./case_bundle.js";
 import {verifyCasePackage} from "./case_verifier.js";
 import {captureCandidate,addCandidate,comparisonTable,comparisonCsv} from "./candidate_comparison.js";
+import {recheckSavedComparison} from "./saved_case_comparison.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
 
@@ -23,6 +24,7 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
   dataStatus:$("data-status"),retry:$("retry-data")};
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let candidates=[];
+let comparisonImportBusy=false;
 let verifiedStates=[];
 let pendingImportedCase=null;
 const regionalCache=new Map();
@@ -385,7 +387,9 @@ function display(result){
     });
 }
 ui.form.addEventListener("submit",async e=>{
-  e.preventDefault();if(!layers){ui.feedback.textContent="Data not ready";return;}
+  e.preventDefault();
+  if(comparisonImportBusy){ui.feedback.textContent="Wait for saved-case comparison screening to finish.";return;}
+  if(!layers){ui.feedback.textContent="Data not ready";return;}
   const lon=Number(ui.lon.value),lat=Number(ui.lat.value);
   const radiusKm=Number(document.querySelector("input[name=radius]:checked").value);
   ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
@@ -560,9 +564,53 @@ $("add-candidate").addEventListener("click",()=>{
   }
 });
 $("open-comparison").addEventListener("click",()=>{
-  updateComparisonModal();$("comparison-dialog").showModal();
+  updateComparisonModal();
+  if(!$("comparison-dialog").open)$("comparison-dialog").showModal();
+});
+$("open-saved-comparison").addEventListener("click",()=>{
+  updateComparisonModal();
+  if(!$("comparison-dialog").open)$("comparison-dialog").showModal();
 });
 $("close-comparison").addEventListener("click",()=>$("comparison-dialog").close());
+$("comparison-case-file").addEventListener("change",async()=>{
+  const input=$("comparison-case-file"),file=input.files?.[0];
+  input.value=""; // Allow same file to be retried after a failed import.
+  if(!file||comparisonImportBusy)return;
+  const status=$("comparison-import-status");
+  try{
+    if(loadState!=="ready"||!layers?.manifest?.state_sources||!layers?.stateGeometries)
+      throw new Error("Wait for the verified nine-state data manifest and state boundaries.");
+    if(file.size>2*1024*1024)
+      throw new Error("Saved case exceeds the 2 MB import limit.");
+    comparisonImportBusy=true;
+    input.disabled=true;
+    ui.button.disabled=true;
+    status.dataset.state="working";
+    status.textContent="Checking saved case source hashes and state boundary; re-screening current ESA/JRC pixels…";
+    const fresh=await recheckSavedComparison({
+      text:await file.text(),manifest:layers.manifest,candidates:[...candidates],
+      coverage,stateFeatures:layers.stateGeometries,
+      loadRasters:getStateData,screen:screenBrowser
+    });
+    // A user can remove or clear existing candidates while the asynchronous
+    // raster check runs: re-evaluate the current list before admitting it.
+    candidates=addCandidate(candidates,fresh);
+    updateComparisonButtons();
+    updateComparisonModal();
+    status.dataset.state="passed";
+    status.textContent="Re-screened "+fresh.state+" "+fresh.radius_km+
+      " km case against currently verified source rasters; original saved measurements match. "+
+      "Added as site "+String.fromCharCode(64+candidates.length)+
+      ". Field notes and declared facility context were NOT imported.";
+  }catch(error){
+    status.dataset.state="failed";
+    status.textContent="Saved case NOT added: "+error.message;
+  }finally{
+    comparisonImportBusy=false;
+    input.disabled=false;
+    ui.button.disabled=loadState!=="ready";
+  }
+});
 $("clear-comparison").addEventListener("click",()=>{
   candidates=[];updateComparisonButtons();updateComparisonModal();
   $("comparison-status").textContent="Comparison cleared. No candidate data are stored.";
