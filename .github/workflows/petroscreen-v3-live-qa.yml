@@ -1,0 +1,143 @@
+name: Verify live PetroScreen v3.0 final nine-state research pilot on GitHub Pages
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-stage26-28-release-candidate']
+    paths: ['.github/workflows/petroscreen-v3-live-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-release-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Confirm public HTTPS frontend, facility plans and verified data
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,hashlib,json,time
+          root="https://bahagogabriel.com/petroscreen/"
+          def get(path,timeout=40):
+              req=urllib.request.Request(root+path,headers={
+                "User-Agent":"PetroScreenNG-v3.0-Official-Release-QA"
+              })
+              with urllib.request.urlopen(req,timeout=timeout) as response:
+                  assert response.status==200,response.status
+                  return response.read()
+          for trial in range(40):
+              try:
+                  html=get("").decode("utf-8")
+                  if all(token in html for token in (
+                      "VERSION 3.0",'id="facility-type"',
+                      'id="project-stage"','id="project-reference"',
+                      'id="petroleum-scope"','id="download-scope-csv"',
+                      'id="review-summary"','id="review-flags"',
+                      'id="download-evidence-csv"',
+                      'id="download-case-bundle"',
+                      'id="verify-zip-file"','id="verify-package-btn"',
+                      'id="download-verification-receipt"',
+                      'id="add-candidate"','id="open-comparison"',
+                      'id="comparison-dialog"','id="download-comparison-csv"',
+                      'id="open-saved-comparison"','id="comparison-case-file"',
+                      'id="comparison-import-status"',
+                      'id="download-comparison-pdf"',
+                      'multiple accept=".json,application/json"',
+                      'id="view-findings"','id="map-continue"',
+                      'id="jump-to-map"','id="facility-options"',
+                      'id="secondary-tools"','id="export-options"',
+                      'id="findings-title"',
+                      'id="map-legend"','id="map-legend-status"',
+                      'id="map-legend-classes"','id="map-legend-native"',
+                      'id="lightweight-map"',
+                      'id="lightweight-map-explanation"',
+                      'id="map-fit-pilot"','id="map-color-options"',
+                      'id="map-view-options"','id="map-source-info"',
+                      'id="map-color-unavailable"',
+                      'id="quick-start"','id="try-example"',
+                      'id="example-status"','id="reading-guide"',
+                      'id="evidence-actions"','id="action-summary"',
+                      'id="action-list-toggle"','id="download-actions-csv"',
+                      'id="download-handoff-pdf"',
+                      'id="check-browser-readiness"',
+                      'id="download-readiness-report"',
+                      'id="readiness-result"')):
+                      break
+              except Exception as exc:
+                  print("Pages propagation:",type(exc).__name__)
+              if trial==39:raise RuntimeError("Release v3.0 public interface not found")
+              time.sleep(8)
+          anchor='src="./assets/'
+          assert anchor in html
+          script_path="assets/"+html.split(anchor,1)[1].split('"',1)[0]
+          assert script_path.endswith(".js")
+          javascript=get(script_path).decode("utf-8")
+          for token in ("Crossing and alignment survey","Flare operating records",
+                        "PetroleumEvidencePlan.csv","UNVERIFIED_DESKTOP_SCOPING_PROMPTS",
+                        "Not an environmental risk rank","PETROLEUM | EVIDENCE SCOPING",
+                        "PetroScreenNG/EvidenceRegister/1.0","EvidenceRegister.csv",
+                        "CURRENT_FIELD_AND_REGULATORY_REVIEW_NOT_ESTABLISHED",
+                        "PetroScreenNG/CaseBundle/1.0","CasePackage.zip",
+                        "MANIFEST.json","SHA-256 detects changed files",
+                        "PetroScreenNG/LocalVerificationReceipt/1.0",
+                        "ZIP entry CRC mismatch","matches_current_manifest",
+                        "authenticated_author_or_fieldwork",
+                        "PetroScreenNG_SiteComparison_",
+                        "Not mapped in 2021 source",
+                        "Source raster reference",
+                        "Comparison is limited to four screened sites",
+                        "Descriptive mapped baseline only",
+                        "current verified state boundary",
+                        "Saved case NOT added",
+                        "Re-screened",
+                        "Saved screening radius differs from the comparison",
+                        "Batch accepted: all ",
+                        "No candidates from this batch were added",
+                        "PetroScreenNG_SiteComparison_",
+                        "EVIDENCE-ONLY SITE COMPARISON",
+                        "Run site screening",
+                        "Site selected",
+                        "view-findings",
+                        "map-continue",
+                        "Screening completed in your browser.",
+                        "Detailed ESA WorldCover 2021 display",
+                        "Generalized regional overview",
+                        "Native detail unavailable",
+                        "No valid source coverage for the detailed site map",
+                        "Unsupported visual display size",
+                        "resampled to ",
+                        "Detailed ESA WorldCover 2021 display",
+                        "Map click outside verified nine-state coverage.",
+                        "Show full pilot area",
+                        "Your previous screening remains valid.",
+                        "Published example failed its current nine-state boundary check.",
+                        "No analysis has run yet.",
+                        "A screening or saved-case task is already open.",
+                        "Delta demonstration point selected.",
+                        "No field evidence is authenticated here.",
+                        "PetroScreenNG/LocalBrowserReadiness/1.0",
+                        "all_source_files_preverified",
+                        "manifest_ready_sources_load_on_demand",
+                        "PetroScreenNG_v3_BrowserReadiness.txt",
+                        "EvidenceToCollect.csv",
+                        "user_reported_unverified_",
+                        "PetroScreenNG/EvidenceActions/1.0",
+                        "PetroScreenNG/ProfessionalHandoff/1.0",
+                        "_Professional_DeskReview_Handoff.pdf",
+                        "PROFESSIONAL DESK-REVIEW HANDOFF",
+                        "No field evidence is authenticated here."):
+              assert token in javascript,("Required published module not present",token)
+          manifest=json.loads(get("data/manifest.json"))
+          assert len(manifest["states"])==len(manifest["state_sources"])==9
+          assert sum(len(s["source_files"]) for s in manifest["state_sources"])==31
+          delta=next(s for s in manifest["state_sources"] if s["state"]=="Delta")
+          tif=next(s for s in delta["source_files"] if s["kind"]=="worldcover")
+          assert hashlib.sha256(get("data/"+tif["file"],120)).hexdigest()==tif["sha256"]
+          print("V3_PUBLIC_SITE_ACCEPTANCE=PASS")
+          print("PUBLIC_SITE="+root)
+          print("FACILITY_CONTEXT_TYPES=6 VERIFIED_STATES=9 COMPLETE_NINE_STATE_ON_DEMAND_RESEARCH_PILOT=ACTIVE")
+          print("ASSET_INVENTORY_CLAIMS=NONE RISK_SCORING=NONE")
+          print("DELTA_SOURCE_GEOTIFF_SHA256=PASS")
+          PY
