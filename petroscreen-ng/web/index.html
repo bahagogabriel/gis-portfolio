@@ -13,11 +13,11 @@
 <main class="workspace">
 <aside class="control-panel">
 <section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.9</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
-<p>Explore mapped land cover and historical surface water around a selected location. This is a preliminary desk review, not a field inspection or environmental risk score.</p>
+<p>Explore mapped land cover and historical water around a site. Preliminary desk evidence—not a field survey or risk score.</p>
 <ol class="how-it-works" aria-label="Three steps to screen a site"><li>Choose a location</li><li>Select 1, 3 or 5 km</li><li>Run screening</li></ol></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
-<p class="help" id="location-help">Click inside the highlighted map boundary or enter decimal-degree WGS84 coordinates. No location permission is needed.</p>
+<p class="help" id="location-help">Enter WGS84 decimal coordinates, or <a id="jump-to-map" href="#map">choose a point on the map ↓</a>.</p>
 <div class="fields"><label>Longitude <input aria-describedby="location-help" id="longitude" type="number" min="-180" max="180" step="any" required placeholder="e.g. 6.0000" inputmode="decimal"></label>
 <label>Latitude <input aria-describedby="location-help" id="latitude" type="number" min="-90" max="90" step="any" required placeholder="e.g. 4.7000" inputmode="decimal"></label></div>
 <h2 class="section-title">02 <span>Screening distance</span></h2>
@@ -85,6 +85,7 @@
 <section class="map-panel" aria-label="Interactive pilot-region screening map">
 <div id="map" aria-label="Map: click a site inside a verified pilot region to select it"></div>
 <div class="map-tip" id="map-guide" role="status"><span class="pulse-dot"></span> <span id="map-tip-text">Click inside the highlighted boundary to set a site, or use coordinates</span></div>
+<button type="button" id="map-continue" class="map-continue" hidden>Site selected · Continue to screening ↑</button>
 <div class="map-credit">© ESA WorldCover project 2021 · JRC/European Commission · geoBoundaries</div>
 </section>
 <aside class="results-panel" aria-label="Site screening findings">
