@@ -163,6 +163,18 @@ try{
       assert.equal(dl.suggestedFilename(),
         "PetroScreenNG_"+entry.state+"_Preliminary_Screening.pdf");
       await dl.saveAs("petroscreen-ng/artifacts_nine_state/"+entry.state+"_review.pdf");
+      // Stage 14 end-to-end: ZIP contains the same real mapped PDF, JSON,
+      // GIS context, CSV registers and unsigned integrity manifest.
+      const packagePending=page.waitForEvent("download",{timeout:90000});
+      await page.locator("#download-case-bundle").click();
+      const packageDownload=await packagePending;
+      assert.equal(packageDownload.suggestedFilename(),
+        "PetroScreenNG_"+entry.state+"_CasePackage.zip");
+      await packageDownload.saveAs("petroscreen-ng/artifacts_nine_state/"+
+        entry.state+"_case_bundle.zip");
+      assert.match(await page.locator("#form-feedback").textContent(),
+        /Complete ZIP case package downloaded locally/);
+
     }
   }
   // Reopen a saved Delta field record after switching to other regions.
