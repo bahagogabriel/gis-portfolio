@@ -1,4 +1,5 @@
 /** Structured, reproducible screening export; no network, storage or user tracking. */
+import {normalizeFacilityContext,buildPetroleumScope} from "./petroleum_scope.js";
 export const CASE_SCHEMA="PetroScreenNG/ScreeningCase/1.0";
 export const FIELD_STATUSES=Object.freeze([
   {value:"not_checked",label:"Not checked"},
@@ -35,7 +36,7 @@ export function normalizeFieldRecord(record={}){
   return {visit_date:date,observer:limited(input.observer,90),
     notes:limited(input.notes,2000),statuses:tasks};
 }
-export function createCaseFile({result,manifest,fieldRecord={},generatedAt}){
+export function createCaseFile({result,manifest,fieldRecord={},facilityContext={},generatedAt}){
   if(!result?.mapped_context_2021?.indicators || !result?.land_cover_2021?.classes ||
       !result?.surface_water_occurrence_1984_2024?.threshold_areas)
     throw new Error("A completed mapped site-screening result is required");
@@ -69,6 +70,7 @@ export function createCaseFile({result,manifest,fieldRecord={},generatedAt}){
     },
     qa:{coverage_status:result.coverage_status,warnings:[...result.warnings],
       method_limitations:[...result.method_limitations]},
+    petroleum_scope:buildPetroleumScope(result,normalizeFacilityContext(facilityContext)),
     field_verification:{
       method:"User-entered observations; not auto-populated from satellite classification",
       ...verified,
