@@ -5,6 +5,7 @@ import {exportReportPdf} from "./report.js";
 import {renderSiteDetail} from "./site_detail.js";
 import {screeningNotes} from "./insights.js";
 import {parseCaseText,confirmRescreenedCase,caseGeoJSON} from "./case_continuity.js";
+import {buildPetroleumScope,normalizeFacilityContext,petroleumScopeCsv} from "./petroleum_scope.js";
 import {FIELD_TASKS,FIELD_STATUSES,createCaseFile,screeningCsv,fieldChecklistCsv,downloadText} from "./exports.js";
 import {screenBrowser,inPolygon} from "./engine.js";
 import "./style.css";
@@ -250,6 +251,30 @@ function resolveSiteState(lon,lat){
   if(!name)throw new Error("Cannot verify the selected state's source boundary.");
   return name;
 }
+function facilityContext(){
+  return normalizeFacilityContext({facility_type:$("facility-type").value,
+    project_stage:$("project-stage").value,
+    project_reference:$("project-reference").value});
+}
+function updatePetroleumPlan(result=lastResult){
+  if(!result)return;
+  const plan=buildPetroleumScope(result,facilityContext());
+  $("scope-summary").textContent=plan.facility_label+" · "+plan.stage_label+" · "+
+    plan.tasks.length+" unreviewed evidence prompts. The site was not matched to any verified petroleum asset inventory.";
+  const root=$("scope-tasks");root.replaceChildren();
+  for(const task of plan.tasks){
+    const node=document.createElement("div");node.className="scope-task";
+    const title=document.createElement("strong");title.textContent=task.title;
+    const detail=document.createElement("p");detail.textContent=task.evidence_to_check;
+    const source=document.createElement("small");source.textContent=task.prompt_basis;
+    node.append(title,detail,source);root.append(node);
+  }
+}
+for(const field of ["facility-type","project-stage","project-reference"]){
+  $(field).addEventListener(field==="project-reference"?"input":"change",()=>{
+    if(lastResult)updatePetroleumPlan();
+  });
+}
 function display(result){
   lastResult=result;
   ui.empty.hidden=true;ui.results.hidden=false;
@@ -322,6 +347,7 @@ function display(result){
     line.textContent=message;
     notes.append(line);
   }
+  updatePetroleumPlan(result);
   drawSite(result.circle);
   const ring=result.circle.geometry.coordinates[0];
   const west=Math.min(...ring.map(p=>p[0])),east=Math.max(...ring.map(p=>p[0]));
@@ -393,6 +419,14 @@ ui.form.addEventListener("submit",async e=>{
       for(const select of document.querySelectorAll("#field-checklist select"))
         select.value=previous.statuses[select.dataset.fieldTask]||"not_checked";
       $("field-record").open=true;
+      const savedScope=importToRestore.source.petroleum_scope;
+      if(savedScope){
+        const restored=normalizeFacilityContext(savedScope);
+        $("facility-type").value=restored.facility_type;
+        $("project-stage").value=restored.project_stage;
+        $("project-reference").value=restored.project_reference;
+        updatePetroleumPlan(result);
+      }
       $("case-import-status").textContent="Reopened case: current source hashes and screening measurements agree. Saved field notes restored as unverified user entries.";
       ui.feedback.textContent="Saved case re-screened and matched against current source data.";
     }else ui.feedback.textContent="Screening completed in your browser.";
@@ -417,12 +451,13 @@ function currentFieldDraft(){
 function exportCase(){
   if(!lastResult)throw new Error("Complete a screening first");
   return createCaseFile({result:lastResult,manifest:layers.manifest,
-    fieldRecord:currentFieldDraft()});
+    fieldRecord:currentFieldDraft(),facilityContext:facilityContext()});
 }
 for(const [id,format] of [["download-data-json","json"],
                          ["download-data-csv","screening_csv"],
                          ["download-field-csv","field_csv"],
-                         ["download-site-geojson","geojson"]]){
+                         ["download-site-geojson","geojson"],
+                         ["download-scope-csv","scope_csv"]]){
   $(id).addEventListener("click",()=>{
     try{
       const item=exportCase();
@@ -433,6 +468,10 @@ for(const [id,format] of [["download-data-json","json"],
       }else if(format==="screening_csv"){
         downloadText("PetroScreenNG_"+slug+"_ScreeningData.csv",
           screeningCsv(item),"text/csv;charset=utf-8");
+      }else if(format==="scope_csv"){
+        downloadText("PetroScreenNG_"+slug+"_PetroleumEvidencePlan.csv",
+          petroleumScopeCsv(item.petroleum_scope,item.site),
+          "text/csv;charset=utf-8");
       }else if(format==="geojson"){
         downloadText("PetroScreenNG_"+slug+"_Site_Buffer.geojson",
           JSON.stringify(caseGeoJSON(lastResult),null,2)+"\n",
@@ -479,7 +518,8 @@ ui.pdf.addEventListener("click",async()=>{
   ui.pdf.disabled=true;
   ui.pdf.textContent="Preparing mapped screening PDF…";
   try{
-    await exportReportPdf({result:lastResult,worldcoverImages:layers.worldcoverImages});
+    await exportReportPdf({result:lastResult,worldcoverImages:layers.worldcoverImages,
+      petroleumScope:buildPetroleumScope(lastResult,facilityContext())});
     ui.feedback.textContent="Mapped screening PDF downloaded.";
   }catch(error){
     ui.feedback.textContent="PDF report could not be completed: "+error.message;
