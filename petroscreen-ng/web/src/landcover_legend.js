@@ -21,7 +21,7 @@ export function landCoverLegendRows(){
 export function nativeLegendStatus(state){
   switch(state){
     case "native":
-      return "Native 10 m ESA WorldCover 2021 display. Colors indicate mapped classes, not risk.";
+      return "Detailed ESA WorldCover 2021 display from nominal 10 m source pixels (resampled to 1024 px). Colors indicate classes, not risk.";
     case "fallback":
       return "Native detail unavailable; showing a generalized regional overview. Color chips below do NOT apply to that overview.";
     default:
