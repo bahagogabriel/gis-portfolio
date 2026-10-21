@@ -301,7 +301,7 @@ function display(result){
     " screening findings · "+result.radius_km+" km ↓";
   $("map-tip-text").textContent=(result.site_state||"Selected site")+
     " · "+result.radius_km+" km screened. ESA land cover is from 2021.";
-  $(".results-panel")?.scrollTo?.({top:0,behavior:"instant"});
+  document.querySelector(".results-panel")?.scrollTo({top:0,behavior:"instant"});
   const c=Math.min(result.land_cover_2021.coverage.whole_buffer_coverage_pct_approx,
     result.surface_water_occurrence_1984_2024.coverage.whole_buffer_coverage_pct_approx);
   $("coverage-value").textContent=fmt(c,1)+"%";
