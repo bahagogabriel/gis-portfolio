@@ -63,8 +63,8 @@ test("incomplete raster coverage and border alerts are review flags, never fabri
 });
 test("CSV spreadsheet formula injection is neutralized in user-supplied fields",()=>{
   const a=fixture();
-  a.field_verification.observer="=HYPERLINK(1)";
-  a.petroleum_scope.facility_label="\t+MALICIOUS";
+  a.petroleum_scope.facility_label="=HYPERLINK(1)";
+  a.measurements.mapped_landscape_proximity_2021.indicators[0].label="\t+MALICIOUS";
   const csv=evidenceReviewCsv(buildEvidenceReview(a));
   assert.match(csv,/'=HYPERLINK/);
   assert.match(csv,/'\t\+MALICIOUS/);
