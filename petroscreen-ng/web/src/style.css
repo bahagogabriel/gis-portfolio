@@ -108,3 +108,44 @@ dialog{border:0;max-width:650px;width:calc(100% - 32px);max-height:80vh;overflow
 .verification-details p{font-size:11px;margin:0 0 8px;line-height:1.5}
 .verification-details p:last-child{margin-bottom:0}
 @media(max-width:680px){.package-verifier{padding:12px}#verify-zip-file{font-size:12px}}
+
+
+/* Stage 16 — compact candidate staging in the existing findings sidebar. */
+.candidate-tools{margin:16px 0;padding:13px;border:1px solid #bdcfc7;border-radius:9px;background:#f2f8f3}
+.candidate-tools h3{margin:0 0 7px;font-size:14px;color:#164735}
+.candidate-tools h3 small{font-size:10px;color:#516a5b}
+.candidate-tools .fine{color:#506c61;font-size:11px;line-height:1.55}
+.candidate-tools button{width:100%;margin:5px 0;padding:10px 8px;border:1px solid #245840;
+  border-radius:7px;background:#23563e;color:white;font-size:12px;font-weight:700}
+.candidate-tools button#open-comparison{background:white;color:#245840}
+.candidate-tools button:disabled{opacity:.58;cursor:not-allowed}
+#comparison-status{overflow-wrap:anywhere}
+#comparison-dialog{width:min(1190px,calc(100vw - 26px));max-width:1190px;max-height:92vh;
+  padding:0;border:1px solid #d3e2d9;border-radius:12px;box-shadow:0 14px 50px #1119}
+#comparison-dialog::backdrop{background:rgba(6,25,17,.70)}
+.comparison-dialog-body{position:relative;padding:23px 24px 18px;color:#243f35;background:#f8fbf9;
+  max-height:90vh;overflow:auto}
+.comparison-dialog-body h2{padding-right:28px;font-size:21px;color:#183f2f}
+.comparison-dialog-body h2 small{font-size:12px;color:#446758}
+.comparison-dialog-body .fine{font-size:12px;line-height:1.65;color:#486555}
+.comparison-table-holder{max-height:53vh;overflow:auto;border:1px solid #ceddd1;
+  border-radius:8px;background:#fff;overscroll-behavior:contain}
+.comparison-data-table{border-collapse:separate;border-spacing:0;min-width:680px;width:100%;font-size:11px}
+.comparison-data-table th,.comparison-data-table td{padding:9px 10px;border-bottom:1px solid #e1eae3;
+  border-right:1px solid #e6eee6;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+.comparison-data-table thead th{position:sticky;top:0;background:#255841;color:white;z-index:2}
+.comparison-data-table tbody th{font-weight:600;max-width:280px;background:#f3f8f4}
+.comparison-data-table tbody tr:nth-child(even) td{background:#f9fbfa}
+.comparison-data-table td{min-width:145px;max-width:255px}
+.comparison-site-actions{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.comparison-site-actions button,.comparison-actions button{border:1px solid #c5d8cb;padding:9px 12px;
+  background:#fff;color:#315441;border-radius:7px;font-weight:600;font-size:12px}
+.comparison-actions{display:flex;gap:10px;flex-wrap:wrap}
+.comparison-actions #download-comparison-csv{background:#235941;color:#fff;border-color:#235941}
+.comparison-actions button:disabled{opacity:.54;cursor:not-allowed}
+@media(max-width:720px){
+  .comparison-dialog-body{padding:13px 11px}
+  .comparison-dialog-body h2{font-size:18px}
+  .comparison-table-holder{max-height:58vh}
+  .comparison-data-table th,.comparison-data-table td{padding:8px 7px}
+}
