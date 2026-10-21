@@ -4,15 +4,15 @@
 <meta name="theme-color" content="#0e242b">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-B_4xz_4w.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-BUxSQov0.css">
+  <script type="module" crossorigin src="./assets/index-Bs6dDZ2c.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-_JKojH8F.css">
 </head><body>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
 <span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
 <div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
 <main class="workspace">
 <aside class="control-panel">
-<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.2</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
+<section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 1.3</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
 <p>Generate a reproducible, first-pass environmental baseline from mapped land cover and historical surface-water evidence.</p></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -78,6 +78,12 @@
 <p class="fine">“Not mapped” means not identified in the available 2021 pixels—not confirmed absent. Ground verification remains necessary.</p>
 </section>
 <div id="interpretation" class="interpretation" aria-live="polite"></div>
+<section class="evidence-review" aria-label="Evidence provenance and review completeness">
+<h3>Evidence review <small>completeness only · no risk score</small></h3>
+<p id="review-summary" class="fine" role="status" aria-live="polite">Complete a screening to inspect documented and outstanding evidence.</p>
+<ul id="review-flags" class="review-flags"></ul>
+<p class="fine">Mapped 2021 classes, historical water observations, user-declared project context and user-reported field statuses are distinct evidence categories. A recorded status does not independently verify fieldwork or establish environmental safety.</p>
+</section>
 <section id="petroleum-scope" class="petroleum-scope" aria-label="Petroleum site evidence scoping">
 <h3>Petroleum evidence plan <small>advisory · not a risk rating</small></h3>
 <p id="scope-summary" class="fine"></p>
@@ -105,6 +111,7 @@
 <button type="button" class="export-button" id="download-field-csv">Field checklist · CSV</button>
 <button type="button" class="export-button" id="download-site-geojson">Site &amp; buffer · GeoJSON</button>
 <button type="button" class="export-button" id="download-scope-csv">Petroleum evidence plan · CSV</button>
+<button type="button" class="export-button" id="download-evidence-csv">Evidence register · CSV</button>
 </div>
 <div class="case-import">
 <button type="button" id="reopen-case" class="reopen-case">Reopen saved case · JSON</button>
@@ -128,6 +135,7 @@
 <p><strong>Important:</strong> Satellite classifications contain uncertainty. Data may omit channels or assets; no petroleum-asset information is acquired. Do not use for regulatory EIA, spill-risk estimates, ecological damage, legal findings or field-inspection substitutes.</p>
 <p><strong>Petroleum activity planning:</strong> a user-selected facility/activity type creates an advisory evidence-gathering plan informed by user context and the existing ESA WorldCover 2021 mapped water, wetland, mangrove and built-up categories. PetroScreen has no verified petroleum well, pipeline, tank, flare or operator facility inventory. It cannot determine legal setbacks, pipeline crossings, contamination, emissions, environmental risk, official EIA scope or compliance. Facility choices are user declarations, not remote-sensing observations. The plan is not exhaustive. Consult the latest NUPRC regulations and HSEC guidance for applicability to the specific project.</p>
 <p><strong>GIS and case continuity:</strong> GeoJSON includes a WGS84 screening point and an approximate circular study polygon, suitable for import into desktop GIS, but not a cadastral or surveyed boundary. Previously saved JSON cases can be reopened locally: the application verifies their state-specific source hashes, recalculates the screening and compares measured outputs before restoring optional field notes. This is reproducibility checking, not cryptographic proof of authorship, legal source authenticity or confirmation of field observations.</p>
+<p><strong>Evidence review (Stage 13):</strong> Source-labelled records separate 2021 ESA mapping, historical 1984–2024 JRC observations, user-declared petroleum scope and optional user-reported field statuses. The register includes timestamps and source-file hashes; outstanding-evidence flags depend on documentation and coverage only. These flags are neither risk ratings, safety decisions nor proof of an inspection. Imported case measurements are always rerun before any user notes are restored.</p>
 <p><strong>Records and exports:</strong> JSON screening cases contain the complete numeric baseline, source SHA-256 hashes, selected coordinates and optional user-entered field verification statuses. CSVs contain tidy numeric results or a separately identified field-verification checklist. Field observations are never inferred from satellite evidence. These records are downloaded in the current browser and are not stored in an application account. Review site coordinates, staff names and notes before sharing files.</p>
 <p><strong>Privacy:</strong> The app does not intentionally send entered site coordinates to a server. Standard website hosting may log IP addresses and requested files. The land-cover map and PDF are generated on-device from locally hosted source assets.</p></article></dialog>
 </body></html>
