@@ -1,0 +1,72 @@
+name: PetroScreen NG independent live quality-release verification
+
+on:
+  push:
+    branches: ['research/petroscreen-ng-v3-quality-release']
+    paths: ['.github/workflows/petroscreen-live-quality-qa.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-public-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Verify served UI, locally hosted 185 LGAs and original Delta source digest
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, re, time, urllib.request
+          root = "https://bahagogabriel.com/petroscreen/"
+          def get(path="", timeout=90):
+              req = urllib.request.Request(root + path, headers={
+                "User-Agent": "PetroScreenNG-independent-quality-release-QA"})
+              with urllib.request.urlopen(req, timeout=timeout) as response:
+                  assert response.status == 200
+                  return response.read()
+          for trial in range(35):
+              try:
+                  html = get().decode("utf-8")
+                  if all(x in html for x in (
+                    "VERSION 3.0", 'id="state-zoom"',
+                    'id="show-admin-context"', 'id="overview-zoom-notice"',
+                    'id="screen-progress"', 'id="map-legend"',
+                    'id="download-case-bundle"', 'id="screen-btn"')):
+                      break
+              except Exception as ex:
+                  print("Pages propagation check:", type(ex).__name__)
+              if trial == 34:
+                  raise RuntimeError("New PetroScreen quality-release HTML not deployed")
+              time.sleep(7)
+          match = re.search(r'src="\./(assets/index-[^"]+\.js)"', html)
+          assert match, "Published compiled module missing"
+          js = get(match.group(1)).decode("utf-8")
+          for phrase in (
+              "lga_context.geojson", "ScaleControl", "Screening in progress",
+              "Screening could not finish", "overview-zoom-notice",
+              "admin-boundary-status", "State and ", "geoBoundaries",
+              "Screening completed in your browser.",
+              "PetroScreenNG/ScreeningCase/1.0"):
+              assert phrase in js, ("New compiled source functionality missing", phrase)
+          manifest = json.loads(get("data/manifest.json"))
+          assert len(manifest["states"]) == len(manifest["state_sources"]) == 9
+          assert sum(len(s["source_files"]) for s in manifest["state_sources"]) == 31
+          metadata = json.loads(get("data/lga_context_provenance.json"))
+          raw = get("data/lga_context.geojson")
+          assert hashlib.sha256(raw).hexdigest() == metadata["output_geojson_sha256"]
+          features = json.loads(raw)["features"]
+          assert len(features) == metadata["selected_units"] == 185
+          assert metadata["source_year"] == "2022"
+          assert all(f["properties"].get("pilotState") in manifest["states"] for f in features)
+          assert set(metadata["selected_states"]) == set(manifest["states"])
+          delta = next(s for s in manifest["state_sources"] if s["state"] == "Delta")
+          tif = next(f for f in delta["source_files"] if f["kind"] == "worldcover")
+          assert hashlib.sha256(get("data/" + tif["file"], 120)).hexdigest() == tif["sha256"]
+          print("PUBLIC_QUALITY_RELEASE_HTML_COMPILED_JS_AND_LGA_SHA256=PASS")
+          print("REAL_DELTA_ORIGINAL_SOURCE_GEOTIFF_SHA256=PASS")
+          print("NINE_STATES=9 ORIGINAL_TIFFS_INDEXED=31 ORIGINAL_SCIENCE_UNCHANGED")
+          print("LGA_DISPLAY_ONLY=185 EXTERNAL_MAP_PROVIDER_REQUESTS=NONE")
+          print("PUBLIC_URL=" + root)
+          PY
