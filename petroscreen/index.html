@@ -5,8 +5,8 @@
 <meta name="color-scheme" content="light">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-OkdQjeVX.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DiBOWVr_.css">
+  <script type="module" crossorigin src="./assets/index-aA0uDAST.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Bjz9eX7x.css">
 </head><body>
 <a class="skip-link" href="#screen-form">Skip to screening controls</a>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
@@ -109,12 +109,22 @@
 </aside>
 <section class="map-panel" aria-label="Interactive pilot-region screening map">
 <div id="map" aria-label="Map: click a site inside a verified pilot region to select it"></div>
+<div class="map-state-navigation">
+<label for="state-zoom">Find a pilot state</label>
+<select id="state-zoom" disabled><option value="">Loading nine-state index…</option></select>
+<label class="admin-toggle" for="show-admin-context"><input id="show-admin-context" type="checkbox" checked> Show state / LGA boundaries</label>
+<p id="admin-boundary-status" role="status">State boundaries are provided by geoBoundaries/GRID3 (2022); LGA map is for orientation only.</p>
+</div>
+<div id="overview-zoom-notice" class="overview-zoom-notice" hidden role="status">
+Regional overview hidden at close zoom because it is generalized. Run site screening for true source-derived ESA 2021 land cover.
+</div>
 <div class="map-tip" id="map-guide" role="status"><span class="pulse-dot"></span> <span id="map-tip-text">Click inside the highlighted boundary to set a site, or use coordinates</span></div>
 <button type="button" id="map-continue" class="map-continue" hidden>Site selected · Continue to screening ↑</button>
 <details id="map-legend" class="map-legend" aria-label="Map key and viewing options">
 <summary>Map key · ESA land cover 2021</summary>
 <div class="map-legend-content">
 <p id="map-legend-status" role="status" aria-live="polite">Generalized regional overview. Detailed class colors become available after screening.</p>
+<p class="legend-explainer">The regional thumbnail intentionally disappears at close zoom. True 2021 land-cover classes have 10 m nominal source cells, whose square edges are visible when magnified. No invented street imagery or smoothed-up detail.</p>
 <button type="button" id="map-fit-pilot" class="map-fit-pilot" disabled>Show full pilot area ↗</button>
 <ul class="map-symbols" aria-label="Site and coverage symbols">
 <li><span class="symbol-symbol symbol-boundary" aria-hidden="true"></span>Verified nine-state pilot boundary</li>
@@ -153,6 +163,7 @@
 <aside class="results-panel" aria-label="Site screening findings">
 <div class="results-top"><span class="overline">ENVIRONMENTAL INTELLIGENCE</span><h2 id="findings-title" tabindex="-1">Screening findings</h2>
 <p id="result-subtitle">Your site assessment appears here after analysis.</p></div>
+<div id="screen-progress" class="screen-progress" hidden role="status" aria-live="polite"></div>
 <div id="empty-state" class="empty-state"><div class="empty-icon" aria-hidden="true">◎</div><h3>Your screening results appear here</h3><p>Choose a location on the map or enter coordinates, select a study radius, and run screening. The mapped findings and downloadable reports will appear here.</p></div>
 <section id="results" hidden>
 <div class="findings-orientation"><strong>Read as source-dated mapped evidence—not a site safety verdict.</strong>
