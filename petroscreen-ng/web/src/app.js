@@ -1300,6 +1300,16 @@ receiptButton.addEventListener("click",()=>{
   downloadText("PetroScreenNG_VerificationReceipt.json",
     JSON.stringify(verifiedReceipt,null,2)+"\n","application/json;charset=utf-8");
 });
+// Short optional introduction—no data downloads, consent changes or screening side effects.
+const aboutDialog=$("about-dialog");
+$("open-about").addEventListener("click",()=>aboutDialog.showModal());
+for(const id of ["close-about","about-dismiss"])
+  $(id).addEventListener("click",()=>aboutDialog.close());
+$("about-start").addEventListener("click",()=>{
+  aboutDialog.close();
+  $("longitude").focus({preventScroll:true});
+  $("longitude").scrollIntoView({block:"center",behavior:"instant"});
+});
 $("methods-link").addEventListener("click",e=>{e.preventDefault();$("methods-dialog").showModal();});
 $("close-methods").addEventListener("click",()=>$("methods-dialog").close());
 setLoadState("loading","Preparing local satellite data…");loadData();
