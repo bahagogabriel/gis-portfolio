@@ -169,8 +169,20 @@ Regional overview hidden at close zoom because it is generalized. Run site scree
 <div id="screen-progress" class="screen-progress" hidden role="status" aria-live="polite"></div>
 <div id="empty-state" class="empty-state"><div class="empty-icon" aria-hidden="true">◎</div><h3>Your screening results appear here</h3><p>Choose a location on the map or enter coordinates, select a study radius, and run screening. The mapped findings and downloadable reports will appear here.</p></div>
 <section id="results" hidden>
-<div class="findings-orientation"><strong>Read as source-dated mapped evidence—not a site safety verdict.</strong>
-<p>ESA WorldCover maps 2021 land-cover classes. JRC historical water summarizes 1984–2024 observations. Neither confirms present-day conditions, petroleum impacts or compliance.</p></div>
+<section class="result-first" aria-labelledby="summary-heading">
+<h3 id="summary-heading">Your screening at a glance</h3>
+<p class="result-explainer">What the satellite maps show around your chosen site.</p>
+<p class="main-cover" id="main-cover">Largest mapped land-cover type appears here.</p>
+<div class="metric-grid"><div><span>Area checked</span><strong id="area-value">—</strong></div><div><span>Area with usable map data</span><strong id="coverage-value">—</strong></div></div>
+<p class="coverage-explainer">Map coverage shows how much of your circle has usable data—not how safe or accurate the site is.</p>
+<div class="primary-downloads">
+<button type="button" class="download primary-report" id="download-pdf">Download screening results · PDF ↓</button>
+<button type="button" class="download secondary-report" id="download-case-bundle">Save complete record · ZIP ↓</button>
+</div>
+<p class="primary-export-note">PDF: mapped findings and source limits. ZIP: full report and reusable data; may include your own notes. Check before sharing.</p>
+</section>
+<div class="findings-orientation"><strong>Satellite evidence, not a site safety verdict.</strong>
+<p>ESA WorldCover maps 2021 land cover; JRC records water observed in 1984–2024. Neither confirms today's conditions or petroleum impacts.</p></div>
 <details id="reading-guide" class="reading-guide">
 <summary>How to read the numbers in this screening</summary>
 <dl>
@@ -181,35 +193,40 @@ Regional overview hidden at close zoom because it is generalized. Run site scree
 <dt>Nearest mapped class</dt><dd>Approximate distance to a 2021 class pixel centre within your buffer. “Not mapped” does not confirm the feature is absent.</dd>
 </dl>
 </details>
-<div class="metric-grid"><div><span>Buffer area</span><strong id="area-value">—</strong></div><div><span>Data coverage</span><strong id="coverage-value">—</strong></div></div>
-
-<h3>Mapped land cover <small>ESA 2021</small></h3>
+<h3>Land cover <small>ESA map, 2021</small></h3>
+<p class="section-explainer">Trees, farms, buildings and other land types within the circle. Shares refer to usable mapped pixels, not today's conditions.</p>
 <div id="land-cover" class="bars"></div>
-<h3>Historical surface water <small>1984–2024</small></h3>
+<h3>Where water has been seen <small>Satellite record, 1984–2024</small></h3>
+<p class="section-explainer">Areas where satellites observed water with different frequencies. The three areas overlap; they are <strong>not three separate lakes</strong> or a flood prediction.</p>
 <div id="water-summary" class="water-summary"></div>
 <div id="warnings" class="warnings"></div>
+<details class="findings-details" id="finding-meaning"><summary>What do these findings mean?</summary>
+<div id="interpretation" class="interpretation" aria-live="polite"></div>
+</details>
+<details class="advanced-results" id="advanced-results">
+<summary>More tools · compare sites, field checks and extra downloads</summary>
+<p class="advanced-note">Optional tools for follow-up. Your key findings and screening PDF are above.</p>
 <section class="receptors" aria-label="Mapped environmental context and reconnaissance">
 <h3>Mapped site context <small>ESA 2021</small></h3>
 <p class="fine">Approximate distance from the selected point to the nearest mapped class pixel centre within your chosen radius. These are landscape indicators, not verified environmental receptors.</p>
 <div id="receptor-summary"></div>
 <p class="fine">“Not mapped” means not identified in the available 2021 pixels—not confirmed absent. Ground verification remains necessary.</p>
 </section>
-<div id="interpretation" class="interpretation" aria-live="polite"></div>
 <section class="candidate-tools" aria-label="Compare candidate sites">
-<h3>Compare site alternatives <small>Stage 16 · session only</small></h3>
-<p class="fine">Save this completed screening, then choose another point and run another screening at the <strong>same radius</strong>. Compare up to four candidates using mapped evidence only—not risk scores or recommended site rankings.</p>
+<h3>Compare other sites</h3>
+<p class="fine">Compare up to four places screened at the same distance. The app does not rank site safety.</p>
 <button type="button" id="add-candidate">Add current site to comparison</button>
 <button type="button" id="open-comparison">View comparison (0)</button>
 <p id="comparison-status" role="status" aria-live="polite" class="fine"></p>
 </section>
 <section class="evidence-review" aria-label="Evidence provenance and review completeness">
-<h3>Evidence review <small>completeness only · no risk score</small></h3>
+<h3>What still needs checking?</h3>
 <p id="review-summary" class="fine" role="status" aria-live="polite">Complete a screening to inspect documented and outstanding evidence.</p>
 <ul id="review-flags" class="review-flags"></ul>
 <p class="fine">Mapped 2021 classes, historical water observations, user-declared project context and user-reported field statuses are distinct evidence categories. A recorded status does not independently verify fieldwork or establish environmental safety.</p>
 </section>
 <section id="evidence-actions" class="evidence-actions" aria-label="Evidence still to collect before professional review">
-<h3>What evidence should be checked next? <small>planning checklist · not a risk ranking</small></h3>
+<h3>Checklist for field follow-up</h3>
 <p id="action-summary" class="fine" role="status" aria-live="polite">Run screening to prepare a source-dated fieldwork evidence checklist.</p>
 <p class="fine">This is an <strong>evidence-request list, not a determination that work is complete or legally required</strong>. Field statuses are user-reported, not authenticated by PetroScreen. Review every item with qualified personnel before acting.</p>
 <details id="action-list-toggle" class="action-list-toggle">
@@ -220,7 +237,8 @@ Regional overview hidden at close zoom because it is generalized. Run site scree
 <p class="fine">The CSV includes selected coordinates and field status categories, but excludes observer names and free-text field notes. It is generated locally and is not a regulatory checklist.</p>
 </section>
 <section id="petroleum-scope" class="petroleum-scope" aria-label="Petroleum site evidence scoping">
-<h3>Petroleum evidence plan <small>advisory · not a risk rating</small></h3>
+<h3>Project-specific questions</h3>
+<p class="section-explainer">If you entered an activity, these prompts can guide evidence gathering; they do not verify a facility.</p>
 <p id="scope-summary" class="fine"></p>
 <div id="scope-tasks"></div>
 <p class="fine">Suggested checks are not a complete EIA, professional hazard study or official list of legal requirements. Verify current regulations and documentation with appropriately qualified personnel.</p>
@@ -238,15 +256,12 @@ Regional overview hidden at close zoom because it is generalized. Run site scree
 <label class="field-notes-label">General observations / evidence references <textarea id="field-notes" rows="3" maxlength="2000" placeholder="Optional. Avoid personal or sensitive information."></textarea></label>
 </details>
 <section class="handoff-download" aria-label="Professional desk-review document">
-<h3>Professional desk-review handoff <small>printable PDF · not a regulatory report</small></h3>
+<h3>Professional follow-up PDF</h3>
 <p class="fine">Includes the original source-mapped screening PDF pages, followed by source dates, evidence gaps, unverified field statuses, project evidence requests and source-file SHA-256 references. No risk score, professional sign-off or new measurements are added.</p>
 <button type="button" class="download" id="download-handoff-pdf">Download professional desk-review handoff · PDF ↓</button>
 <p class="fine">Contains the site and user-entered verification-status categories; observer names and free-text notes are omitted. Check before sharing. Your existing screening PDF and case ZIP remain unchanged.</p>
 </section>
-<button type="button" class="download" id="download-case-bundle">Download complete case package · ZIP ↓</button>
-<p class="fine">Recommended for a complete record: this browser-generated ZIP holds your PDF, reopenable JSON, CSVs, GIS GeoJSON and SHA-256 manifest. It includes site coordinates and may contain private notes. Checksums verify file integrity, not field authenticity.</p>
-<button type="button" class="download" id="download-pdf">Download screening PDF ↓</button>
-<p class="fine">Preliminary satellite-derived context only—not a survey, EIA, contamination assessment, spill prediction or regulatory approval.</p>
+<p class="fine">The full record ZIP above contains a mapped PDF, reusable data and an integrity manifest. Checksums cannot authenticate fieldwork.</p>
 <details class="export-options" id="export-options">
 <summary>More downloads &amp; reopen an existing case</summary>
 <div class="export-options-inner"><div class="export-tools">
@@ -267,6 +282,7 @@ Regional overview hidden at close zoom because it is generalized. Run site scree
 <p id="case-import-status" role="status" aria-live="polite"></p>
 </div></div>
 </div>
+</details>
 </details>
 </section>
 <div class="foot-links"><a href="#methods-dialog" id="methods-link">Methods, limitations & sources ↗</a><span>© 2026 Samuel Bahago Gabriel</span></div>

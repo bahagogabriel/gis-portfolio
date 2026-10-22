@@ -609,3 +609,54 @@ fieldset.radius{margin:10px 0 12px}
 .lga-navigation>label{margin-top:3px;font-size:10px}
 .lga-navigation select{margin-top:4px;margin-bottom:10px}
 .map-admin-label.lga{background:#f9fff2e8;color:#153a2d;border:1px solid #c3dfc3}
+
+/* Results first: single clear report action, compact context and progressive disclosure. */
+.result-first{margin:11px 0 13px;padding:13px;border-radius:11px;
+ background:#f1f8f2;border:1px solid #b9d8c3}
+#results .result-first h3{margin:0 0 5px;font-size:17px;line-height:1.35;color:#194e35}
+.result-explainer,.section-explainer,.coverage-explainer,.primary-export-note{
+ color:#3a604c;font-size:12px;line-height:1.55;margin:5px 0 10px}
+.main-cover{border-left:3px solid #3e8861;padding:7px 10px;margin:8px 0;
+ background:#e5f1e7;color:#1a4d34;font-size:13px;font-weight:750;line-height:1.5}
+.result-first .metric-grid{margin:9px 0 4px;gap:7px}
+.result-first .metric-grid>div{background:white;padding:11px 8px;border:1px solid #d4e5d9}
+.result-first .metric-grid span{font-size:11px;line-height:1.45}
+.result-first .metric-grid strong{font-size:19px}
+.coverage-explainer{font-size:11px;margin:7px 0 11px}
+.primary-downloads{display:grid;gap:7px}
+#results .primary-downloads .download{margin:0;min-height:46px;
+ text-align:center;font-size:13px;line-height:1.4;padding:11px 10px}
+#results .primary-downloads .secondary-report{background:white;color:#215b3f;
+ border:1px solid #3b7a55}
+#results .primary-downloads .secondary-report:hover{background:#e7f3e9}
+.primary-export-note{font-size:11px;margin:8px 0 0}
+#results>h3{margin:18px 0 5px}
+#results>.section-explainer{margin:0 0 12px}
+.water-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.water-summary .water-level{padding:11px 7px;display:flex;flex-direction:column;
+ align-items:center;gap:5px;min-width:0;border-radius:9px;background:#ecf4f4}
+.water-summary .water-level strong{font-size:11px;color:#215641;line-height:1.35;text-align:center}
+.water-summary .water-level b{font-size:16px;color:#123e37;line-height:1.25}
+.water-summary .water-level span{font-size:10px;color:#42645a;line-height:1.4;text-align:center}
+.findings-orientation{padding:9px 11px;margin:8px 0}
+.findings-orientation p{font-size:11px;line-height:1.45;margin:4px 0 0}
+.findings-details,.advanced-results{border:1px solid #cadfd0;
+ border-radius:9px;background:#f7faf8;margin:12px 0;color:#225039}
+.findings-details>summary,.advanced-results>summary{cursor:pointer;
+ padding:11px 12px;min-height:44px;font-weight:800;font-size:12px;line-height:1.5}
+.findings-details[open]>summary,.advanced-results[open]>summary{border-bottom:1px solid #cce0d1}
+.findings-details #interpretation{margin:10px}
+.advanced-results{margin-top:18px}
+.advanced-results>summary{font-size:13px}
+.advanced-results>.advanced-note{margin:9px 12px;font-size:12px;
+ color:#496956;line-height:1.5}
+.advanced-results>section,.advanced-results>details,.advanced-results>.fine{margin-left:11px;margin-right:11px}
+@media(max-width:480px){
+ .result-first{padding:11px 10px}
+ .water-summary{grid-template-columns:1fr;gap:6px}
+ .water-summary .water-level{display:grid;grid-template-columns:1fr 1fr;
+ align-items:center;column-gap:8px;text-align:left;padding:10px}
+ .water-summary .water-level strong{grid-column:1;grid-row:1;text-align:left}
+ .water-summary .water-level b{grid-column:2;grid-row:1;text-align:right;font-size:16px}
+ .water-summary .water-level span{grid-column:1/-1;text-align:left}
+}
