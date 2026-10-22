@@ -1,13 +1,14 @@
-name: PetroScreen v3.0 consolidated research-pilot release readiness
+name: PetroScreen v3.0 post-release map and screening quality audit
 
 on:
   push:
-    branches: ['research/petroscreen-ng-stage26-28-release-candidate']
+    branches: ['research/petroscreen-ng-v3-quality-release']
     paths:
       - '.github/workflows/petroscreen-v3-release.yml'
       - '.github/workflows/petroscreen-v3-live-qa.yml'
       - '.github/workflows/petroscreen-stage22-live-qa.yml'
       - 'petroscreen-ng/stage10_reference_proximity.py'
+      - 'petroscreen-ng/build_lga_context.py'
       - 'petroscreen-ng/web/src/**'
       - 'petroscreen-ng/web/test/**'
       - 'petroscreen-ng/web/index.html'
@@ -57,6 +58,10 @@ jobs:
           mkdir -p petroscreen-ng/web/public/data
           cp -a /tmp/petroscreen-old-verified/data/. petroscreen-ng/web/public/data/
           test -f petroscreen-ng/web/public/data/manifest.json
+      - name: Build fully local, separately licensed 2022 LGA orientation context
+        run: |
+          python -m pip install shapely==2.1.2
+          python petroscreen-ng/build_lga_context.py
       - name: Verify all 31 unchanged remote-sensing source files
         run: |
           python3 - <<'PY'
@@ -107,6 +112,8 @@ jobs:
         run: node petroscreen-ng/web/test/stage24-evidence-actions-browser.mjs
       - name: Final all-nine-state three-radius actual verified raster acceptance (27 cases)
         run: node petroscreen-ng/web/test/stage26-28-all-radii-acceptance.mjs
+      - name: Verify map scale/admin context and single-flight screening failure recovery
+        run: node petroscreen-ng/web/test/quality-map-screening-browser.mjs
       - name: Browser-test all nine states and download Delta/Rivers PDFs
         run: node petroscreen-ng/web/test/nine-state-gui-smoke.mjs
       - name: Inspect actual mapped PDFs and detect cutoff/state mistakes
@@ -161,7 +168,7 @@ jobs:
           print('SAFE_ONLY_PETROSCREEN_CHANGED_AND_31_RASTERS_IDENTICAL=PASS')
           PY
           # Block any superseded build from overwriting a newer UI release.
-          git fetch origin refs/heads/research/petroscreen-ng-stage26-28-release-candidate
+          git fetch origin refs/heads/research/petroscreen-ng-v3-quality-release
           test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA" || {
             echo 'ABORT: research branch advanced after this run; refuse stale preview' >&2
             exit 1
