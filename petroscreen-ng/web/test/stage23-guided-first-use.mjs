@@ -93,6 +93,7 @@ try{
   assert.match(await page.locator("#reading-guide").textContent(),/not scientific confidence or site safety/);
   assert.match(await page.locator("#reading-guide").textContent(),/Not mapped/);
   assert.match(await page.locator("#interpretation").textContent(),/JRC 1984/);
+  await page.locator("#advanced-results").evaluate(el=>{el.open=true;});
   await page.locator("#field-record").evaluate(el=>{el.open=true;});
   await page.locator("#field-observer").fill("Owner QA field note (unverified)");
   const saved=await page.evaluate(()=>({
