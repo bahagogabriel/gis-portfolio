@@ -1,0 +1,23 @@
+{
+  "purpose": "Visual navigation only; not a screening data source, legal boundary, or EIA evidence",
+  "source": "geoBoundaries gbOpen NGA ADM2 / original GRID3",
+  "source_year": "2022",
+  "source_adm2_count": 774,
+  "license": "CC BY 4.0",
+  "source_pinned_commit": "9469f09",
+  "download_url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/NGA/ADM2/geoBoundaries-NGA-ADM2_simplified.geojson",
+  "original_download_sha256": "daac9ba2c98f0d8984085c8a5b3a5301fca362f3ca37e6ac7dfcc7633719fc1d",
+  "selected_states": {
+    "Abia": 17,
+    "Akwa Ibom": 31,
+    "Bayelsa": 8,
+    "Cross River": 18,
+    "Delta": 25,
+    "Edo": 18,
+    "Imo": 27,
+    "Ondo": 18,
+    "Rivers": 23
+  },
+  "selected_units": 185,
+  "output_geojson_sha256": "0f56d8ece8467be8656cfa7a7414cc5e0b920d891bf5ed0431fe6e9e6e7f4ffb"
+}
