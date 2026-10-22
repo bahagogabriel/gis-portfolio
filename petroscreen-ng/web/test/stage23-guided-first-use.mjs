@@ -66,6 +66,22 @@ try{
     null,{timeout:120000});
   assert.match(await page.locator("#form-feedback").textContent(),/Screening completed/);
   assert.equal(await page.locator("#results").isVisible(),true);
+  assert.equal(await page.locator("#advanced-results").getAttribute("open"),null);
+  assert.equal(await page.locator("#download-pdf").isVisible(),true);
+  assert.equal(await page.locator("#download-case-bundle").isVisible(),true);
+  assert.equal(await page.locator("#main-cover").isVisible(),true);
+  assert.match(await page.locator("#main-cover").textContent(),/Largest mapped land type:.*classified pixels/);
+  assert.equal(await page.locator("#water-summary .water-level").count(),3);
+  const waterWords=await page.locator("#water-summary").textContent();
+  assert.match(waterWords,/at least 1% of valid satellite observations/);
+  assert.match(waterWords,/at least half of valid satellite observations/);
+  assert.match(waterWords,/at least 90% of valid satellite observations/);
+  assert.doesNotMatch(waterWords,/historical occurrence/i);
+  assert.equal(await page.locator("#finding-meaning").getAttribute("open"),null);
+  const primary=await page.locator("#download-pdf").boundingBox();
+  const summary=await page.locator("#summary-heading").boundingBox();
+  assert.ok(primary.y>summary.y&&primary.y-summary.y<410,
+    "Primary download should be within the first compact findings section");
   assert.match(await page.locator("#result-subtitle").textContent(),/Delta/);
   assert.equal(requests.length,entry.source_files.length);
   assert.match(await page.locator(".findings-orientation").textContent(),/ESA WorldCover/);

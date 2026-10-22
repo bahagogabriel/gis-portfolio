@@ -436,6 +436,7 @@ try{
     }
   }
 
+  await page.locator("#advanced-results").evaluate(el=>{el.open=true;});
   // Clear comparison without modifying the last screening, source rasters or notes.
   await page.locator("#open-comparison").click();
   assert.equal(await page.locator("#clear-comparison").isEnabled(),true);

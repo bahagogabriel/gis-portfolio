@@ -658,7 +658,7 @@ function display(result){
   }
   const water=$("water-summary");water.replaceChildren();
   const plainWater={
-    1:["Seen occasionally","Water in at least 1% of valid satellite observations"],
+    1:["Water observed","Water in at least 1% of valid satellite observations"],
     50:["Seen often","Water in at least half of valid satellite observations"],
     90:["Seen very often","Water in at least 90% of valid satellite observations"]
   };
