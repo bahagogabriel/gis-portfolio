@@ -49,6 +49,8 @@ try{
     null,{timeout:120000});
   assert.match(await page.locator("#form-feedback").textContent(),/Screening completed/);
   assert.equal(requests.length,delta.source_files.length);
+  assert.equal(await page.locator("#evidence-actions").isVisible(),false);
+  await page.locator("#advanced-results").evaluate(el=>{el.open=true;});
   assert.equal(await page.locator("#evidence-actions").isVisible(),true);
   assert.match(await page.locator("#action-summary").textContent(),/7 field checks not checked/);
   assert.match(await page.locator("#action-summary").textContent(),/0 user-reported field statuses/);

@@ -88,6 +88,7 @@ try{
    assert.match(await page.locator("#interpretation").textContent(),/ESA WorldCover 2021/);
    assert.equal(await page.locator("#receptor-summary .receptor-item").count(),4);
    assert.equal(await page.locator("#results").isVisible(),true);
+   await page.locator("#advanced-results").evaluate(el=>{el.open=true;});
    assert.match(await page.locator("#action-summary").textContent(),/No field evidence is authenticated here/);
    const actualRequests=tiffs.filter(url=>
     entry.source_files.some(file=>url.includes("/"+file.file+"?sha256="))).length;

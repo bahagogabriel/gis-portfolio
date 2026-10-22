@@ -117,6 +117,7 @@ try{
       await dimensions(page,"MOBILE_REPORT");
       await page.screenshot({path:"petroscreen-ng/artifacts_stage19/mobile-findings.png"});
       await auditAxe(page,"MOBILE_RESULTS");
+      await page.locator("#advanced-results > summary").click();
       await page.locator("#export-options summary").click();
       assert.equal(await page.locator("#download-data-json").isVisible(),true);
       assert.equal(await page.locator("#reopen-case").isVisible(),true);

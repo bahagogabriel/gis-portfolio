@@ -73,6 +73,7 @@ try{
     assert.match(text,/Mapped mangroves/);
     assert.match(text,/Mapped built-up/);
     assert.match(await page.locator(".receptors").textContent(),/not confirmed absent/i);
+    await page.locator("#advanced-results").evaluate(el=>{el.open=true;});
     // Every state has a complete downloadable provenance record. The
     // field verification defaults must never imply field observation.
     const jsonPending=page.waitForEvent("download",{timeout:90000});
