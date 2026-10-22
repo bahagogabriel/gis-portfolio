@@ -55,7 +55,7 @@ try{
  await page.screenshot({path:"petroscreen-ng/artifacts_quality/navigation-overview.png"});
 
  // Slow only source TIFFs; the progress panel must not silently go blank.
- await page.route(/\\.tif(?:\\?|$)/,async route=>{
+ await page.route(/\.tif(?:\?|$)/,async route=>{
    await pause(300);
    await route.continue();
  });
@@ -76,7 +76,7 @@ try{
  assert.equal(await page.locator("#results").isVisible(),true);
  assert.equal(await page.locator("#screen-progress").isVisible(),false);
  assert.match(await page.locator("#result-subtitle").textContent(),/Delta/);
- const deltaTiffs=requests.filter(u=>/\\.tif(?:\\?|$)/.test(u)&&
+ const deltaTiffs=requests.filter(u=>/\.tif(?:\?|$)/.test(u)&&
    u.includes("/regions/Delta/"));
  assert.equal(deltaTiffs.length,delta.source_files.length,
    "Duplicate form event must not cause duplicate TIFF loads");
@@ -89,7 +89,7 @@ try{
  // re-click with the same WGS84 point must produce accepted results.
  const rivers=manifest.state_sources.find(s=>s.state==="Rivers");
  let rejectOne=true;
- await page.route(/regions\\/Rivers\\/.*\\.tif/,async route=>{
+ await page.route(/regions\/Rivers\/.*\.tif/,async route=>{
    if(rejectOne){rejectOne=false;await route.fulfill({status:503,body:"Unavailable"});}
    else await route.continue();
  });
