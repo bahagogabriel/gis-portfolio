@@ -1197,7 +1197,7 @@ $("download-case-bundle").addEventListener("click",async()=>{
   }catch(error){
     ui.feedback.textContent="Case package not completed: "+error.message;
   }finally{
-    control.disabled=false;control.textContent="Download complete case package · ZIP ↓";
+    control.disabled=false;control.textContent="Save complete record · ZIP ↓";
   }
 });
 $("download-handoff-pdf").addEventListener("click",async()=>{
@@ -1235,7 +1235,7 @@ ui.pdf.addEventListener("click",async()=>{
     ui.feedback.textContent="PDF report could not be completed: "+error.message;
   }finally{
     ui.pdf.disabled=false;
-    ui.pdf.textContent="Download screening PDF ↓";
+    ui.pdf.textContent="Download screening results · PDF ↓";
   }
 });
 // Stage 15: package verification is independent from screening and saved-case reopening.
