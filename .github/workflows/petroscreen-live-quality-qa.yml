@@ -1,4 +1,4 @@
-name: PetroScreen NG independent live focused-state LGA verification
+name: PetroScreen NG independent results-first publication verification
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
-      - name: Verify state-focused LGA UI, exact published JS parity, 185 LGAs and original Delta digest
+      - name: Verify results-first layout, exact compiled assets, 185 LGAs and original source TIFF
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -35,20 +35,35 @@ jobs:
                     'id="lga-nav-summary"',
                     'id="show-admin-context"', 'id="overview-zoom-notice"',
                     'id="screen-progress"', 'id="map-legend"',
-                    'id="download-case-bundle"', 'id="screen-btn"')):
+                    'id="download-case-bundle"', 'id="screen-btn"',
+                    'id="summary-heading"', 'id="main-cover"',
+                    'id="advanced-results"', 'id="finding-meaning"',
+                    'id="download-pdf"', 'id="water-summary"')):
                       break
               except Exception as ex:
                   print("Pages propagation check:", type(ex).__name__)
               if trial == 34:
                   raise RuntimeError("New PetroScreen quality-release HTML not deployed")
               time.sleep(7)
+          # Results and the two primary downloads must precede optional
+          # technical material, with one unique action for each output.
+          assert html.count('id="download-pdf"') == 1
+          assert html.count('id="download-case-bundle"') == 1
+          positions = [html.index(tag) for tag in (
+              'id="summary-heading"', 'id="download-pdf"',
+              'id="download-case-bundle"', 'id="water-summary"',
+              'id="advanced-results"')]
+          assert positions == sorted(positions), ("Screening-first visual order", positions)
+          assert "not three separate lakes" in html
+          assert "not a site safety verdict" in html
+          assert 'id="area-value"' in html and 'id="coverage-value"' in html
           match = re.search(r'src="\./(assets/index-[^"]+\.js)"', html)
           assert match, "Published compiled module missing"
           public_js = get(match.group(1))
           js = public_js.decode("utf-8")
           # Unlike token-presence checks alone, exact bytes prevent a stale
           # CDN/Pages module from being treated as the new production release.
-          expected_main = "04fc423f997ab4002520aa3bb7df093347f079de"
+          expected_main = "27f27a9a65f1ea91eef40b76b2bb2a95cdac19a1"
           raw_url = ("https://raw.githubusercontent.com/bahagogabriel/"
                      "gis-portfolio/" + expected_main + "/petroscreen/" +
                      match.group(1))
@@ -59,6 +74,8 @@ jobs:
           assert hashlib.sha256(public_js).digest() == hashlib.sha256(approved_js).digest(), (
               "Public module differs from the independently merged source tree")
           for phrase in (
+              "Largest mapped land type:", "Seen often", "Seen very often",
+              "valid satellite observations", "advanced-results",
               "lga_context.geojson", "ScaleControl", "Screening in progress",
               "Screening could not finish", "overview-zoom-notice",
               "admin-boundary-status", "Find an LGA in ",
@@ -66,6 +83,19 @@ jobs:
               "Screening completed in your browser.",
               "PetroScreenNG/ScreeningCase/1.0"):
               assert phrase in js, ("New compiled source functionality missing", phrase)
+          # Compare the served CSS with the version committed to production;
+          # visual styles must not lag behind the JS/HTML deployment.
+          css_match = re.search(
+              r'href="\./(assets/index-[^"]+\.css)"', html)
+          assert css_match, "Published stylesheet missing"
+          css_path = css_match.group(1)
+          req_css = urllib.request.Request(
+              "https://raw.githubusercontent.com/bahagogabriel/"
+              "gis-portfolio/" + expected_main + "/petroscreen/" + css_path,
+              headers={"User-Agent": "PetroScreenNG-official-CSS-parity-QA"})
+          with urllib.request.urlopen(req_css, timeout=90) as response:
+              approved_css = response.read()
+          assert hashlib.sha256(get(css_path)).digest() == hashlib.sha256(approved_css).digest()
           manifest = json.loads(get("data/manifest.json"))
           assert len(manifest["states"]) == len(manifest["state_sources"]) == 9
           assert sum(len(s["source_files"]) for s in manifest["state_sources"]) == 31
@@ -80,7 +110,7 @@ jobs:
           delta = next(s for s in manifest["state_sources"] if s["state"] == "Delta")
           tif = next(f for f in delta["source_files"] if f["kind"] == "worldcover")
           assert hashlib.sha256(get("data/" + tif["file"], 120)).hexdigest() == tif["sha256"]
-          print("PUBLIC_FOCUSED_STATE_LGA_HTML_AND_JS_EXACT_PRODUCTION_SOURCE_PARITY=PASS")
+          print("PUBLIC_RESULTS_FIRST_ORDER_AND_EXACT_JS_CSS_SOURCE_PARITY=PASS")
           print("APPROVED_MAIN="+expected_main)
           print("REAL_DELTA_ORIGINAL_SOURCE_GEOTIFF_SHA256=PASS")
           print("NINE_STATES=9 ORIGINAL_TIFFS_INDEXED=31 ORIGINAL_SCIENCE_UNCHANGED")
