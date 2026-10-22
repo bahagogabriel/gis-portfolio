@@ -45,6 +45,30 @@ try{
    "All nine named pilot states must be available as map navigation");
  assert.equal(await page.locator("#show-admin-context").isChecked(),true);
  await page.locator("#state-zoom").selectOption("Delta");
+ // State focus must show its local LGA outlines WITHOUT manual zoom.
+ await page.waitForFunction(()=>document.querySelector("#map")?.dataset.lgaMode==="focused"&&
+   document.querySelector("#admin-boundary-status")?.textContent.includes("Delta: 25"),
+   null,{timeout:30000});
+ assert.equal(await page.locator("#lga-navigation").isVisible(),true);
+ assert.equal(await page.locator("#lga-zoom option").count(),26);
+ assert.ok(await page.locator(".map-admin-label.lga").count()>=4,
+   "Expected visible LGA labels as soon as Delta is focused");
+ assert.equal(requests.filter(u=>/\.tif(?:\?|$)/.test(u)).length,0);
+ await page.locator("#lga-navigation > summary").click();
+ const firstLga=await page.locator("#lga-zoom option").nth(1).getAttribute("value");
+ await page.locator("#lga-zoom").selectOption(firstLga);
+ assert.equal(await page.locator("#map").getAttribute("data-focused-state"),"Delta");
+ await page.locator("#state-zoom").selectOption("Bayelsa");
+ await page.waitForFunction(()=>document.querySelector("#admin-boundary-status")
+   ?.textContent.includes("Bayelsa: 8"),null,{timeout:15000});
+ assert.equal(await page.locator("#lga-zoom option").count(),9);
+ await page.locator("#state-zoom").selectOption("Delta");
+ await page.waitForFunction(()=>document.querySelector("#admin-boundary-status")
+   ?.textContent.includes("Delta: 25"),null,{timeout:15000});
+ await page.locator("#show-admin-context").uncheck();
+ assert.equal(await page.locator("#map").getAttribute("data-lga-mode"),"hidden");
+ await page.locator("#show-admin-context").check();
+ assert.equal(await page.locator("#map").getAttribute("data-lga-mode"),"focused");
  for(let i=0;i<12;i++){
    if(await page.locator("#overview-zoom-notice").isVisible())break;
    await page.locator(".maplibregl-ctrl-zoom-in").click();
@@ -54,8 +78,7 @@ try{
    null,{timeout:15000});
  assert.match(await page.locator("#overview-zoom-notice").textContent(),
    /generalized.*true source-derived/is);
- await page.waitForFunction(()=>document.querySelector("#admin-boundary-status")?.textContent.includes("185"),
-   null,{timeout:30000});
+ assert.match(await page.locator("#admin-boundary-status").textContent(),/Delta: 25/);
  await page.screenshot({path:"petroscreen-ng/artifacts_quality/navigation-overview.png"});
 
  // Slow only source TIFFs; the progress panel must not silently go blank.
@@ -130,6 +153,10 @@ try{
    null,{timeout:90000});
  assert.equal(await small.locator("#state-zoom").isVisible(),true);
  assert.equal(await small.locator(".maplibregl-ctrl-scale").isVisible(),true);
+ await small.locator("#state-zoom").selectOption("Bayelsa");
+ await small.waitForFunction(()=>document.querySelector("#map")?.dataset.lgaMode==="focused"&&
+   document.querySelector("#lga-zoom")?.options.length===9,
+   null,{timeout:30000});
  const over=await small.evaluate(()=>document.documentElement.scrollWidth);
  assert.ok(over<=391,"Mobile viewport should not overflow horizontally");
  await mobile.close();

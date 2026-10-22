@@ -51,6 +51,7 @@ let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, over
 let candidates=[];
 let comparisonImportBusy=false;
 let screeningBusy=false, adminEnabled=true, lgaState="idle", lgaContext=null;
+let focusedStateName=null,selectedLgaName=null;
 const adminMarkers=[];
 let verifiedStates=[];
 let pendingImportedCase=null;
@@ -70,6 +71,8 @@ map.on("movestart",resetMapGuide);
 $("map-fit-pilot").addEventListener("click",()=>{
   if(!mapReady||!overview?.bounds_lon_lat)return;
   const [west,south,east,north]=overview.bounds_lon_lat;
+  focusedStateName=null;selectedLgaName=null;$("state-zoom").value="";
+  refreshLgaNavigation();syncAdmin();
   map.fitBounds([[west,south],[east,north]],{padding:32,maxZoom:9.5,duration:0});
   resetMapGuide();
 });
@@ -102,8 +105,13 @@ map.on("load",()=>{
   map.addSource("admin-lgas",{type:"geojson",data:emptyGeo});
   map.addLayer({id:"admin-state-lines",type:"line",source:"admin-states",
     paint:{"line-color":"#19493d","line-width":2,"line-opacity":0.95}},"selected-site");
-  map.addLayer({id:"admin-lga-lines",type:"line",source:"admin-lgas",minzoom:9.5,
-    paint:{"line-color":"#ecf6ef","line-width":1.1,"line-opacity":0.85}},"selected-site");
+  map.addLayer({id:"admin-lga-lines",type:"line",source:"admin-lgas",
+    layout:{"visibility":"none"},
+    paint:{"line-color":"#fffdf3","line-width":["interpolate",["linear"],["zoom"],7,1.35,11,1.9],
+      "line-opacity":0.95}},"selected-site");
+  map.addLayer({id:"admin-selected-lga-line",type:"line",source:"admin-lgas",
+    layout:{"visibility":"none"},
+    paint:{"line-color":"#da7a26","line-width":3,"line-opacity":1}},"selected-site");
   if(layers?.stateGeometries)displayAdminStates(layers.stateGeometries);
   if(coverage)map.getSource("pilot").setData(coverage);
   if(overview)addOverview();
@@ -117,48 +125,115 @@ function stateBounds(feature){
  }else for(const part of p)walk(part);}
  walk(feature.geometry.coordinates);return [[a,b],[c,d]];
 }
+/** Administrative boundaries are for navigation, NEVER scientific analysis. */
 function adminLabels(){
- for(const mark of adminMarkers)mark.remove();
- adminMarkers.length=0;
- if(!adminEnabled||!mapReady)return;
- const lga=map.getZoom()>=10.5;
- const fs=lga?lgaContext?.features:layers?.stateGeometries;
- if(!fs)return;
- const bounds=map.getBounds();
- let count=0;
- for(const f of fs){
-  if(count>=32)break;
-  const box=stateBounds(f),point=f.properties.labelPoint||
-   [(box[0][0]+box[1][0])/2,(box[0][1]+box[1][1])/2];
-  if(!bounds.contains(point))continue;
-  const element=document.createElement("span");
-  element.className=lga?"map-admin-label lga":"map-admin-label state";
-  element.textContent=f.properties.shapeName;
-  element.setAttribute("aria-hidden","true");
-  adminMarkers.push(new maplibregl.Marker({element,anchor:"center"})
-    .setLngLat(point).addTo(map));count++;
- }
+  for(const marker of adminMarkers)marker.remove();
+  adminMarkers.length=0;
+  if(!adminEnabled||!mapReady)return;
+  const useLga=!!lgaContext&&(!!focusedStateName||map.getZoom()>=10.5);
+  const all=useLga?lgaContext.features:(layers?.stateGeometries||[]);
+  const features=focusedStateName&&useLga
+    ?all.filter(f=>f.properties.pilotState===focusedStateName):all;
+  const bounds=map.getBounds(),size=map.getContainer().getBoundingClientRect();
+  const occupied=[];let displayed=0;
+  for(const f of features){
+    if(displayed>=42)break;
+    const extent=stateBounds(f),point=f.properties.labelPoint||
+      [(extent[0][0]+extent[1][0])/2,(extent[0][1]+extent[1][1])/2];
+    if(!bounds.contains(point))continue;
+    const xy=map.project(point),name=f.properties.shapeName;
+    const width=Math.min(126,Math.max(48,name.length*(useLga?6.4:8)+17));
+    const rect=[xy.x-width/2-4,xy.y-15,xy.x+width/2+4,xy.y+15];
+    if(rect[0]<3||rect[2]>size.width-3||rect[1]<3||rect[3]>size.height-3)continue;
+    // Avoid obscuring the navigation card and avoid overlapping labels.
+    if(rect[0]<270&&rect[1]<260)continue;
+    if(occupied.some(r=>rect[0]<r[2]&&rect[2]>r[0]&&
+       rect[1]<r[3]&&rect[3]>r[1]))continue;
+    occupied.push(rect);
+    const el=document.createElement("span");
+    el.className=useLga?"map-admin-label lga":"map-admin-label state";
+    el.textContent=name;el.setAttribute("aria-hidden","true");
+    adminMarkers.push(new maplibregl.Marker({element:el,anchor:"center"})
+      .setLngLat(point).addTo(map));
+    displayed++;
+  }
+}
+/** All LGAs remain accessible by name, including decluttered map labels. */
+function refreshLgaNavigation(){
+  const details=$("lga-navigation"),picker=$("lga-zoom");
+  const features=focusedStateName&&lgaContext
+    ?lgaContext.features.filter(f=>f.properties.pilotState===focusedStateName):[];
+  details.hidden=features.length===0;
+  picker.replaceChildren(new Option("Choose an LGA…",""));
+  for(const f of [...features].sort((a,b)=>
+    a.properties.shapeName.localeCompare(b.properties.shapeName)))
+    picker.add(new Option(f.properties.shapeName,f.properties.shapeName));
+  picker.value=features.some(f=>f.properties.shapeName===selectedLgaName)
+    ?selectedLgaName:"";
+  $("lga-nav-summary").textContent="Find an LGA in "+
+    (focusedStateName||"this state")+" ("+features.length+")";
+  if(focusedStateName&&features.length)
+    $("admin-boundary-status").textContent=focusedStateName+": "+
+      features.length+" LGA boundaries shown · 2022 geoBoundaries/GRID3";
+  else if(focusedStateName&&lgaState==="loading")
+    $("admin-boundary-status").textContent=
+      "Loading LGA boundaries for "+focusedStateName+"…";
+  else if(focusedStateName&&lgaState==="unavailable")
+    $("admin-boundary-status").textContent=
+      "State boundary available; optional LGA map unavailable.";
+  else $("admin-boundary-status").textContent=
+      "Nine pilot states · local LGA context loads on state selection";
 }
 function displayAdminStates(features){
- if(mapReady)map.getSource("admin-states").setData({type:"FeatureCollection",features});
- const select=$("state-zoom");
- select.replaceChildren(new Option("Jump to a state…",""));
- for(const f of [...features].sort((a,b)=>a.properties.shapeName.localeCompare(b.properties.shapeName)))
-  select.add(new Option(f.properties.shapeName,f.properties.shapeName));
- select.disabled=false;adminLabels();
+  if(mapReady)map.getSource("admin-states").setData({
+    type:"FeatureCollection",features});
+  const select=$("state-zoom");
+  select.replaceChildren(new Option("Jump to a state…",""));
+  for(const f of [...features].sort((a,b)=>
+    a.properties.shapeName.localeCompare(b.properties.shapeName)))
+    select.add(new Option(f.properties.shapeName,f.properties.shapeName));
+  select.disabled=false;syncAdmin();
 }
 function syncAdmin(){
- if(!mapReady)return;
- for(const id of ["admin-state-lines","admin-lga-lines"])
-  map.setLayoutProperty(id,"visibility",adminEnabled?"visible":"none");
- adminLabels();
+  if(!mapReady)return;
+  map.setLayoutProperty("admin-state-lines","visibility",
+    adminEnabled?"visible":"none");
+  const lgVisible=!!adminEnabled&&!!lgaContext&&
+    (!!focusedStateName||map.getZoom()>=9.5);
+  map.setLayoutProperty("admin-lga-lines","visibility",
+    lgVisible?"visible":"none");
+  map.setFilter("admin-lga-lines",focusedStateName
+    ?["==",["get","pilotState"],focusedStateName]:null);
+  const highlight=lgVisible&&!!focusedStateName&&!!selectedLgaName;
+  map.setLayoutProperty("admin-selected-lga-line","visibility",
+    highlight?"visible":"none");
+  if(highlight)map.setFilter("admin-selected-lga-line",
+    ["all",["==",["get","pilotState"],focusedStateName],
+      ["==",["get","shapeName"],selectedLgaName]]);
+  $("map").dataset.lgaMode=lgVisible?(focusedStateName?"focused":"close-zoom"):"hidden";
+  $("map").dataset.focusedState=focusedStateName||"";
+  adminLabels();
 }
 $("state-zoom").addEventListener("change",e=>{
- const f=layers?.stateGeometries?.find(f=>f.properties.shapeName===e.target.value);
- if(f&&mapReady)map.fitBounds(stateBounds(f),{padding:42,maxZoom:10,duration:0});
+  focusedStateName=e.target.value||null;selectedLgaName=null;
+  refreshLgaNavigation();syncAdmin();
+  const f=layers?.stateGeometries?.find(f=>f.properties.shapeName===focusedStateName);
+  if(f&&mapReady){
+    map.fitBounds(stateBounds(f),{padding:42,maxZoom:10,duration:0});
+    if(adminEnabled)void loadLgaContext();
+  }
+});
+$("lga-zoom").addEventListener("change",e=>{
+  selectedLgaName=e.target.value||null;
+  const f=selectedLgaName&&lgaContext?.features.find(f=>
+    f.properties.pilotState===focusedStateName&&
+    f.properties.shapeName===selectedLgaName);
+  syncAdmin();
+  if(f)map.fitBounds(stateBounds(f),{padding:56,maxZoom:12.4,duration:0});
 });
 $("show-admin-context").addEventListener("change",e=>{
- adminEnabled=e.target.checked;syncAdmin();if(adminEnabled)void loadLgaContext();
+  adminEnabled=e.target.checked;syncAdmin();
+  if(adminEnabled)void loadLgaContext();
 });
 function updateZoomOverview(){
  if(!mapReady||!map.getLayer("landcover-overview"))return;
@@ -170,7 +245,7 @@ function updateZoomOverview(){
 }
 async function loadLgaContext(){
  if(!adminEnabled||!mapReady||!layers?.stateGeometries||
-    map.getZoom()<9.5||lgaState!=="idle")return;
+    (!focusedStateName&&map.getZoom()<9.5)||lgaState!=="idle")return;
  lgaState="loading";
  $("admin-boundary-status").textContent="Loading local LGA reference boundaries…";
  try{
@@ -182,17 +257,13 @@ async function loadLgaContext(){
      data.features.some(f=>!f.properties?.shapeName||!f.properties?.pilotState))
     throw Error("LGA source QA rejected");
   lgaContext=data;map.getSource("admin-lgas").setData(data);
-  lgaState="ready";adminLabels();
-  $("admin-boundary-status").textContent="State and "+data.features.length+
-    " LGA outlines · 2022 geoBoundaries/GRID3 (approximate)";
+  lgaState="ready";refreshLgaNavigation();syncAdmin();
  }catch(e){
-  lgaState="unavailable";
-  $("admin-boundary-status").textContent=
-    "State borders available; optional LGA layer unavailable.";
+  lgaState="unavailable";refreshLgaNavigation();syncAdmin();
   console.warn("Display-only LGA layer failed:",e.message);
  }
 }
-map.on("moveend",()=>{updateZoomOverview();adminLabels();void loadLgaContext();});
+map.on("moveend",()=>{updateZoomOverview();syncAdmin();void loadLgaContext();});
 function addOverview(){
   if(!mapReady||!overview||map.getSource("landcover-overview"))return;
   const [west,south,east,north]=overview.bounds_lon_lat;
@@ -351,6 +422,7 @@ async function loadData(){
       if(manifest.states?.length!==9 || manifest.state_sources.length!==9)
         throw new Error("Nine-state source index is incomplete.");
       layers={manifest,stateGeometries:stateFeatures,worldcoverImages:[],waterImage:null};
+      syncAdmin();
       setLoadState("ready","Ready to choose a site · nine verified state datasets load only when selected.");
       ui.feedback.textContent="Select a site and run screening. Its state-specific data load automatically.";
       return;

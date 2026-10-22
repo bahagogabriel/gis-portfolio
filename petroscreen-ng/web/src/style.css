@@ -598,3 +598,14 @@ fieldset.radius{margin:10px 0 12px}
   .map-panel .map-legend{bottom:61px}
   .map-panel .map-credit{bottom:34px}
 }
+
+/* All selected-state LGA outlines show at fitted zoom; choose a name if
+ * the map declutters overlapping labels. */
+.lga-navigation{margin:0 0 9px;border:1px solid #c4dacc;border-radius:7px;
+  padding:0 7px;background:#f1f8f2}
+.lga-navigation[hidden]{display:none!important}
+.lga-navigation>summary{padding:8px 1px;min-height:35px;cursor:pointer;
+  font-size:11px;font-weight:800;color:#285a42}
+.lga-navigation>label{margin-top:3px;font-size:10px}
+.lga-navigation select{margin-top:4px;margin-bottom:10px}
+.map-admin-label.lga{background:#f9fff2e8;color:#153a2d;border:1px solid #c3dfc3}
