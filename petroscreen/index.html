@@ -5,17 +5,17 @@
 <meta name="color-scheme" content="light">
 <title>PetroScreen NG — Preliminary Environmental Site Screening</title>
 <meta name="description" content="Research-preview geospatial environmental baseline screening for petroleum project sites within verified Nigerian pilot regions.">
-  <script type="module" crossorigin src="./assets/index-DoLpsjfC.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CQGdEY_y.css">
+  <script type="module" crossorigin src="./assets/index-CHphZI6_.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-yi7CRRTb.css">
 </head><body>
 <a class="skip-link" href="#screen-form">Skip to screening controls</a>
 <header class="topbar"><a class="brand" href="#" aria-label="PetroScreen NG homepage">
 <span class="brand-mark">P<span>+</span></span><span class="brand-name">PetroScreen <strong>NG</strong><small>ENVIRONMENTAL INTELLIGENCE</small></span></a>
-<div class="top-right"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></div></header>
+<nav class="top-right" aria-label="Site information"><span class="status-pill">RESEARCH PREVIEW · VERIFIED PILOT</span><button type="button" class="about-nav" id="open-about">About the tool</button><a href="https://bahagogabriel.com/" target="_blank" rel="noopener noreferrer">Research portfolio ↗</a></nav></header>
 <main class="workspace">
 <aside class="control-panel">
 <section class="intro"><div class="overline">GEOSPATIAL PRE-SCREENING / VERSION 3.0</div><h1>Understand a site<br><em>before fieldwork.</em></h1>
-<p>Explore mapped land cover and historical water around a site. Preliminary desk evidence—not a field survey or risk score.</p>
+<p>Check satellite-mapped land cover and past water near a site, then download a preliminary report. No field survey or risk score.</p>
 <ol class="how-it-works" aria-label="Three steps to screen a site"><li>Choose a location</li><li>Select 1, 3 or 5 km</li><li>Run screening</li></ol></section>
 <form id="screen-form" aria-label="Select environmental screening location">
 <h2>01 <span>Define your location</span></h2>
@@ -309,6 +309,21 @@ Regional overview hidden at close zoom because it is generalized. Run site scree
 <button type="button" id="clear-comparison">Clear all compared sites</button>
 </div>
 <p class="fine">ESA WorldCover 2021 mapped cover and JRC GSW 1984–2024 historical water are from different data snapshots. Their values do not measure petroleum contamination, present-day receptor conditions, legal setbacks or relative environmental safety. Comparisons require identical radii and must consider source coverage and source dates. Candidates are held only in this browser tab; field notes and project identifiers are not copied.</p>
+</article></dialog>
+<dialog id="about-dialog" aria-labelledby="about-title" aria-describedby="about-summary">
+<article class="about-content">
+<button type="button" id="close-about" class="close about-close" aria-label="Close About PetroScreen">×</button>
+<p class="about-eyebrow">A QUICK INTRODUCTION</p>
+<h2 id="about-title">About PetroScreen NG</h2>
+<p class="about-lead" id="about-summary">Explore what satellite maps show around a site <strong>before fieldwork</strong>—and save a preliminary screening report.</p>
+<div class="about-grid">
+<section aria-labelledby="about-what"><h3 id="about-what">What does it do?</h3><p>Choose a point and see land-cover types mapped in <strong>2021</strong>, plus where satellites observed water during <strong>1984–2024</strong>. It describes an area; it does not predict environmental risk.</p></section>
+<section aria-labelledby="about-who"><h3 id="about-who">Who is it for?</h3><p>Researchers, students, GIS professionals, environmental consultants and project teams looking for a first view of a site in the nine-state Niger Delta pilot.</p></section>
+<section aria-labelledby="about-outcome"><h3 id="about-outcome">What will I receive?</h3><p>An on-screen summary of mapped land cover, past water observations and data coverage within a <strong>1, 3 or 5 km</strong> circle. Download a screening <strong>PDF</strong> or a fuller <strong>ZIP</strong> record for follow-up.</p></section>
+<section aria-labelledby="about-limits"><h3 id="about-limits">What can it not tell me?</h3><p>It cannot verify petroleum facilities, spills, pollution, flood likelihood, current conditions or regulatory compliance. This is <strong>not</strong> a field survey or an environmental impact assessment.</p></section>
+</div>
+<p class="about-footnote"><strong>Pilot coverage:</strong> Abia, Akwa Ibom, Bayelsa, Cross River, Delta, Edo, Imo, Ondo and Rivers. Screening calculations run in the browser against verified source data.</p>
+<div class="about-actions"><button type="button" id="about-start">Start a site screening →</button><button type="button" id="about-dismiss">Return to map</button></div>
 </article></dialog>
 <dialog id="methods-dialog" aria-labelledby="methods-title"><article><button type="button" class="close" id="close-methods">×</button>
 <h2 id="methods-title">Methods, sources and limitations</h2>
