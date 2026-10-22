@@ -1,4 +1,4 @@
-name: PetroScreen NG independent live quality-release verification
+name: PetroScreen NG independent live focused-state LGA verification
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
-      - name: Verify served UI, locally hosted 185 LGAs and original Delta source digest
+      - name: Verify state-focused LGA UI, exact published JS parity, 185 LGAs and original Delta digest
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -31,6 +31,8 @@ jobs:
                   html = get().decode("utf-8")
                   if all(x in html for x in (
                     "VERSION 3.0", 'id="state-zoom"',
+                    'id="lga-navigation"', 'id="lga-zoom"',
+                    'id="lga-nav-summary"',
                     'id="show-admin-context"', 'id="overview-zoom-notice"',
                     'id="screen-progress"', 'id="map-legend"',
                     'id="download-case-bundle"', 'id="screen-btn"')):
@@ -42,11 +44,25 @@ jobs:
               time.sleep(7)
           match = re.search(r'src="\./(assets/index-[^"]+\.js)"', html)
           assert match, "Published compiled module missing"
-          js = get(match.group(1)).decode("utf-8")
+          public_js = get(match.group(1))
+          js = public_js.decode("utf-8")
+          # Unlike token-presence checks alone, exact bytes prevent a stale
+          # CDN/Pages module from being treated as the new production release.
+          expected_main = "04fc423f997ab4002520aa3bb7df093347f079de"
+          raw_url = ("https://raw.githubusercontent.com/bahagogabriel/"
+                     "gis-portfolio/" + expected_main + "/petroscreen/" +
+                     match.group(1))
+          req = urllib.request.Request(raw_url, headers={
+              "User-Agent": "PetroScreenNG-official-byte-parity-QA"})
+          with urllib.request.urlopen(req, timeout=90) as response:
+              approved_js = response.read()
+          assert hashlib.sha256(public_js).digest() == hashlib.sha256(approved_js).digest(), (
+              "Public module differs from the independently merged source tree")
           for phrase in (
               "lga_context.geojson", "ScaleControl", "Screening in progress",
               "Screening could not finish", "overview-zoom-notice",
-              "admin-boundary-status", "State and ", "geoBoundaries",
+              "admin-boundary-status", "Find an LGA in ",
+              " LGA boundaries shown", "lga-zoom", "geoBoundaries",
               "Screening completed in your browser.",
               "PetroScreenNG/ScreeningCase/1.0"):
               assert phrase in js, ("New compiled source functionality missing", phrase)
@@ -64,7 +80,8 @@ jobs:
           delta = next(s for s in manifest["state_sources"] if s["state"] == "Delta")
           tif = next(f for f in delta["source_files"] if f["kind"] == "worldcover")
           assert hashlib.sha256(get("data/" + tif["file"], 120)).hexdigest() == tif["sha256"]
-          print("PUBLIC_QUALITY_RELEASE_HTML_COMPILED_JS_AND_LGA_SHA256=PASS")
+          print("PUBLIC_FOCUSED_STATE_LGA_HTML_AND_JS_EXACT_PRODUCTION_SOURCE_PARITY=PASS")
+          print("APPROVED_MAIN="+expected_main)
           print("REAL_DELTA_ORIGINAL_SOURCE_GEOTIFF_SHA256=PASS")
           print("NINE_STATES=9 ORIGINAL_TIFFS_INDEXED=31 ORIGINAL_SCIENCE_UNCHANGED")
           print("LGA_DISPLAY_ONLY=185 EXTERNAL_MAP_PROVIDER_REQUESTS=NONE")
