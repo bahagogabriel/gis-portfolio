@@ -95,6 +95,7 @@ jobs:
       - name: Build new static report/UI code
         working-directory: petroscreen-ng/web
         run: npm run build
+      # Keep this a real-browser gate; retry on a clean GitHub runner when infrastructure stalls.
       - name: Install Chromium for real source-backed site screening
         working-directory: petroscreen-ng/web
         run: npx playwright install --with-deps chromium
