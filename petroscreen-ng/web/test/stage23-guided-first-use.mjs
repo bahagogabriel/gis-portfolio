@@ -36,6 +36,33 @@ try{
   await page.waitForFunction(()=>
     document.querySelector("#data-status")?.dataset.state==="ready",
     null,{timeout:90000});
+  // The optional About introduction is accessible on mobile and desktop.
+  // It must not load original scientific TIFFs or interrupt the main task.
+  assert.equal(await page.locator("#about-dialog").isVisible(),false);
+  assert.equal(await page.locator("#open-about").isVisible(),true);
+  await page.locator("#open-about").click();
+  assert.equal(await page.locator("#about-dialog").isVisible(),true);
+  for(const id of ["about-what","about-who","about-outcome","about-limits"])
+    assert.equal(await page.locator("#"+id).isVisible(),true);
+  const aboutCopy=await page.locator("#about-dialog").textContent();
+  assert.match(aboutCopy,/nine-state Niger Delta pilot/i);
+  assert.match(aboutCopy,/1984–2024/);
+  assert.match(aboutCopy,/not.*field survey/i);
+  assert.equal(requests.length,0,"About should not request any raster");
+  const aboutAudit=await new AxeBuilder({page}).withTags(
+    ["wcag2a","wcag2aa","wcag21a","wcag21aa"]).analyze();
+  assert.deepEqual(aboutAudit.violations.map(v=>v.id),[],
+    "About modal should pass automated WCAG A/AA");
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator("#about-dialog").isVisible(),false);
+  assert.equal(await page.locator("#open-about").evaluate(
+    el=>document.activeElement===el),true,"Focus should return to About opener");
+  await page.locator("#open-about").click();
+  await page.locator("#about-start").click();
+  assert.equal(await page.locator("#about-dialog").isVisible(),false);
+  assert.equal(await page.locator("#longitude").evaluate(
+    el=>document.activeElement===el),true,"Start action should focus screening input");
+  assert.equal(requests.length,0);
   assert.equal(await page.locator("#quick-start").getAttribute("open"),null);
   assert.equal(await page.locator("#try-example").isVisible(),false);
   assert.equal(await page.locator("#results").isVisible(),false);
