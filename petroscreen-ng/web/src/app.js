@@ -626,6 +626,8 @@ function display(result){
   ui.subtitle.textContent=`Screening at ${fmt(site[1],5)}°N, ${fmt(site[0],5)}°E · ${result.radius_km} km radius`+
     (result.site_state?" · "+result.site_state:"");
   $("area-value").textContent=fmt(result.buffer_area_km2_approx,3)+" km²";
+  $("advanced-results").open=false;
+  $("finding-meaning").open=false;
   $("view-findings").hidden=false;
   $("map-continue").hidden=true;
   $("view-findings").textContent="View "+(result.site_state||"site")+
@@ -636,6 +638,12 @@ function display(result){
   const c=Math.min(result.land_cover_2021.coverage.whole_buffer_coverage_pct_approx,
     result.surface_water_occurrence_1984_2024.coverage.whole_buffer_coverage_pct_approx);
   $("coverage-value").textContent=fmt(c,1)+"%";
+  const leading=[...result.land_cover_2021.classes]
+    .sort((a,b)=>b.area_km2_approx-a.area_km2_approx)[0];
+  $("main-cover").textContent=leading?
+    "Largest mapped land type: "+leading.class+" ("+
+      fmt(leading.share_of_valid_classified_pct,1)+"% of classified pixels).":
+    "No mapped land-cover class was available within the circle.";
   const land=$("land-cover");land.replaceChildren();
   for(const item of [...result.land_cover_2021.classes].sort((a,b)=>b.area_km2_approx-a.area_km2_approx)){
     const wrap=document.createElement("div");wrap.className="bar-item";
@@ -649,18 +657,32 @@ function display(result){
     track.append(fill);wrap.append(header,track);land.append(wrap);
   }
   const water=$("water-summary");water.replaceChildren();
+  const plainWater={
+    1:["Seen occasionally","Water in at least 1% of valid satellite observations"],
+    50:["Seen often","Water in at least half of valid satellite observations"],
+    90:["Seen very often","Water in at least 90% of valid satellite observations"]
+  };
   for(const item of result.surface_water_occurrence_1984_2024.threshold_areas){
-    const node=document.createElement("div");
-    const b=document.createElement("b");b.textContent=fmt(item.area_km2_approx,3);
-    const name=document.createElement("span");name.textContent="km² · ≥"+item.threshold_pct+"% historical occurrence";
-    node.append(b,name);water.append(node);
+    const [heading,explanation]=plainWater[item.threshold_pct]||
+      ["Water observations","Water in ≥"+item.threshold_pct+"% of valid observations"];
+    const node=document.createElement("div");node.className="water-level";
+    const label=document.createElement("strong");label.textContent=heading;
+    const value=document.createElement("b");value.textContent=fmt(item.area_km2_approx,3)+" km²";
+    const desc=document.createElement("span");desc.textContent=explanation;
+    node.append(label,value,desc);water.append(node);
   }
   const status=$("warnings");
   status.classList.toggle("coverage-ok",result.warnings.length===0);
   status.classList.toggle("coverage-caution",result.warnings.length>0);
+  const caution={
+    BUFFER_CROSSES_SUPPORTED_BOUNDARY:"Part of the study circle is outside verified map coverage.",
+    LAND_COVER_INCOMPLETE:"Some land-cover pixels were unavailable.",
+    SURFACE_WATER_INCOMPLETE:"Some historical water observations were unavailable."
+  };
   status.textContent=result.warnings.length?
-    "Coverage caution: "+result.warnings.join(" | "):
-    "Source coverage is sufficient for this preliminary buffer calculation.";
+    "Map coverage caution: "+result.warnings.map(w=>
+      caution[w]||w.replaceAll("_"," ").toLowerCase()).join(" "):
+    "Map coverage is sufficient for this preliminary screening.";
   const receptorPanel=$("receptor-summary");
   receptorPanel.replaceChildren();
   for(const item of result.mapped_context_2021.indicators){
@@ -692,7 +714,7 @@ function display(result){
   const notes=$("interpretation");
   notes.replaceChildren();
   const heading=document.createElement("strong");
-  heading.textContent="Desk-review findings and verification";
+  heading.textContent="How to interpret these maps";
   notes.append(heading);
   for(const message of screeningNotes(result)){
     const line=document.createElement("p");
