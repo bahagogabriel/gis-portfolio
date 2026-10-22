@@ -642,18 +642,32 @@ function display(result){
   try{refreshVisualDetail(result);}
   catch(error){console.warn("Optional detailed visual unavailable:",error.message);}
 }
+function setScreenProgress(message,state="working"){
+ const status=$("screen-progress");
+ status.hidden=false;status.dataset.state=state;status.textContent=message;
+}
 ui.form.addEventListener("submit",async e=>{
   e.preventDefault();
+  if(screeningBusy)return;
   if(comparisonImportBusy){ui.feedback.textContent="Wait for saved-case comparison screening to finish.";return;}
   if(!layers){ui.feedback.textContent="Data not ready";return;}
   const lon=Number(ui.lon.value),lat=Number(ui.lat.value);
   const radiusKm=Number(document.querySelector("input[name=radius]:checked").value);
-  ui.button.disabled=true;ui.feedback.textContent="Calculating locally from verified geospatial files…";
+  screeningBusy=true;
+  ui.button.disabled=true;ui.button.textContent="Screening in progress…";
+  ui.lon.readOnly=true;ui.lat.readOnly=true;
+  const radios=[...document.querySelectorAll('input[name="radius"]')];
+  for(const control of radios)control.disabled=true;
+  ui.feedback.textContent="Screening started. Results will appear on the right automatically.";
   ui.form.setAttribute("aria-busy","true");
   const importToRestore=pendingImportedCase;
   pendingImportedCase=null;
   invalidatePrevious();
+  site=[lon,lat];drawSite();
+  ui.empty.hidden=true;
+  setScreenProgress("Preparing and checking source data for the selected point…");
   try{
+    await new Promise(resolve=>setTimeout(resolve,0));
     let stateName=null;
     if(layers.manifest.state_sources){
       if(!inPolygon([lon,lat],coverage))
@@ -664,6 +678,7 @@ ui.form.addEventListener("submit",async e=>{
       layers.worldcoverImages=selected.worldcoverImages;
       layers.waterImage=selected.waterImage;
     }
+    setScreenProgress("Calculating the "+radiusKm+" km mapped environmental context…");
     const result=await screenBrowser({lon,lat,radiusKm,coverage,
       worldcoverImages:layers.worldcoverImages,waterImage:layers.waterImage,
       regionName:layers.manifest.region});
@@ -680,6 +695,7 @@ ui.form.addEventListener("submit",async e=>{
     if(importToRestore)confirmRescreenedCase(importToRestore,result);
     site=[lon,lat];
     display(result);
+    $("screen-progress").hidden=true;
     if(importToRestore){
       const previous=importToRestore.field;
       $("field-visit-date").value=previous.visit_date;
@@ -702,14 +718,24 @@ ui.form.addEventListener("submit",async e=>{
       ui.feedback.textContent="Saved case re-screened and matched against current source data.";
     }else ui.feedback.textContent="Screening completed in your browser.";
   }catch(error){
-    site=null;drawSite();
+    site=[lon,lat];drawSite();
+    if(!lastResult){
+      ui.results.hidden=true;ui.empty.hidden=true;
+      setScreenProgress("Screening could not finish: "+error.message+
+        ". Site retained; choose Run site screening to retry.","error");
+    }else $("screen-progress").hidden=true;
     if(importToRestore)$("case-import-status").textContent="Saved case was NOT restored: "+error.message;
     ui.feedback.textContent="Screening failed: "+error.message;
   }finally{
+    screeningBusy=false;
+    ui.lon.readOnly=false;ui.lat.readOnly=false;
+    for(const control of radios)control.disabled=false;
     ui.form.removeAttribute("aria-busy");
     if(loadState==="loading" && layers?.manifest?.state_sources)
       setLoadState("ready","Ready to screen · state datasets are verified on demand.");
     ui.button.disabled=loadState!=="ready";
+    ui.button.textContent=loadState==="ready"?"Run site screening ↗":
+      "Screening unavailable — data error";
   }
 });
 function currentFieldDraft(){
