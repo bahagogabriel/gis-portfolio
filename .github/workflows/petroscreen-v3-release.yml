@@ -95,7 +95,14 @@ jobs:
       - name: Build new static report/UI code
         working-directory: petroscreen-ng/web
         run: npm run build
-      # Keep this a real-browser gate; retry on a clean GitHub runner when infrastructure stalls.
+      # Github ubuntu-24.04 sometimes uses an Azure mirror that repeatedly
+      # times out on font dependencies. Use the official Ubuntu HTTPS archive,
+      # while retaining the complete Playwright browser+OS dependency checks.
+      - name: Prefer reliable official Ubuntu archive for Chromium system packages
+        run: |
+          if [ -f /etc/apt/apt-mirrors.txt ]; then
+            printf '%s\n' 'https://archive.ubuntu.com/ubuntu/' | sudo tee /etc/apt/apt-mirrors.txt
+          fi
       - name: Install Chromium for real source-backed site screening
         working-directory: petroscreen-ng/web
         run: npx playwright install --with-deps chromium
