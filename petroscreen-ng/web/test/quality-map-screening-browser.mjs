@@ -45,7 +45,11 @@ try{
    "All nine named pilot states must be available as map navigation");
  assert.equal(await page.locator("#show-admin-context").isChecked(),true);
  await page.locator("#state-zoom").selectOption("Delta");
- for(let i=0;i<3;i++)await page.locator(".maplibregl-ctrl-zoom-in").click();
+ for(let i=0;i<12;i++){
+   if(await page.locator("#overview-zoom-notice").isVisible())break;
+   await page.locator(".maplibregl-ctrl-zoom-in").click();
+   await pause(130);
+ }
  await page.waitForFunction(()=>!document.querySelector("#overview-zoom-notice")?.hidden,
    null,{timeout:15000});
  assert.match(await page.locator("#overview-zoom-notice").textContent(),
