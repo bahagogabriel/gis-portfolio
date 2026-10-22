@@ -50,6 +50,8 @@ const ui={form:$("screen-form"),lon:$("longitude"),lat:$("latitude"),
 let lastResult=null, coverage=null, layers=null, site=null, mapReady=false, overview=null;
 let candidates=[];
 let comparisonImportBusy=false;
+let screeningBusy=false, adminEnabled=true, lgaState="idle", lgaContext=null;
+const adminMarkers=[];
 let verifiedStates=[];
 let pendingImportedCase=null;
 const regionalCache=new Map();
@@ -62,6 +64,7 @@ const map=new maplibregl.Map({container:"map",
   center:[6.02,4.83],zoom:8.35,attributionControl:false,
   pitchWithRotate:false,dragRotate:false});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
+map.addControl(new maplibregl.ScaleControl({maxWidth:130,unit:"metric"}),"bottom-left");
 window.addEventListener("resize",()=>map.resize());
 map.on("movestart",resetMapGuide);
 $("map-fit-pilot").addEventListener("click",()=>{
@@ -95,10 +98,101 @@ map.on("load",()=>{
     if(!map.getSource(source))map.addSource(source,{type:"geojson",data:emptyGeo});
     map.addLayer({id,type,source,paint});
   }
+  map.addSource("admin-states",{type:"geojson",data:emptyGeo});
+  map.addSource("admin-lgas",{type:"geojson",data:emptyGeo});
+  map.addLayer({id:"admin-state-lines",type:"line",source:"admin-states",
+    paint:{"line-color":"#19493d","line-width":2,"line-opacity":0.95}},"selected-site");
+  map.addLayer({id:"admin-lga-lines",type:"line",source:"admin-lgas",minzoom:9.5,
+    paint:{"line-color":"#ecf6ef","line-width":1.1,"line-opacity":0.85}},"selected-site");
+  if(layers?.stateGeometries)displayAdminStates(layers.stateGeometries);
   if(coverage)map.getSource("pilot").setData(coverage);
   if(overview)addOverview();
   $("map-fit-pilot").disabled=!overview?.bounds_lon_lat;
 });
+
+function stateBounds(feature){
+ let a=Infinity,b=Infinity,c=-Infinity,d=-Infinity;
+ function walk(p){if(typeof p[0]==="number"){
+  a=Math.min(a,p[0]);b=Math.min(b,p[1]);c=Math.max(c,p[0]);d=Math.max(d,p[1]);
+ }else for(const part of p)walk(part);}
+ walk(feature.geometry.coordinates);return [[a,b],[c,d]];
+}
+function adminLabels(){
+ for(const mark of adminMarkers)mark.remove();
+ adminMarkers.length=0;
+ if(!adminEnabled||!mapReady)return;
+ const lga=map.getZoom()>=10.5;
+ const fs=lga?lgaContext?.features:layers?.stateGeometries;
+ if(!fs)return;
+ const bounds=map.getBounds();
+ let count=0;
+ for(const f of fs){
+  if(count>=32)break;
+  const box=stateBounds(f),point=f.properties.labelPoint||
+   [(box[0][0]+box[1][0])/2,(box[0][1]+box[1][1])/2];
+  if(!bounds.contains(point))continue;
+  const element=document.createElement("span");
+  element.className=lga?"map-admin-label lga":"map-admin-label state";
+  element.textContent=f.properties.shapeName;
+  element.setAttribute("aria-hidden","true");
+  adminMarkers.push(new maplibregl.Marker({element,anchor:"center"})
+    .setLngLat(point).addTo(map));count++;
+ }
+}
+function displayAdminStates(features){
+ if(mapReady)map.getSource("admin-states").setData({type:"FeatureCollection",features});
+ const select=$("state-zoom");
+ select.replaceChildren(new Option("Jump to a state…",""));
+ for(const f of [...features].sort((a,b)=>a.properties.shapeName.localeCompare(b.properties.shapeName)))
+  select.add(new Option(f.properties.shapeName,f.properties.shapeName));
+ select.disabled=false;adminLabels();
+}
+function syncAdmin(){
+ if(!mapReady)return;
+ for(const id of ["admin-state-lines","admin-lga-lines"])
+  map.setLayoutProperty(id,"visibility",adminEnabled?"visible":"none");
+ adminLabels();
+}
+$("state-zoom").addEventListener("change",e=>{
+ const f=layers?.stateGeometries?.find(f=>f.properties.shapeName===e.target.value);
+ if(f&&mapReady)map.fitBounds(stateBounds(f),{padding:42,maxZoom:10,duration:0});
+});
+$("show-admin-context").addEventListener("change",e=>{
+ adminEnabled=e.target.checked;syncAdmin();if(adminEnabled)void loadLgaContext();
+});
+function updateZoomOverview(){
+ if(!mapReady||!map.getLayer("landcover-overview"))return;
+ const close=map.getZoom()>10.5;
+ // Never magnify the generalized overview into a false native 10 m map.
+ map.setLayoutProperty("landcover-overview","visibility",close?"none":"visible");
+ $("overview-zoom-notice").hidden=!close||
+  $("map").dataset.detailReady==="true";
+}
+async function loadLgaContext(){
+ if(!adminEnabled||!mapReady||!layers?.stateGeometries||
+    map.getZoom()<9.5||lgaState!=="idle")return;
+ lgaState="loading";
+ $("admin-boundary-status").textContent="Loading local LGA reference boundaries…";
+ try{
+  const r=await fetch("./data/lga_context.geojson");
+  if(!r.ok)throw Error("No locally hosted LGA context");
+  const data=await r.json();
+  if(data.type!=="FeatureCollection"||!Array.isArray(data.features)||
+     data.features.length<150||data.features.length>250||
+     data.features.some(f=>!f.properties?.shapeName||!f.properties?.pilotState))
+    throw Error("LGA source QA rejected");
+  lgaContext=data;map.getSource("admin-lgas").setData(data);
+  lgaState="ready";adminLabels();
+  $("admin-boundary-status").textContent="State and "+data.features.length+
+    " LGA outlines · 2022 geoBoundaries/GRID3 (approximate)";
+ }catch(e){
+  lgaState="unavailable";
+  $("admin-boundary-status").textContent=
+    "State borders available; optional LGA layer unavailable.";
+  console.warn("Display-only LGA layer failed:",e.message);
+ }
+}
+map.on("moveend",()=>{updateZoomOverview();adminLabels();void loadLgaContext();});
 function addOverview(){
   if(!mapReady||!overview||map.getSource("landcover-overview"))return;
   const [west,south,east,north]=overview.bounds_lon_lat;
@@ -109,6 +203,7 @@ function addOverview(){
   map.addLayer({id:"landcover-overview",type:"raster",source:"landcover-overview",
     paint:{"raster-opacity":0.9}},"pilot-fill");
   map.fitBounds([[west,south],[east,north]],{padding:45,maxZoom:9.5,duration:0});
+  updateZoomOverview();
 }
 map.on("idle",()=>{
   if(map.getSource("landcover-overview")&&map.isSourceLoaded("landcover-overview")){
@@ -116,6 +211,7 @@ map.on("idle",()=>{
   }
 });
 map.on("click",e=>{
+  if(screeningBusy){setMapGuide("A screening is in progress; complete it before switching sites.");return;}
   const [lon,lat]=[e.lngLat.lng,e.lngLat.lat];
   if(!coverage || !inPolygon([lon,lat],coverage)){
     const kept=lastResult?" Your previous screening remains valid.":
@@ -145,6 +241,7 @@ function invalidatePrevious(){
   lastResult=null;
   setNativeLegend("overview");
   $("map").dataset.detailReady="pending";
+  updateZoomOverview();
   updateComparisonButtons();
   const form=$("field-record");
   if(form){
@@ -184,8 +281,8 @@ function setLoadState(state,message){
   loadStage=message;
   ui.dataStatus.dataset.state=state;
   ui.dataStatus.textContent=message;
-  ui.button.disabled=state!=="ready";
-  ui.button.textContent=state==="ready"?"Run site screening ↗":
+  ui.button.disabled=state!=="ready"||screeningBusy;
+  ui.button.textContent=screeningBusy?"Screening in progress…":state==="ready"?"Run site screening ↗":
     state==="failed"?"Screening unavailable — data error":
     "Loading environmental data…";
   ui.retry.hidden=state!=="failed";
@@ -193,6 +290,7 @@ function setLoadState(state,message){
 function setLoadProgress(message){
   if(loadState==="loading"){
     loadStage=message;ui.dataStatus.textContent=message;
+    if(screeningBusy)setScreenProgress(message);
   }
 }
 async function loadRaster(url,expectedHash){
@@ -245,6 +343,7 @@ async function loadData(){
     if(regionLegend)regionLegend.textContent="Current screened coverage: "+manifest.region+
       ". Other Nigerian states remain outside the verified preview.";
     overview=manifest.overview;
+     if(stateFeatures)displayAdminStates(stateFeatures);
     if(!overview?.file)throw new Error("Regional map overview is missing.");
     if(mapReady)map.getSource("pilot").setData(coverage);
     addOverview();
@@ -433,6 +532,7 @@ function refreshVisualDetail(result){
       $("map").dataset.detailReady="true";
       $("map").dataset.displaySize=String(detail.displaySizePx);
       setNativeLegend("native",detail.displaySizePx);
+       updateZoomOverview();
     })
     .catch(error=>{
       // Superseded async draws must NEVER revert a newer render to fallback.
@@ -440,6 +540,7 @@ function refreshVisualDetail(result){
       console.warn("Detailed site view unavailable; verified overview retained:",error.message);
       $("map").dataset.detailReady="fallback";
       setNativeLegend("fallback");
+       updateZoomOverview();
     });
 }
 lightweightMap.addEventListener("change",()=>{
@@ -538,7 +639,8 @@ function display(result){
   });
   // Upgrade the visible background using the VERIFIED native 10m cells.
   // This layer does not participate in screening arithmetic or the PDF.
-  refreshVisualDetail(result);
+  try{refreshVisualDetail(result);}
+  catch(error){console.warn("Optional detailed visual unavailable:",error.message);}
 }
 ui.form.addEventListener("submit",async e=>{
   e.preventDefault();
