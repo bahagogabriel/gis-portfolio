@@ -660,3 +660,50 @@ fieldset.radius{margin:10px 0 12px}
  .water-summary .water-level b{grid-column:2;grid-row:1;text-align:right;font-size:16px}
  .water-summary .water-level span{grid-column:1/-1;text-align:left}
 }
+
+/* Optional one-screen orientation: keep screening on the same page. */
+.top-right .about-nav{min-height:42px;min-width:110px;background:transparent;
+ border:1px solid #638178;border-radius:9px;padding:8px 11px;
+ color:#d7eee2;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
+.top-right .about-nav:hover{background:#23433f;border-color:#b1d5ba}
+.top-right .about-nav:focus-visible,#about-dialog button:focus-visible{
+ outline:3px solid #78b795;outline-offset:3px}
+#about-dialog{width:min(660px,calc(100vw - 28px));max-width:660px;
+ max-height:min(88vh,800px);padding:0;overflow-y:auto;background:#f8fcf8;
+ border:1px solid #cfdfd2}
+.about-content{padding:23px 25px 22px;color:#243f33}
+#about-dialog .about-close{min-height:44px;min-width:44px;float:right;
+ border-radius:8px;color:#234936}
+#about-dialog .about-eyebrow{margin:0 0 7px;color:#39684b;font-size:10px;
+ font-weight:800;letter-spacing:1.25px}
+#about-dialog h2{font-size:26px;line-height:1.2;letter-spacing:-.5px;
+ margin:0 46px 11px 0;color:#143d30}
+#about-dialog .about-lead{font-size:14px;color:#365e48;margin:0 0 18px;
+ line-height:1.58}
+.about-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.about-grid section{background:#ecf5ed;border:1px solid #d0e2d1;
+ border-radius:10px;padding:12px 13px}
+#about-dialog .about-grid h3{font-size:14px;line-height:1.32;
+ color:#1b4e36;margin:0 0 7px}
+#about-dialog .about-grid p{font-size:12px;line-height:1.58;color:#3c5a48;margin:0}
+#about-dialog .about-footnote{font-size:11.5px;line-height:1.65;color:#486852;
+ margin:14px 0}
+.about-actions{display:flex;gap:9px;flex-wrap:wrap}
+.about-actions button{flex:1 1 185px;min-height:46px;
+ border-radius:8px;border:1px solid #2b7453;font-size:12px;font-weight:800;
+ background:#1c6143;color:#fff;cursor:pointer}
+.about-actions #about-dismiss{background:#fff;color:#2a5d40}
+@media(max-width:950px){
+ .top-right{gap:10px}
+ .top-right .status-pill{display:none}
+}
+@media(max-width:650px){
+ .top-right .about-nav{min-width:103px;min-height:44px;padding:7px 8px;font-size:11px}
+ .about-content{padding:18px 15px 15px}
+ #about-dialog h2{font-size:23px}
+ .about-grid{grid-template-columns:1fr;gap:7px}
+ .about-grid section{padding:10px 11px}
+ #about-dialog .about-grid p{font-size:12px}
+ .about-actions{gap:7px}
+ .about-actions button{flex-basis:100%;min-height:44px}
+}
