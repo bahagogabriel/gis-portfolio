@@ -26,7 +26,7 @@ site = json.loads(Path("_data/site_content.json").read_text())
 assert site["public_name"] == "Samuel Bahago Gabriel"
 assert site["theme"] in {"green", "teal", "blue"}
 assert site["cv_file"].startswith("/downloads/") and site["cv_file"].endswith(".pdf")
-data = {name: json.loads(Path(f"_data/{name}.json").read_text()) for name in ["home","about","resume","portfolio"]}
+data = {name: json.loads(Path(f"_data/{name}.json").read_text()) for name in ["home","about","resume","portfolio","tools"]}
 assert len(data["home"]["featured"]["cards"]) >= 1
 assert len(data["about"]["values"]["items"]) >= 1
 assert len(data["resume"]["experience"]["positions"]) >= 1
@@ -46,7 +46,7 @@ class Page(HTMLParser):
                 self.links.append((tag,a[attr]))
     def handle_data(self, data):
         self.text.append(data)
-all_pages=[ROOT / f"{p}.html" for p in ("index","about","resume","portfolio")]+PROJECTS
+all_pages=[ROOT / f"{p}.html" for p in ("index","about","resume","portfolio","tools")]+PROJECTS
 for page in all_pages:
     raw=page.read_text()
     assert "{{" not in raw and "{%" not in raw, f"Unrendered template code: {page}"
@@ -73,6 +73,16 @@ for page in all_pages:
         checks+=1
 home=(ROOT/"index.html").read_text()
 assert "home-feature-grid" in home and "research-spotlight" in home
+assert "tools-spotlight" in home and "/petroscreen/" in home and "/tools.html" in home
+assert (ROOT/"petroscreen/index.html").is_file()
+assert (ROOT/"petroscreen/data/manifest.json").is_file()
+tools_html=(ROOT/"tools.html").read_text()
+assert tools_html.count("tools-directory-card") >= 5
+assert "/projects/petroscreen-ng.html" in tools_html
+assert len(data["tools"]["sections"]) == 2
+assert sum(len(section["cards"]) for section in data["tools"]["sections"]) >= 5
+for candidate in all_pages:
+    assert 'href="/tools.html"' in candidate.read_text(), f"Missing Tools navigation: {candidate}"
 assert "mailto:"+site["email"] in home
 assert "tel:"+site["telephone"] in home
 assert site["cv_file"] in home

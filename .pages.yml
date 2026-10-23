@@ -74,6 +74,9 @@ content:
               - name: portfolio
                 label: "Portfolio"
                 type: string
+              - name: tools
+                label: "Tools"
+                type: string
               - name: contact
                 label: "Contact"
                 type: string
@@ -245,6 +248,46 @@ content:
                     label: "Open link in a new tab?"
                     type: boolean
                     description: "Enable for a separate website; leave off for portfolio pages."
+          - name: tool_feature
+            label: "Homepage featured interactive tool"
+            type: object
+            fields:
+              - name: kicker
+                label: Section label
+                type: string
+              - name: heading
+                label: Heading
+                type: text
+              - name: intro
+                label: Introduction
+                type: text
+              - name: title
+                label: Featured tool
+                type: string
+              - name: status
+                label: Status
+                type: string
+              - name: description
+                label: Description
+                type: text
+              - name: image
+                label: Existing published image URL path
+                type: string
+              - name: image_alt
+                label: Image description
+                type: text
+              - name: primary_label
+                label: Open tool label
+                type: string
+              - name: primary_url
+                label: Open tool URL
+                type: string
+              - name: secondary_label
+                label: View all tools label
+                type: string
+              - name: secondary_url
+                label: Tools directory URL
+                type: string
           - name: research
             label: "Research atlas links"
             type: object
@@ -316,6 +359,106 @@ content:
                 type: string
               - name: portfolio_all_label
                 label: "Portfolio all label"
+                type: string
+      - name: tools
+        label: "Interactive Tools Directory"
+        type: file
+        path: _data/tools.json
+        format: json
+        fields:
+          - name: seo_description
+            label: Search engine description
+            type: text
+          - name: hero
+            label: Page introduction
+            type: object
+            fields:
+              - name: kicker
+                label: Section label
+                type: string
+              - name: heading
+                label: Heading
+                type: text
+              - name: emphasis
+                label: Highlighted heading
+                type: text
+              - name: intro
+                label: Introduction
+                type: text
+          - name: sections
+            label: Tool groups
+            type: object
+            list:
+              min: 1
+              max: 8
+              collapsible:
+                collapsed: true
+                summary: "{heading}"
+            fields:
+              - name: kicker
+                label: Group label
+                type: string
+              - name: heading
+                label: Heading
+                type: string
+              - name: intro
+                label: Description
+                type: text
+              - name: cards
+                label: Published applications
+                type: object
+                list:
+                  min: 1
+                  max: 18
+                  collapsible:
+                    collapsed: true
+                    summary: "{title}"
+                fields:
+                  - name: title
+                    label: Tool title
+                    type: string
+                  - name: label
+                    label: Context / status
+                    type: string
+                  - name: description
+                    label: What the visitor can do
+                    type: text
+                  - name: image
+                    label: Existing published image path
+                    type: string
+                  - name: image_alt
+                    label: Image description
+                    type: text
+                  - name: url
+                    label: Live application URL
+                    type: string
+                  - name: action
+                    label: Open tool label
+                    type: string
+                  - name: case_study
+                    label: Portfolio case study URL
+                    type: string
+                  - name: case_study_label
+                    label: Case study link label
+                    type: string
+                  - name: external
+                    label: Opens an external site?
+                    type: boolean
+          - name: closing
+            label: Closing invitation
+            type: object
+            fields:
+              - name: title
+                label: Heading
+                type: text
+              - name: text
+                label: Description
+                type: text
+              - name: link_label
+                label: Link label
+                type: string
+              - name: link_url
+                label: Link URL
                 type: string
       - name: about
         label: "About Me"

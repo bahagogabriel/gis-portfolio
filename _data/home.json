@@ -97,5 +97,19 @@
     "linkedin_label": "LinkedIn",
     "email_label": "Email",
     "portfolio_all_label": "View the full portfolio"
+  },
+  "tool_feature": {
+    "kicker": "INTERACTIVE GEOSPATIAL TOOLS",
+    "heading": "From maps to tools you can use.",
+    "intro": "Explore browser-based applications that turn spatial evidence into practical, downloadable insights.",
+    "title": "PetroScreen NG",
+    "status": "Nine-state research preview",
+    "description": "Check 2021 mapped land cover and historical water around a Niger Delta site. Review the source-dated results and download a preliminary screening PDF.",
+    "image": "/petroscreen/data/landcover_overview.webp",
+    "image_alt": "Generalized 2021 land-cover overview of the nine-state research pilot, not an individual screening result",
+    "primary_label": "Open PetroScreen",
+    "primary_url": "/petroscreen/",
+    "secondary_label": "Explore all interactive tools",
+    "secondary_url": "/tools.html"
   }
 }

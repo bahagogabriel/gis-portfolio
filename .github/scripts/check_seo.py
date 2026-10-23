@@ -8,7 +8,7 @@ from urllib.parse import urlsplit, unquote
 
 ROOT = Path("_site")
 ORIGIN = "https://bahagogabriel.com"
-PUBLIC = [ROOT / x for x in ("index.html", "about.html", "resume.html", "portfolio.html")]
+PUBLIC = [ROOT / x for x in ("index.html", "about.html", "resume.html", "portfolio.html", "tools.html")]
 PUBLIC += sorted((ROOT / "projects").glob("*.html"))
 assert len(PUBLIC) >= 12, f"Missing original site pages: {len(PUBLIC)}"
 
@@ -22,6 +22,7 @@ ns = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 assert sitemap.tag == ns + "urlset"
 locs = [node.text for node in sitemap.iter(ns + "loc")]
 expected = {ORIGIN + ("/" if p.name == "index.html" else "/" + p.relative_to(ROOT).as_posix()) for p in PUBLIC}
+expected.add(ORIGIN + "/petroscreen/")
 assert len(locs) == len(set(locs)) == len(expected), (locs, expected)
 assert set(locs) == expected, f"Sitemap mismatch: missing {expected-set(locs)}, extra {set(locs)-expected}"
 assert all(u.startswith(ORIGIN+"/") for u in locs)
@@ -78,13 +79,16 @@ for path in PUBLIC:
     assert doc.one_meta("name", "twitter:card") in ("summary", "summary_large_image")
     img = doc.one_meta("property", "og:image")
     assert img == doc.one_meta("name", "twitter:image")
-    assert img.startswith(ORIGIN + "/assets/"), (path, img)
+    permitted_original = ORIGIN + "/petroscreen/data/landcover_overview.webp"
+    assert img.startswith(ORIGIN + "/assets/") or (path.name == "petroscreen-ng.html" and img == permitted_original), (path, img)
     assert not img.lower().endswith(".svg"), f"Social image may not be widely supported: {img}"
     asset = ROOT / unquote(urlsplit(img).path).lstrip("/")
     assert asset.is_file(), f"Missing OG image {img}"
     nodes = all_graph_items(doc)
     if path.name == "index.html":
         assert {"WebSite", "Person"}.issubset({x["@type"] for x in nodes})
+    if path.name == "tools.html":
+        assert doc.one_meta("property", "og:description").startswith("Interactive geospatial")
     if path.name == "about.html":
         assert {"ProfilePage", "Person"}.issubset({x["@type"] for x in nodes})
     if path.parent.name == "projects":
