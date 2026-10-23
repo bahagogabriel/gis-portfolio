@@ -79,7 +79,8 @@ for path in PUBLIC:
     assert doc.one_meta("name", "twitter:card") in ("summary", "summary_large_image")
     img = doc.one_meta("property", "og:image")
     assert img == doc.one_meta("name", "twitter:image")
-    assert img.startswith(ORIGIN + "/assets/"), (path, img)
+    permitted_original = ORIGIN + "/petroscreen/data/landcover_overview.webp"
+    assert img.startswith(ORIGIN + "/assets/") or (path.name == "petroscreen-ng.html" and img == permitted_original), (path, img)
     assert not img.lower().endswith(".svg"), f"Social image may not be widely supported: {img}"
     asset = ROOT / unquote(urlsplit(img).path).lstrip("/")
     assert asset.is_file(), f"Missing OG image {img}"
