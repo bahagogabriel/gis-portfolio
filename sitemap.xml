@@ -7,6 +7,8 @@ layout: null
   <url><loc>{{ '/about.html' | absolute_url }}</loc></url>
   <url><loc>{{ '/resume.html' | absolute_url }}</loc></url>
   <url><loc>{{ '/portfolio.html' | absolute_url }}</loc></url>
+  <url><loc>{{ '/tools.html' | absolute_url }}</loc></url>
+  <url><loc>{{ '/petroscreen/' | absolute_url }}</loc></url>
   {% assign ordered_projects = site.projects | sort: 'order' %}
   {% for project in ordered_projects %}
   <url><loc>{{ project.url | absolute_url }}</loc></url>

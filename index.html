@@ -42,6 +42,26 @@
         <article class="feature-story reveal"><a href="{% if item.external %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}"{% if item.external %} target="_blank" rel="noopener noreferrer"{% endif %}><img src="{{ item.image | relative_url }}" alt="{{ item.alt | escape }}"><div><span>{{ item.label | escape }}</span><h3>{{ item.title | escape }}</h3><p>{{ item.text | escape }}</p><strong>{{ item.link_text | escape }}</strong></div></a></article>
         {% endfor %}
       </div>
+      <section class="tools-spotlight reveal" aria-labelledby="tools-spotlight-title">
+        <div class="tools-spotlight-copy">
+          <p class="kicker">{{ site.data.home.tool_feature.kicker | escape }}</p>
+          <h3 id="tools-spotlight-title">{{ site.data.home.tool_feature.heading | escape }}</h3>
+          <p>{{ site.data.home.tool_feature.intro | escape }}</p>
+          <div class="tools-spotlight-feature">
+            <span class="tools-status">{{ site.data.home.tool_feature.status | escape }}</span>
+            <strong>{{ site.data.home.tool_feature.title | escape }}</strong>
+            <span>{{ site.data.home.tool_feature.description | escape }}</span>
+          </div>
+          <div class="tools-spotlight-actions">
+            <a class="button button-primary" href="{{ site.data.home.tool_feature.primary_url | relative_url }}">{{ site.data.home.tool_feature.primary_label | escape }} <span aria-hidden="true">↗</span></a>
+            <a class="tools-view-all" href="{{ site.data.home.tool_feature.secondary_url | relative_url }}">{{ site.data.home.tool_feature.secondary_label | escape }} <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <a class="tools-spotlight-image" href="{{ site.data.home.tool_feature.primary_url | relative_url }}" aria-label="Open PetroScreen NG">
+          <img src="{{ site.data.home.tool_feature.image | relative_url }}" alt="{{ site.data.home.tool_feature.image_alt | escape }}" loading="lazy" width="640" height="440">
+          <span>Generalized source map · 2021</span>
+        </a>
+      </section>
       <div class="research-spotlight reveal" aria-labelledby="research-heading">
         <div class="research-heading"><div><p class="kicker">{{ site.data.home.research.kicker | escape }}</p><h3 id="research-heading">{{ site.data.home.research.heading | escape }}</h3></div><p>{{ site.data.home.research.intro | escape }}</p></div>
         <div class="research-links">

@@ -14,7 +14,8 @@
     "about": "About Me",
     "resume": "Résumé",
     "portfolio": "Portfolio",
-    "contact": "Contact"
+    "contact": "Contact",
+    "tools": "Tools"
   },
   "theme": "green",
   "project_labels": {

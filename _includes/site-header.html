@@ -10,6 +10,7 @@
     <a href="{{ '/about.html' | relative_url }}">{{ site.data.site_content.nav.about | escape }}</a>
     <a href="{{ '/resume.html' | relative_url }}">{{ site.data.site_content.nav.resume | escape }}</a>
     <a href="{{ '/portfolio.html' | relative_url }}">{{ site.data.site_content.nav.portfolio | escape }}</a>
+    <a href="{{ '/tools.html' | relative_url }}" data-nav-page="tools">{{ site.data.site_content.nav.tools | escape }}</a>
     <a class="nav-contact" href="{% if include.home %}#contact{% else %}mailto:{{ site.data.site_content.email }}{% endif %}">{{ site.data.site_content.nav.contact | escape }}</a>
   </nav>
 </header>
