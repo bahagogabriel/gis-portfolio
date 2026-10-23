@@ -51,7 +51,7 @@ jobs:
           assert "From maps to tools you can use." in home
           assert "Independent geospatial software research" in case
           assert "31" in case and "1984" in case and "2021" in case
-          assert "research preview" in case.lower()
+          assert "research pilot" in case.lower()
           assert 'href="/tools.html"' in case
           assert fetch(base+"/petroscreen/").find(b"PetroScreen NG")>=0
           sitemap=ET.fromstring(fetch(base+"/sitemap.xml").lstrip())
