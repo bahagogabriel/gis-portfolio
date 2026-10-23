@@ -1,0 +1,91 @@
+{
+  "seo_description": "Interactive geospatial tools and research dashboards by Samuel Bahago Gabriel, including PetroScreen NG and Nigerian flood, erosion, gas-flaring and environmental evidence mapping.",
+  "hero": {
+    "kicker": "INTERACTIVE TOOLS & RESEARCH",
+    "heading": "Explore the maps.",
+    "emphasis": "Use the evidence.",
+    "intro": "Try browser-based geospatial tools and research dashboards designed to make mapped evidence easier to understand. Each application explains the scope and limits of its data."
+  },
+  "sections": [
+    {
+      "kicker": "ENVIRONMENTAL SITE SCREENING",
+      "heading": "Screen a site",
+      "intro": "Preliminary browser-based screening from source-dated maps—not a field survey, risk score or regulatory clearance.",
+      "cards": [
+        {
+          "title": "PetroScreen NG",
+          "label": "Nine-state Niger Delta · research preview",
+          "description": "Screen 1, 3 or 5 km around a location using mapped 2021 land cover and historical water observations (1984–2024), then download a preliminary screening PDF.",
+          "image": "/petroscreen/data/landcover_overview.webp",
+          "image_alt": "Generalized nine-state ESA WorldCover 2021 pilot overview, not an individual site screening result",
+          "url": "/petroscreen/",
+          "action": "Open screening tool",
+          "case_study": "/projects/petroscreen-ng.html",
+          "case_study_label": "How it was built",
+          "external": false
+        }
+      ]
+    },
+    {
+      "kicker": "INTERACTIVE RESEARCH",
+      "heading": "Research atlases & dashboards",
+      "intro": "Explore published research and planning maps with transparent source dates and methodological limits.",
+      "cards": [
+        {
+          "title": "Lokoja Flood Resilience",
+          "label": "Flood planning · Lokoja",
+          "description": "Explore satellite-observed flood patterns, exposure and resilience planning evidence in an interactive dashboard.",
+          "image": "/assets/lokoja-intervention-priority.webp",
+          "image_alt": "Lokoja flood-resilience intervention priority map",
+          "url": "https://bahagogabriel.github.io/lokoja-flood-resilience-dashboard/",
+          "action": "Open dashboard",
+          "case_study": "/projects/lokoja-flood-resilience.html",
+          "case_study_label": "Read case study",
+          "external": true
+        },
+        {
+          "title": "Niger Delta Gas-Flaring Evidence Atlas",
+          "label": "Historical flare estimates",
+          "description": "Investigate satellite-estimated flaring and separate environmental follow-up shortlists; not measured pollution.",
+          "image": "/assets/niger-delta-gas-flaring-card.svg",
+          "image_alt": "Existing editorial graphic for the gas-flaring research, not a geographical map",
+          "url": "https://bahagogabriel.github.io/niger-delta-gas-flaring-atlas/",
+          "action": "Explore atlas",
+          "case_study": "/projects/niger-delta-gas-flaring-evidence-atlas.html",
+          "case_study_label": "Read case study",
+          "external": true
+        },
+        {
+          "title": "Bayelsa Oil-Spill Evidence Atlas",
+          "label": "Documented incident history",
+          "description": "Explore historical spill reports and separate evaluation evidence from the Bayelsa study.",
+          "image": "/assets/bayelsa-oil-spill-card.svg",
+          "image_alt": "Existing editorial graphic for the Bayelsa oil-spill study, not a satellite spill observation",
+          "url": "https://bahagogabriel.github.io/bayelsa-evidence-atlas/",
+          "action": "Explore atlas",
+          "case_study": "/projects/bayelsa-oil-spill-evidence-atlas.html",
+          "case_study_label": "Read case study",
+          "external": true
+        },
+        {
+          "title": "Anambra Soil-Erosion Prioritization",
+          "label": "Erosion planning · Anambra",
+          "description": "Examine mapped erosion-intervention priorities and conservation scenarios in an interactive dashboard.",
+          "image": "/assets/anambra-erosion-card.svg",
+          "image_alt": "Existing editorial graphic for the Anambra erosion research",
+          "url": "https://bahagogabriel.github.io/anambra-erosion-dashboard/",
+          "action": "Open dashboard",
+          "case_study": "/projects/anambra-soil-erosion-prioritization.html",
+          "case_study_label": "Read case study",
+          "external": true
+        }
+      ]
+    }
+  ],
+  "closing": {
+    "title": "Interested in how these were built?",
+    "text": "Project case studies explain the methods, evidence, outputs and scientific limitations behind each application.",
+    "link_label": "Browse project case studies",
+    "link_url": "/portfolio.html"
+  }
+}
