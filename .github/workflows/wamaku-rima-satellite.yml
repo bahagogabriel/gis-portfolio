@@ -1,0 +1,32 @@
+name: Wamaku Rima Sentinel-2 Satellite Imagery Export
+on:
+  push:
+    branches: [data/wamaku-rima-20261028]
+    paths:
+      - tools/wamaku_satellite_export.py
+      - .github/workflows/wamaku-rima-satellite.yml
+  workflow_dispatch:
+jobs:
+  satellite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install raster and satellite mosaic dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "numpy<3" "geopandas==1.1.1" "rasterio>=1.4.3" "requests>=2.32" "Pillow>=11" "fiona==1.10.1"
+      - name: Process open Sentinel-2 imagery at 10m
+        run: python -u tools/wamaku_satellite_export.py
+      - name: Archive ArcGIS satellite imagery
+        uses: actions/upload-artifact@v4
+        with:
+          name: Wamaku_Rima_HD_Satellite_Imagery_ArcGIS
+          path: Wamaku_Rima_HD_Satellite_Imagery_ArcGIS.zip
+          if-no-files-found: error
+          retention-days: 30
