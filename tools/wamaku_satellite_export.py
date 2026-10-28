@@ -45,16 +45,20 @@ session=requests.Session()
 stac="https://earth-search.aws.element84.com/v1/search"
 def search(start,end,cloud=22,limit=100):
  payload={"collections":["sentinel-2-l2a"],"bbox":bbox,
- "datetime":f"{start}/{end}","limit":limit,
+ "datetime":f"{start}T00:00:00Z/{end}T23:59:59Z","limit":limit,
  "query":{"eo:cloud_cover":{"lt":cloud}}}
  result=[]
  link=stac;count=0
  while link and len(result)<450 and count<6:
   for attempt in range(4):
    try:
-    r=session.post(link,json=payload,timeout=50);r.raise_for_status(); j=r.json();break
+    r=session.post(link,json=payload,timeout=50);
+    if r.status_code>=400: print("STAC HTTP",r.status_code,"response",r.text[:1100],flush=True)
+    r.raise_for_status(); j=r.json();break
    except Exception as e:
-    print("STAC retry",attempt, str(e)[:160],flush=True);time.sleep(3*(attempt+1))
+    print("STAC retry",attempt, str(e)[:160],flush=True);
+    if isinstance(e,requests.HTTPError) and e.response is not None and e.response.status_code==400: break
+    time.sleep(3*(attempt+1))
   else:raise RuntimeError("STAC repeated errors")
   fs=j.get("features",[]);result+=fs;count+=1
   print("STAC returned",len(fs),"page",count,flush=True)
