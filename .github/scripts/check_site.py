@@ -17,15 +17,15 @@ assert len(PROJECTS) == len(SOURCE_PROJECTS), (
     f"Expected {len(SOURCE_PROJECTS)} generated project pages, found {len(PROJECTS)}"
 )
 assert ROOT.joinpath("CNAME").read_text().strip() == "bahagogabriel.com"
-assert ROOT.joinpath("downloads/Samuel_Bahago_Gabriel_CV.pdf").is_file()
+site = json.loads(Path("_data/site_content.json").read_text())
+assert site["cv_file"].startswith("/downloads/") and site["cv_file"].endswith(".pdf"), "Invalid configured CV path"
+assert ROOT.joinpath(site["cv_file"].lstrip("/")).is_file(), f"Missing configured CV PDF: {site['cv_file']}"
 assert ROOT.joinpath("styles.css").is_file()
 assert ROOT.joinpath("app.js").is_file()
 assert ROOT.joinpath("project.css").is_file()
 assert ROOT.joinpath("project.js").is_file()
-site = json.loads(Path("_data/site_content.json").read_text())
 assert site["public_name"] == "Samuel Bahago Gabriel"
 assert site["theme"] in {"green", "teal", "blue"}
-assert site["cv_file"].startswith("/downloads/") and site["cv_file"].endswith(".pdf")
 data = {name: json.loads(Path(f"_data/{name}.json").read_text()) for name in ["home","about","resume","portfolio","tools"]}
 assert len(data["home"]["featured"]["cards"]) >= 1
 assert len(data["about"]["values"]["items"]) >= 1
